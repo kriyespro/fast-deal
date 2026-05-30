@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Mein 2026 Top Localities | PropSurat Blog</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+                :root {
+            --navy: #0C1E35;
+            --navy-mid: #1B3A5C;
+            --orange: #E8621A;
+            --orange-light: #F47B35;
+            --cream: #F6F1EA;
+            --text: #1C2333;
+            --muted: #64748B;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1C2333; }
+        h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        .nav-link { color: #374151; font-size: 14px; font-weight: 500; transition: color 0.2s; padding: 4px 0; }
+        .nav-link:hover { color: #E8621A; }
+        .text-gradient { background: linear-gradient(135deg, #E8621A 0%, #F4A340 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Custom prose styling for dark mode */
+        .prose p {
+            margin-bottom: 1.5em;
+            line-height: 1.8;
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        .prose h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 2em;
+            margin-bottom: 1em;
+        }
+
+        .prose ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 2em;
+        }
+
+        .prose li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5em;
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        .prose li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--orange);
+            font-weight: bold;
+        }
+
+        .prose blockquote {
+            border-left: 4px solid var(--orange);
+            padding-left: 1.5rem;
+            margin: 2em 0;
+            font-style: italic;
+            color: var(--muted);
+            font-size: 1.125rem;
+        }
+
+        .prose img {
+            border-radius: 1rem;
+            margin: 2em 0;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+    </script>
+</head>
+
+<body class="antialiased overflow-x-hidden min-h-screen flex flex-col" x-data="{ mobileMenu: false }">
+
+    
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="listings.html" class="nav-link">Buy</a>
+                <a href="agents.html" class="nav-link">Brokers</a>
+                <a href="neighborhoods.html" class="nav-link">Localities</a>
+                <a href="blog.html" class="nav-link text-orange border-b-2 border-orange">Blog</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Login</a>
+                <a href="register.html" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">List Property</a>
+            </div>
+            <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="md:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-1">
+        <a href="listings.html" class="block py-2.5 text-slate-700 text-sm">Buy</a>
+        <a href="agents.html" class="block py-2.5 text-slate-700 text-sm">Brokers</a>
+        <a href="neighborhoods.html" class="block py-2.5 text-slate-700 text-sm">Localities</a>
+        <a href="blog.html" class="block py-2.5 text-orange font-semibold text-sm">Blog</a>
+        <a href="about.html" class="block py-2.5 text-slate-700 text-sm">About</a>
+        <div class="flex gap-2 pt-2">
+            <a href="login.html" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Login</a>
+            <a href="register.html" class="flex-1 text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Register</a>
+        </div>
+    </div>
+</nav>
+
+    <!-- Post Header -->
+    <header class="pt-24 lg:pt-32 pb-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <a href="blog.html"
+                class="inline-flex items-center gap-2 text-orange hover:text-slate-900 transition-colors text-sm font-medium mb-8">
+                <i class="ph ph-arrow-left"></i> Back to News
+            </a>
+
+            <div class="flex items-center justify-center gap-4 text-sm text-slate-500 mb-6">
+                <span class="bg-white border border-slate-200 px-3 py-1 rounded-full text-orange font-medium">Market
+                    Trends</span>
+                <span class="flex items-center gap-1"><i class="ph ph-calendar-blank"></i> Oct 24, 2025</span>
+                <span class="flex items-center gap-1"><i class="ph ph-clock"></i> 6 min read</span>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 font-outfit leading-tight mb-8">
+                Surat Mein 2026 Ke Top Localities — Kahan Invest Karein?
+            </h1>
+
+            <div class="flex items-center justify-center gap-4">
+                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-orange/50">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                        alt="Michael Harrison" class="w-full h-full object-cover">
+                </div>
+                <div class="text-left">
+                    <div class="text-slate-900 font-medium">Michael Harrison</div>
+                    <div class="text-slate-400 text-sm">Senior Luxury Specialist</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Featured Image -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div
+            class="w-full h-[400px] md:h-[600px] rounded-3xl overflow-hidden relative shadow-2xl border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80"
+                alt="Biophilic Design" class="w-full h-full object-cover">
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <main class="flex-grow bg-slate-50 pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16">
+
+            <!-- Article Body -->
+            <article class="w-full lg:w-2/3 xl:w-3/4 max-w-3xl lg:mr-auto lg:ml-auto">
+                <div class="prose prose-invert max-w-none text-lg">
+                    <p
+                        class="lead text-2xl text-slate-600 font-outfit font-medium mb-10 leading-relaxed border-l-4 border-orange pl-6">
+                        As wellness becomes the ultimate luxury, high-end developers are increasingly integrating nature
+                        into their architectural blueprints. Discover how living walls, indoor water features, and
+                        circadian lighting are transforming the modern mansion.
+                    </p>
+
+                    <p>
+                        In the upper echelons of the real estate market, square footage and marble countertops are no
+                        longer the sole indicators of luxury. Today's affluent buyers are seeking homes that actively
+                        contribute to their physical and mental well-being. Enter <strong>biophilic design</strong>—the
+                        architectural framework that seamlessly integrates elements of out nature into the built
+                        environment.
+                    </p>
+
+                    <h2>Blurring the Lines Between Indoors and Out</h2>
+
+                    <p>
+                        The desire to connect with nature isn't new, but the execution in the ultra-luxury sector has
+                        evolved dramatically. We're moving beyond simple potted plants and large windows to structural
+                        integrations that make the natural world an inseparable part of the home experience.
+                    </p>
+
+                    <p>
+                        Architects are increasingly utilizing massive, motorized glass wall systems that disappear into
+                        the structure, completely removing the barrier between the grand room and the expansive terrace.
+                        It allows the ocean breeze or the scent of the surrounding forest to permeate the living space
+                        seamlessly.
+                    </p>
+
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                        alt="Indoor Outdoor Living">
+
+                    <h2>Key Features of the Modern Biophilic Mansion</h2>
+
+                    <p>At PropSurat, we've identified several recurring features in the new wave of wellness-focused
+                        properties:</p>
+
+                    <ul>
+                        <li><strong>Living Walls and Vertical Gardens:</strong> Multi-story indoor installations of
+                            curated plant life that improve air quality and provide a stunning visual anchor to
+                            stairwells and foyers.</li>
+                        <li><strong>Circadian Lighting Systems:</strong> Smart LED arrays that mimic the color
+                            temperature and intensity of natural sunlight throughout the day, helping to regulate the
+                            inhabitants' sleep-wake cycles.</li>
+                        <li><strong>Indoor Water Features:</strong> Moving beyond simple fountains to include reflecting
+                            pools integrated into the floorplan or subtle, silent water walls that provide acoustic
+                            masking and psychological calm.</li>
+                        <li><strong>Natural Material Palettes:</strong> A shift away from high-gloss synthetics towards
+                            tactile, organic materials like rough-hewn stone, reclaimed exotic woods, and unlacquered
+                            brass that ages gracefully.</li>
+                    </ul>
+
+                    <blockquote>
+                        "Our clients aren't just buying a place to live; they're investing in a sanctuary. A home that
+                        doesn't actively promote health and tranquility is increasingly seen as obsolete in the $10M+
+                        market." — Victoria Chen, COO
+                    </blockquote>
+
+                    <h2>The Investment Case for Wellness Real Estate</h2>
+
+                    <p>
+                        From an investment perspective, biophilic features are proving to yield significant returns.
+                        Properties that boast advanced wellness integrations, such as hospital-grade air purification
+                        and water filtration systems natively built into the architecture, are seeing shorter days on
+                        market and higher closing prices.
+                    </p>
+
+                    <p>
+                        According to recent data from the Global Wellness Institute, the wellness real estate sector is
+                        projected to grow by 22% annually through 2028. Buyers are willing to pay a premium—sometimes up
+                        to 25%—for homes that align with their health-conscious lifestyles.
+                    </p>
+
+                    <h2>Conclusion</h2>
+
+                    <p>
+                        The integration of nature into luxury homes is no passing trend; it represents a fundamental
+                        shift in how we define a premium living experience. As architects and designers continue to push
+                        the boundaries of what's possible, the modern mansion will increasingly resemble a
+                        self-contained ecosystem, designed meticulously to sustain both body and mind.
+                    </p>
+
+                </div>
+
+                <!-- Tags & Sharing -->
+                <div
+                    class="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <div class="flex gap-2">
+                        <span
+                            class="bg-slate-100 border border-slate-200 text-slate-600 text-xs px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">Architecture</span>
+                        <span
+                            class="bg-slate-100 border border-slate-200 text-slate-600 text-xs px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">Design</span>
+                        <span
+                            class="bg-slate-100 border border-slate-200 text-slate-600 text-xs px-3 py-1.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">Wellness</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-slate-500">Share:</span>
+                        <button
+                            class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange transition-colors shadow-lg">
+                            <i class="ph-fill ph-facebook-logo"></i>
+                        </button>
+                        <button
+                            class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-gray-400 hover:text-white hover:bg-sky-500 transition-colors shadow-lg">
+                            <i class="ph-fill ph-twitter-logo"></i>
+                        </button>
+                        <button
+                            class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-800 transition-colors shadow-lg">
+                            <i class="ph-fill ph-linkedin-logo"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Author Box -->
+                <div
+                    class="mt-12 bg-white border border-slate-200 rounded-2xl p-8 flex flex-col sm:flex-row gap-6 items-center sm:items-start shadow-xl relative overflow-hidden">
+                    <div
+                        class="absolute right-0 top-0 w-32 h-32 bg-navy/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    </div>
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-orange flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                            alt="Michael Harrison" class="w-full h-full object-cover">
+                    </div>
+                    <div class="text-center sm:text-left relative z-10">
+                        <h3 class="text-xl font-bold text-slate-900 mb-1"><a href="agent-detail.html"
+                                class="hover:text-orange transition-colors">Michael Harrison</a></h3>
+                        <p class="text-orange text-sm font-medium mb-3">Senior Luxury Specialist</p>
+                        <p class="text-slate-500 text-sm leading-relaxed mb-4">
+                            Michael is a leading voice in luxury real estate, specializing in the intersection of
+                            high-end architecture and market trends. He connects discerning buyers with extraordinary
+                            properties across California.
+                        </p>
+                        <a href="agent-detail.html"
+                            class="text-slate-900 font-medium text-sm hover:text-orange transition-colors flex items-center justify-center sm:justify-start gap-1">
+                            View Agent Profile <i class="ph ph-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Sidebar -->
+            <aside class="w-full lg:w-1/3 xl:w-1/4 space-y-8">
+                <!-- Related Articles Widget -->
+                <div class="sticky top-24 bg-white border border-slate-200 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-slate-900 font-outfit mb-6">Related Articles</h3>
+                    <div class="space-y-6">
+                        <a href="#" class="block group">
+                            <div class="relative h-32 rounded-lg overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1600210491369-e753d80a41f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                                    alt="News"
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-duration-500">
+                                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors">
+                                </div>
+                            </div>
+                            <h4
+                                class="text-slate-900 font-medium text-sm leading-snug group-hover:text-orange transition-colors mb-1 line-clamp-2">
+                                The Rebirth of the Formal Dining Room</h4>
+                            <span class="text-slate-400 text-xs">Oct 12, 2025</span>
+                        </a>
+
+                        <a href="#" class="block group">
+                            <div class="relative h-32 rounded-lg overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                                    alt="News"
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-duration-500">
+                                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors">
+                                </div>
+                            </div>
+                            <h4
+                                class="text-slate-900 font-medium text-sm leading-snug group-hover:text-orange transition-colors mb-1 line-clamp-2">
+                                Why Bandra Remains Mumbai's Most Sought-After Locality</h4>
+                            <span class="text-slate-400 text-xs">Oct 18, 2025</span>
+                        </a>
+                    </div>
+
+                    <a href="blog.html"
+                        class="block w-full text-center py-3 mt-6 rounded-lg bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 font-medium transition-colors text-sm">
+                        View All News
+                    </a>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="bg-[#08111F] pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+            <!-- Brand -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center">
+                        <i class="ph-fill ph-house-line text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-outfit text-xl font-800 text-white">Prop<span class="text-orange">Surat</span></span>
+                        <div class="text-[9px] font-semibold tracking-[.15em] uppercase text-white/40">India's Property Portal</div>
+                    </div>
+                </div>
+                <p class="text-white/50 text-sm leading-relaxed mb-5">India ka sabse trusted multi-broker property portal — 5 roles, 50 cities, 1 goal: Aapka Apna Ghar.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-facebook-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-instagram-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-twitter-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-youtube-logo"></i></a>
+                </div>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Buy Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Rent Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">New Projects</a></li>
+                    <li><a href="agents.html" class="text-white/50 hover:text-orange transition-colors">Find Brokers</a></li>
+                    <li><a href="about.html" class="text-white/50 hover:text-orange transition-colors">About Us</a></li>
+                    <li><a href="contact.html" class="text-white/50 hover:text-orange transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            <!-- Cities -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Top Cities</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Mumbai</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Delhi NCR</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Bangalore</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Hyderabad</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Surat</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Pune</a></li>
+                </ul>
+            </div>
+            <!-- For Partners -->
+            <div>
+                <h4 class="text-white font-bold mb-4">For Partners</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Broker</a></li>
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Builder</a></li>
+                    <li><a href="dashboard-broker.html" class="text-white/50 hover:text-orange transition-colors">Broker Dashboard</a></li>
+                    <li><a href="dashboard-builder.html" class="text-white/50 hover:text-orange transition-colors">Builder Dashboard</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Advertise With Us</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">API Access</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Newsletter -->
+        <div class="border-t border-white/10 pt-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="text-white font-bold mb-1">📧 Newsletter Subscribe Karo</h4>
+                    <p class="text-white/40 text-sm">New properties, market news, exclusive deals — inbox mein.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="email" placeholder="aapka@email.com" class="flex-1 md:w-64 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none focus:border-orange">
+                    <button class="btn-primary px-5 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom -->
+        <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/30">
+            <span>© 2026 PropSurat. All rights reserved. RERA Compliant Platform.</span>
+            <div class="flex gap-5">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                <a href="#" class="hover:text-white transition-colors">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+</html>

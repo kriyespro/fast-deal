@@ -1,0 +1,327 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+{% block title %}Builder Dashboard | PropSurat{% endblock %}
+
+{% block extra_styles %}
+.project-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.2s; }
+.project-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.09); transform: translateY(-2px); }
+{% endblock %}
+
+{% block body_attrs %}x-data="{ activeTab: 'overview', sidebarOpen: false, showAddProject: false }"{% endblock %}
+
+{% block body %}
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="{{ url('home') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-orange/20 flex items-center justify-center font-outfit font-bold text-orange text-lg">
+                {{ request.user.full_name[0] | upper }}
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">{{ request.user.profile.company_name if request.user.profile.company_name else request.user.full_name }}</div>
+                <div class="text-white/40 text-xs">Builder Account</div>
+            </div>
+        </div>
+    </div>
+    <nav class="px-3 py-4 space-y-0.5">
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''" @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='projects' ? 'active' : ''" @click="activeTab='projects'; sidebarOpen=false">
+            <i class="ph-bold ph-buildings"></i> My Projects
+            <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">{{ project_stats.total }}</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='profile' ? 'active' : ''" @click="activeTab='profile'; sidebarOpen=false">
+            <i class="ph-bold ph-building-office"></i> Company Profile
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/10">
+            <a href="{{ url('billing_plans') }}" class="sidebar-link">
+                <i class="ph-bold ph-credit-card"></i> Billing & Plans
+                {% if not request.user.subscription or not request.user.subscription.is_active %}
+                <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">Free</span>
+                {% endif %}
+            </a>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <form method="post" action="{{ url('logout') }}">
+                {{ csrf_input }}
+                <button type="submit" class="sidebar-link w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                    <i class="ph-bold ph-sign-out"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg"
+                    x-text="activeTab==='overview' ? 'Builder Dashboard' : activeTab==='projects' ? 'My Projects' : 'Company Profile'"></h1>
+                <p class="text-muted text-xs hidden sm:block">{{ request.user.profile.company_name if request.user.profile.company_name else request.user.full_name }} · PropSurat Builder</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click="showAddProject=true; activeTab='projects'" class="btn btn-orange hidden sm:flex">
+                <i class="ph-bold ph-plus"></i> New Project
+            </button>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        <!-- OVERVIEW -->
+        <div x-show="activeTab==='overview'" x-transition>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center"><i class="ph-fill ph-buildings text-blue-600 text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">{{ project_stats.ongoing }} ongoing</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ project_stats.total }}</div>
+                    <div class="text-muted text-sm mt-1">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-orange/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-house-line text-orange text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ project_stats.total_units }}</div>
+                    <div class="text-muted text-sm mt-1">Total Units</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center"><i class="ph-fill ph-check-circle text-green-600 text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ project_stats.sold_units }}</div>
+                    <div class="text-muted text-sm mt-1">Sold Units</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center"><i class="ph-fill ph-clock text-amber-600 text-lg"></i></div>
+                        <span class="text-xs text-amber-600 font-semibold">{{ project_stats.upcoming }} upcoming</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ project_stats.available_units }}</div>
+                    <div class="text-muted text-sm mt-1">Available Units</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-outfit font-semibold text-navy text-lg">Recent Projects</h2>
+                        <button @click="activeTab='projects'" class="text-orange text-sm font-medium hover:underline">Sab dekho →</button>
+                    </div>
+                    {% for proj in projects[:3] %}
+                    <div class="project-card p-5">
+                        <div class="flex items-start gap-4">
+                            {% if proj.image %}
+                            <img src="{{ proj.image.url }}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" alt="{{ proj.name }}">
+                            {% else %}
+                            <div class="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <i class="ph-fill ph-buildings text-slate-400 text-2xl"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <h3 class="font-outfit font-semibold text-navy">{{ proj.name | truncate(40, True) }}</h3>
+                                        <p class="text-muted text-xs"><i class="ph-bold ph-map-pin mr-0.5"></i>{% if proj.locality %}{{ proj.locality.name }}, {% endif %}{{ proj.city.name if proj.city else '' }}</p>
+                                    </div>
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0
+                                        {% if proj.status == 'ongoing' %}bg-green-100 text-green-700
+                                        {% elif proj.status == 'upcoming' %}bg-blue-100 text-blue-700
+                                        {% else %}bg-slate-100 text-slate-500{% endif %}">
+                                        {{ proj.get_status_display() }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-4 mt-3 text-xs text-muted">
+                                    <span><i class="ph-bold ph-house-line mr-0.5"></i>{{ proj.total_units }} units</span>
+                                    <span><i class="ph-bold ph-chart-bar mr-0.5"></i>{{ proj.completion_pct }}% done</span>
+                                    <span class="font-semibold text-navy">{{ proj.price_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="project-card p-10 text-center">
+                        <i class="ph-fill ph-buildings text-slate-300 text-4xl block mb-3"></i>
+                        <p class="text-muted text-sm mb-4">Koi project nahi abhi</p>
+                        <button @click="showAddProject=true; activeTab='projects'" class="btn btn-orange text-sm">Add First Project</button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="space-y-4">
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-4">Quick Actions</h3>
+                        <div class="space-y-2">
+                            <button @click="showAddProject=true; activeTab='projects'" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-orange/10 rounded-lg flex items-center justify-center"><i class="ph-bold ph-plus text-orange"></i></div>
+                                Add New Project
+                            </button>
+                            <button @click="activeTab='profile'" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center"><i class="ph-bold ph-building-office text-blue-600"></i></div>
+                                Edit Company Profile
+                            </button>
+                            <a href="{{ url('listings') }}" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center"><i class="ph-bold ph-magnifying-glass text-green-600"></i></div>
+                                Browse Listings
+                            </a>
+                        </div>
+                    </div>
+                    {% if request.user.profile.rera_number %}
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">RERA Status</h3>
+                        <div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                            <i class="ph-bold ph-seal-check text-green-600 text-xl"></i>
+                            <div>
+                                <div class="text-sm font-semibold text-green-800">Verified ✓</div>
+                                <div class="text-xs text-green-600 font-mono">{{ request.user.profile.rera_number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS TAB -->
+        <div x-show="activeTab==='projects'" x-transition>
+            <div class="flex justify-between items-center mb-5">
+                <div class="flex gap-2">
+                    <span class="btn btn-outline text-sm py-2">All ({{ project_stats.total }})</span>
+                    <span class="btn btn-outline text-sm py-2 hidden sm:inline-flex">Ongoing ({{ project_stats.ongoing }})</span>
+                    <span class="btn btn-outline text-sm py-2 hidden sm:inline-flex">Upcoming ({{ project_stats.upcoming }})</span>
+                </div>
+                <button @click="showAddProject=true" class="btn btn-orange"><i class="ph-bold ph-plus"></i> New Project</button>
+            </div>
+
+            <!-- Project form container (HTMX loads form here when modal opens) -->
+            <div x-show="showAddProject" x-transition class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <h2 class="font-outfit text-lg font-bold text-navy">Naya Project Add Karein</h2>
+                    <button @click="showAddProject=false" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+                        <i class="ph-bold ph-x text-slate-600"></i>
+                    </button>
+                </div>
+                <div class="p-6"
+                     id="project-form-container"
+                     hx-get="{{ url('add_project') }}"
+                     hx-trigger="revealed">
+                    <div class="text-center py-8 text-muted text-sm">
+                        <i class="ph-bold ph-spinner text-xl animate-spin block mb-2"></i>
+                        Loading form...
+                    </div>
+                </div>
+            </div>
+
+            {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {% for proj in projects %}
+                <div class="project-card">
+                    <div class="relative">
+                        {% if proj.image %}
+                        <img src="{{ proj.image.url }}" class="w-full h-44 object-cover" alt="{{ proj.name }}">
+                        {% else %}
+                        <div class="w-full h-44 bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                            <i class="ph-fill ph-buildings text-slate-400 text-4xl"></i>
+                        </div>
+                        {% endif %}
+                        <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full
+                            {% if proj.status == 'ongoing' %}bg-green-500 text-white
+                            {% elif proj.status == 'upcoming' %}bg-blue-500 text-white
+                            {% else %}bg-slate-500 text-white{% endif %}">
+                            {{ proj.get_status_display() }}
+                        </span>
+                        <span class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                            {{ proj.get_project_type_display() }}
+                        </span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-outfit font-semibold text-navy">{{ proj.name | truncate(40, True) }}</h3>
+                        <p class="text-muted text-xs flex items-center gap-1 mt-0.5">
+                            <i class="ph-bold ph-map-pin"></i>{% if proj.locality %}{{ proj.locality.name }}, {% endif %}{{ proj.city.name if proj.city else '' }}
+                        </p>
+                        <div class="mt-3">
+                            <div class="flex justify-between text-xs text-muted mb-1">
+                                <span>Completion</span><span class="font-semibold text-navy">{{ proj.completion_pct }}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                <div class="bg-orange h-1.5 rounded-full" style="width: {{ proj.completion_pct }}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
+                            <div>
+                                <div class="font-outfit font-bold text-navy text-sm">{{ proj.price_display }}</div>
+                                <div class="text-muted text-xs mt-0.5">{{ proj.available_units }}/{{ proj.total_units }} available</div>
+                            </div>
+                            {% if proj.rera_id %}
+                            <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-2 py-1 rounded-full">RERA ✓</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div x-show="!showAddProject" class="text-center py-20 bg-white rounded-2xl border border-slate-200">
+                <i class="ph-fill ph-buildings text-slate-300 text-5xl block mb-4"></i>
+                <h3 class="font-outfit font-bold text-slate-700 text-xl mb-2">Koi project nahi hai abhi</h3>
+                <p class="text-muted mb-5">Pehla project add karo aur buyers tak pahuncho!</p>
+                <button @click="showAddProject=true" class="btn btn-orange">
+                    <i class="ph-bold ph-plus"></i> Add First Project
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- COMPANY PROFILE TAB -->
+        <div x-show="activeTab==='profile'" x-transition>
+            <div class="max-w-2xl">
+                <div class="bg-white rounded-2xl border border-slate-200 p-8">
+                    <div class="flex items-start gap-5 mb-8">
+                        <div class="w-20 h-20 bg-navy rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <span class="font-outfit font-bold text-orange text-3xl">{{ request.user.full_name[0] | upper }}</span>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit text-2xl font-bold text-navy">{{ request.user.profile.company_name if request.user.profile.company_name else request.user.full_name }}</h2>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="text-xs bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">Builder</span>
+                                {% if request.user.profile.rera_number %}
+                                <span class="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-full">RERA Compliant</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center gap-4 mt-2 text-sm text-muted">
+                                <span><i class="ph-bold ph-buildings mr-1"></i>{{ project_stats.total }} Projects</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile form via HTMX -->
+                    <div id="profile-result"
+                         hx-get="{{ url('builder_profile') }}"
+                         hx-trigger="load">
+                        <div class="text-center py-8 text-muted text-sm">
+                            <i class="ph-bold ph-spinner text-xl animate-spin block mb-2"></i>
+                            Loading profile...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

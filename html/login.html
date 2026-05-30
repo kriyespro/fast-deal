@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | PropSurat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+
+    .left-panel {
+        background: linear-gradient(160deg, #0C1E35 0%, #1B3A5C 50%, #0C1E35 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .left-panel::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('https://images.unsplash.com/photo-1582407947304-fd86f28f958f?w=800&q=70') center/cover no-repeat;
+        opacity: 0.18;
+    }
+    .left-panel-content { position: relative; z-index: 1; }
+
+    .role-pill {
+        border: 2px solid rgba(255,255,255,0.15);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .role-pill:hover { border-color: #E8621A; background: rgba(232,98,26,0.1); }
+    .role-pill.active { border-color: #E8621A; background: rgba(232,98,26,0.15); }
+
+    .form-input {
+        width: 100%;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 16px 11px 44px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fff;
+        color: #1C2333;
+    }
+    .form-input:focus { border-color: #E8621A; box-shadow: 0 0 0 3px rgba(232,98,26,0.12); }
+    .form-input::placeholder { color: #94a3b8; }
+
+    .btn-login {
+        width: 100%;
+        background: #E8621A;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 13px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Outfit', sans-serif;
+    }
+    .btn-login:hover { background: #c95516; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(232,98,26,0.3); }
+    .btn-login:active { transform: translateY(0); }
+
+    .social-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        padding: 11px; font-size: 14px; font-weight: 500; cursor: pointer;
+        transition: all 0.18s; background: #fff; color: #374151;
+    }
+    .social-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+    .divider { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 13px; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+    .stat-badge {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 16px 20px;
+        text-align: center;
+    }
+
+    /* Eye icon toggle */
+    .eye-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; }
+    .eye-btn:hover { color: #475569; }
+
+    @media (max-width: 768px) {
+        .left-panel { display: none; }
+    }
+</style>
+</head>
+<body class="bg-cream min-h-screen" x-data="{
+    loginMode: 'email',
+    selectedRole: 'client',
+    showPass: false,
+    loading: false,
+    phone: '',
+    email: '',
+    password: '',
+    otp: '',
+    otpSent: false,
+    sendOtp() {
+        if(this.phone.length >= 10) { this.otpSent = true; }
+    },
+    submit() {
+        this.loading = true;
+        setTimeout(() => {
+            this.loading = false;
+            const map = {
+                client: 'dashboard-client.html',
+                broker: 'dashboard-broker.html',
+                builder: 'dashboard-builder.html',
+                cityadmin: 'dashboard-admin.html',
+                globaladmin: 'dashboard-admin.html'
+            };
+            window.location.href = map[this.selectedRole] || 'index.html';
+        }, 1400);
+    }
+}">
+
+<div class="min-h-screen flex">
+
+    <!-- LEFT PANEL — brand + stats -->
+    <div class="left-panel w-1/2 flex flex-col justify-between p-12 hidden md:flex">
+        <div class="left-panel-content">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-lg"></i>
+                </div>
+                <span class="font-outfit font-800 text-2xl text-white">Prop<span class="text-orange">Surat</span></span>
+            </a>
+
+            <!-- Main pitch -->
+            <div class="mt-16">
+                <div class="inline-flex items-center gap-2 bg-orange/20 border border-orange/30 rounded-full px-4 py-1.5 mb-6">
+                    <i class="ph-fill ph-seal-check text-orange text-sm"></i>
+                    <span class="text-orange text-sm font-medium">India's Trusted Property Portal</span>
+                </div>
+                <h1 class="font-outfit text-4xl font-bold text-white leading-tight mb-4">
+                    Apna Ghar<br>
+                    <span class="text-orange">Hum Dhundhenge</span>
+                </h1>
+                <p class="text-white/60 text-lg leading-relaxed">
+                    1.2 lakh+ verified properties across India. Connect with RERA-certified brokers and top builders.
+                </p>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mt-12">
+                <div class="stat-badge">
+                    <div class="font-outfit text-2xl font-bold text-white">1.2L+</div>
+                    <div class="text-white/50 text-xs mt-1">Properties</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="font-outfit text-2xl font-bold text-white">8,400+</div>
+                    <div class="text-white/50 text-xs mt-1">Brokers</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="font-outfit text-2xl font-bold text-white">50+</div>
+                    <div class="text-white/50 text-xs mt-1">Cities</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonial -->
+        <div class="left-panel-content mt-12">
+            <div class="bg-white/8 border border-white/12 rounded-2xl p-5">
+                <div class="flex gap-1 mb-3">
+                    <i class="ph-fill ph-star text-gold text-sm"></i>
+                    <i class="ph-fill ph-star text-gold text-sm"></i>
+                    <i class="ph-fill ph-star text-gold text-sm"></i>
+                    <i class="ph-fill ph-star text-gold text-sm"></i>
+                    <i class="ph-fill ph-star text-gold text-sm"></i>
+                </div>
+                <p class="text-white/75 text-sm leading-relaxed italic">
+                    "PropSurat ki wajah se humne 3 BHK flat Vesu mein ek hafte mein mil gaya. Superb experience!"
+                </p>
+                <div class="flex items-center gap-3 mt-4">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" class="w-9 h-9 rounded-full object-cover" alt="">
+                    <div>
+                        <div class="text-white text-sm font-medium">Rajesh Patel</div>
+                        <div class="text-white/45 text-xs">Bought 3BHK in Surat</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL — login form -->
+    <div class="flex-1 md:w-1/2 flex items-center justify-center p-6 md:p-12 bg-white">
+        <div class="w-full max-w-md">
+
+            <!-- Mobile logo -->
+            <div class="flex items-center gap-2 mb-8 md:hidden">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </div>
+
+            <h2 class="font-outfit text-3xl font-bold text-navy mb-1">Welcome back! 👋</h2>
+            <p class="text-muted text-sm mb-7">Apna account mein login karein</p>
+
+            <!-- Role selector -->
+            <div class="mb-6">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Main hoon —</p>
+                <div class="grid grid-cols-5 gap-2">
+                    <template x-for="r in [
+                        {id:'client', label:'Client', icon:'ph-user'},
+                        {id:'broker', label:'Broker', icon:'ph-handshake'},
+                        {id:'builder', label:'Builder', icon:'ph-crane-tower'},
+                        {id:'cityadmin', label:'City Admin', icon:'ph-city'},
+                        {id:'globaladmin', label:'Global Admin', icon:'ph-globe'}
+                    ]">
+                        <button
+                            @click="selectedRole = r.id"
+                            :class="selectedRole === r.id ? 'active' : ''"
+                            class="role-pill rounded-xl p-2.5 flex flex-col items-center gap-1.5 bg-slate-50 border-2 border-slate-200 transition-all"
+                        >
+                            <i :class="r.icon" class="ph text-lg" :style="selectedRole === r.id ? 'color:#E8621A' : 'color:#64748B'"></i>
+                            <span class="text-[10px] font-medium leading-tight text-center" :class="selectedRole === r.id ? 'text-orange-700' : 'text-slate-500'" x-text="r.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Login mode tabs -->
+            <div class="flex bg-slate-100 rounded-xl p-1 mb-6">
+                <button @click="loginMode='email'; otpSent=false"
+                    :class="loginMode==='email' ? 'bg-white shadow text-navy font-semibold' : 'text-muted'"
+                    class="flex-1 py-2.5 rounded-lg text-sm transition-all">
+                    <i class="ph-bold ph-envelope mr-1.5"></i>Email
+                </button>
+                <button @click="loginMode='phone'; otpSent=false"
+                    :class="loginMode==='phone' ? 'bg-white shadow text-navy font-semibold' : 'text-muted'"
+                    class="flex-1 py-2.5 rounded-lg text-sm transition-all">
+                    <i class="ph-bold ph-device-mobile mr-1.5"></i>Phone / OTP
+                </button>
+            </div>
+
+            <!-- EMAIL LOGIN -->
+            <div x-show="loginMode==='email'" x-transition>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <i class="ph-bold ph-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input x-model="email" type="email" placeholder="Email address" class="form-input" autocomplete="email">
+                    </div>
+                    <div class="relative">
+                        <i class="ph-bold ph-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input x-model="password" :type="showPass ? 'text' : 'password'" placeholder="Password" class="form-input pr-12" autocomplete="current-password">
+                        <span class="eye-btn" @click="showPass=!showPass">
+                            <i :class="showPass ? 'ph-eye-slash' : 'ph-eye'" class="ph-bold text-lg"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 mb-6">
+                    <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                        <input type="checkbox" class="accent-orange w-4 h-4 rounded">
+                        Remember me
+                    </label>
+                    <a href="#" class="text-sm text-orange font-medium hover:underline">Forgot password?</a>
+                </div>
+            </div>
+
+            <!-- PHONE OTP LOGIN -->
+            <div x-show="loginMode==='phone'" x-transition>
+                <div class="space-y-4 mb-6">
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                            <span class="text-sm font-medium text-slate-700">🇮🇳 +91</span>
+                            <span class="text-slate-300">|</span>
+                        </div>
+                        <input x-model="phone" type="tel" placeholder="Mobile number" class="form-input" style="padding-left:72px" maxlength="10" autocomplete="tel">
+                    </div>
+                    <div x-show="!otpSent">
+                        <button @click="sendOtp()" class="btn-login" style="background:#1B3A5C" :class="phone.length<10 ? 'opacity-60 cursor-not-allowed' : 'hover:bg-navy'">
+                            Send OTP
+                        </button>
+                    </div>
+                    <div x-show="otpSent" x-transition>
+                        <div class="relative mb-4">
+                            <i class="ph-bold ph-chat-circle-dots absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input x-model="otp" type="text" placeholder="Enter 6-digit OTP" class="form-input" maxlength="6" inputmode="numeric">
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4 text-center">
+                            OTP sent to +91 <span x-text="phone"></span> ·
+                            <button @click="otpSent=false" class="text-orange hover:underline">Change</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button @click="submit()" class="btn-login" :class="loading ? 'opacity-80 cursor-wait' : ''">
+                <span x-show="!loading" class="flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-sign-in"></i>
+                    <span x-show="loginMode==='phone' && !otpSent" x-text="'Send OTP'" style="display:none"></span>
+                    <span x-show="!(loginMode==='phone' && !otpSent)">Login karein</span>
+                </span>
+                <span x-show="loading" class="flex items-center justify-center gap-2">
+                    <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    Verifying...
+                </span>
+            </button>
+
+            <!-- Divider -->
+            <div class="divider my-5 text-slate-400">or</div>
+
+            <!-- Google login -->
+            <button class="social-btn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+                    <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.96L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                </svg>
+                Google se login karein
+            </button>
+
+            <!-- Register link -->
+            <p class="text-center text-sm text-slate-500 mt-6">
+                Pehli baar aaye ho?
+                <a href="register.html" class="text-orange font-semibold hover:underline ml-1">Register karein</a>
+            </p>
+
+            <!-- Admin notice -->
+            <div x-show="selectedRole==='cityadmin' || selectedRole==='globaladmin'" x-transition
+                class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5">
+                <i class="ph-bold ph-warning text-amber-600 text-lg flex-shrink-0 mt-0.5"></i>
+                <p class="text-xs text-amber-700 leading-relaxed">
+                    Admin accounts are created by PropSurat team only. Contact
+                    <span class="font-semibold">support@propsurat.in</span> for access.
+                </p>
+            </div>
+
+            <!-- Footer links -->
+            <div class="flex items-center justify-center gap-4 mt-8 text-xs text-slate-400">
+                <a href="#" class="hover:text-slate-600">Privacy Policy</a>
+                <span>·</span>
+                <a href="#" class="hover:text-slate-600">Terms of Use</a>
+                <span>·</span>
+                <a href="index.html" class="hover:text-slate-600">Home</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

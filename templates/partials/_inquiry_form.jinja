@@ -1,0 +1,19 @@
+<form hx-post="{{ url('property_detail', pk=property.pk) }}"
+      hx-target="#inquiry-result"
+      hx-swap="innerHTML"
+      class="space-y-4">
+    {{ csrf_input }}
+    {% for field in form %}
+    <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit"
+            class="w-full btn-primary py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+        <i class="ph-fill ph-paper-plane-tilt"></i> Inquiry Bhejo
+    </button>
+</form>

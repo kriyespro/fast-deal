@@ -1,0 +1,136 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+{% block title %}Invoices | PropSurat{% endblock %}
+
+{% block body_attrs %}x-data="{ sidebarOpen: false }"{% endblock %}
+
+{% block body %}
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="{{ url('home') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-orange flex items-center justify-center font-outfit font-bold text-white text-lg">
+                {{ request.user.full_name[0] | upper }}
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">{{ request.user.full_name }}</div>
+                <div class="text-white/40 text-xs">{{ request.user.get_role_display() }}</div>
+            </div>
+        </div>
+    </div>
+    <nav class="px-3 py-4 space-y-0.5">
+        {% if request.user.role == 'broker' %}
+        <a href="{{ url('dashboard_broker') }}" class="sidebar-link"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+        {% elif request.user.role == 'builder' %}
+        <a href="{{ url('dashboard_builder') }}" class="sidebar-link"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+        {% endif %}
+        <a href="{{ url('billing_plans') }}" class="sidebar-link"><i class="ph-bold ph-credit-card"></i> Billing & Plans</a>
+        <a href="{{ url('billing_invoices') }}" class="sidebar-link active"><i class="ph-bold ph-receipt"></i> Invoices</a>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <form method="post" action="{{ url('logout') }}">
+                {{ csrf_input }}
+                <button type="submit" class="sidebar-link w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                    <i class="ph-bold ph-sign-out"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg">Invoices</h1>
+                <p class="text-muted text-xs hidden sm:block">Your payment history</p>
+            </div>
+        </div>
+        <a href="{{ url('billing_plans') }}" class="btn btn-orange text-sm">
+            <i class="ph-bold ph-credit-card"></i> Manage Plan
+        </a>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        {% if current_sub and current_sub.is_active %}
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                    <i class="ph-fill ph-seal-check text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <div class="font-outfit font-semibold text-navy">{{ current_sub.plan.display_name }} Plan — Active</div>
+                    <div class="text-muted text-xs mt-0.5">{{ current_sub.days_remaining }} days left · Expires {{ current_sub.expires_at.strftime('%d %b %Y') if current_sub.expires_at else 'Never' }}</div>
+                </div>
+            </div>
+            <div class="font-outfit font-bold text-orange text-xl">{{ current_sub.plan.price_display }}</div>
+        </div>
+        {% endif %}
+
+        {% if invoices %}
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100">
+                <h2 class="font-outfit font-semibold text-navy">Payment History</h2>
+            </div>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50">
+                        <th class="text-left px-6 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Invoice #</th>
+                        <th class="text-left px-6 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden sm:table-cell">Plan</th>
+                        <th class="text-left px-6 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Date</th>
+                        <th class="text-left px-6 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Amount</th>
+                        <th class="text-left px-6 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                        <th class="px-6 py-3.5"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for inv in invoices %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-navy">{{ inv.invoice_number }}</td>
+                        <td class="px-6 py-4 hidden sm:table-cell">
+                            <span class="text-sm font-medium text-navy">{{ inv.plan.display_name }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-xs text-muted hidden md:table-cell">
+                            {{ inv.created_at.strftime('%d %b %Y') }}
+                        </td>
+                        <td class="px-6 py-4 font-outfit font-bold text-navy">₹{{ inv.amount | int }}</td>
+                        <td class="px-6 py-4">
+                            {% if inv.status == 'paid' %}
+                            <span class="badge bg-green-100 text-green-700">Paid</span>
+                            {% elif inv.status == 'pending' %}
+                            <span class="badge bg-amber-100 text-amber-700">Pending</span>
+                            {% else %}
+                            <span class="badge bg-red-100 text-red-600">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="{{ url('billing_invoice', pk=inv.pk) }}"
+                               class="text-xs font-semibold text-orange hover:underline flex items-center gap-1">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl border border-slate-200 py-20 text-center">
+            <i class="ph-fill ph-receipt text-slate-300 text-5xl block mb-4"></i>
+            <h3 class="font-outfit font-bold text-slate-700 text-xl mb-2">Koi invoice nahi hai</h3>
+            <p class="text-muted text-sm mb-5">Pehla subscription lo aur invoice yahan dikhega.</p>
+            <a href="{{ url('billing_plans') }}" class="btn btn-orange">View Plans</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

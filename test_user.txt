@@ -1,0 +1,27 @@
+PropSurat Test Credentials
+--------------------------
+
+Global Admin (Superuser):
+  email: admin@propsurat.in
+  password: admin1234
+
+Django Admin (built-in, for dev):
+  URL: http://127.0.0.1:8000/sd/
+
+Broker (Demo):
+  email: broker@propsurat.in
+  password: broker1234
+
+Builder (Demo):
+  email: builder@propsurat.in
+  password: test1234
+
+Dev Server:
+  python durga.py          ← clears cache + starts server
+  python manage.py runserver 8000
+
+URLs:
+  Home:     http://127.0.0.1:8000/
+  
+  Login:    http://127.0.0.1:8000/login/
+  Register: http://127.0.0.1:8000/register/

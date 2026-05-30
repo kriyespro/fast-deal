@@ -1,0 +1,118 @@
+{% if properties %}
+    {% for prop in properties %}
+    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+        <!-- Image -->
+        <div class="relative h-52 overflow-hidden bg-slate-100">
+            <a href="{{ url('property_detail', pk=prop.pk) }}" class="block w-full h-full">
+            {% set first_img = prop.images.first() %}
+            {% if first_img %}
+                <img src="{{ first_img.image.url }}"
+                     alt="{{ prop.title }}"
+                     loading="lazy"
+                     onerror="this.onerror=null;this.src='https://picsum.photos/seed/prop{{ prop.pk }}/800/520'"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            {% else %}
+                <img src="https://picsum.photos/seed/prop{{ prop.pk }}/800/520"
+                     alt="{{ prop.title }}"
+                     loading="lazy"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            {% endif %}
+            </a>
+            <!-- Badges -->
+            <div class="absolute top-3 left-3 flex gap-2">
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full
+                    {% if prop.listing_type == 'sale' %}bg-navy text-white
+                    {% elif prop.listing_type == 'rent' %}bg-green-600 text-white
+                    {% else %}bg-purple-600 text-white{% endif %}">
+                    {{ prop.get_listing_type_display() }}
+                </span>
+                {% if prop.is_rera_verified %}
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-orange text-white">RERA ✓</span>
+                {% endif %}
+            </div>
+            <!-- Save button + Featured badge (top-right) -->
+            <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+                {% if request.user.is_authenticated and saved_ids is defined %}
+                {% set prop_is_saved = prop.pk in saved_ids %}
+                {% with property_pk=prop.pk, is_saved=prop_is_saved %}
+                {% include 'partials/_save_btn.jinja' %}
+                {% endwith %}
+                {% endif %}
+                {% if prop.is_featured %}
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-400 text-amber-900">Featured</span>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Content -->
+        <div class="p-5">
+            <div class="flex items-start justify-between gap-2 mb-2">
+                <a href="{{ url('property_detail', pk=prop.pk) }}"
+                   class="font-outfit font-bold text-navy text-base leading-snug line-clamp-2 hover:text-orange transition-colors">{{ prop.title }}</a>
+            </div>
+            <p class="text-slate-500 text-sm flex items-center gap-1 mb-3">
+                <i class="ph-fill ph-map-pin text-orange text-base flex-shrink-0"></i>
+                {% if prop.locality %}{{ prop.locality.name }}, {% endif %}{{ prop.city.name if prop.city else '' }}
+            </p>
+            <!-- Specs -->
+            <div class="flex gap-3 text-xs text-slate-500 mb-4 flex-wrap">
+                {% if prop.bedrooms %}
+                <span class="flex items-center gap-1"><i class="ph-fill ph-bed text-slate-400"></i> {{ prop.bedrooms }} BHK</span>
+                {% endif %}
+                {% if prop.area_sqft %}
+                <span class="flex items-center gap-1"><i class="ph-fill ph-ruler text-slate-400"></i> {{ prop.area_sqft }} sqft</span>
+                {% endif %}
+                {% if prop.furnishing != 'unfurnished' %}
+                <span class="flex items-center gap-1"><i class="ph-fill ph-couch text-slate-400"></i> {{ prop.get_furnishing_display() }}</span>
+                {% endif %}
+            </div>
+            <!-- Price + CTA -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-xl font-bold text-orange font-outfit">{{ prop.price_display }}</div>
+                    {% if prop.listing_type == 'rent' %}
+                    <div class="text-xs text-slate-400">per month</div>
+                    {% elif prop.price_per_sqft %}
+                    <div class="text-xs text-slate-400">₹{{ prop.price_per_sqft|int }}/sqft</div>
+                    {% endif %}
+                </div>
+                <a href="{{ url('property_detail', pk=prop.pk) }}"
+                   class="btn-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5">
+                    Details <i class="ph-bold ph-arrow-right text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if properties.has_other_pages() %}
+    <div class="col-span-full flex justify-center gap-2 mt-6">
+        {% if properties.has_previous() %}
+        <button hx-get="{{ url('listings') }}?page={{ properties.previous_page_number() }}&{{ request.GET.urlencode() }}"
+                hx-target="#property-grid" hx-swap="innerHTML"
+                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:border-orange hover:text-orange transition-colors">
+            ← Prev
+        </button>
+        {% endif %}
+        <span class="px-4 py-2 text-sm text-slate-500">
+            Page {{ properties.number }} of {{ properties.paginator.num_pages }}
+        </span>
+        {% if properties.has_next() %}
+        <button hx-get="{{ url('listings') }}?page={{ properties.next_page_number() }}&{{ request.GET.urlencode() }}"
+                hx-target="#property-grid" hx-swap="innerHTML"
+                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:border-orange hover:text-orange transition-colors">
+            Next →
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+{% else %}
+    <div class="col-span-full text-center py-20">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="ph-fill ph-magnifying-glass text-slate-400 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-700 font-outfit mb-2">Koi property nahi mili</h3>
+        <p class="text-slate-500 text-sm">Filter change karke dobara try karein.</p>
+    </div>
+{% endif %}

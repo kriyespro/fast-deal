@@ -1,0 +1,777 @@
+================================================================================
+  FastDeal Real Estate — CTO / System Architect Development Plan
+  Author     : Antigravity AI — thinking as CTO + System Architect
+  Date       : 2026-03-31
+  Project    : FastDeal CI4 (CodeIgniter 4)
+  Stack      : PHP 8 / CI4, SQLite3 → MySQL, Tailwind CDN, Alpine.js, No-CDN
+  Goal       : Super-professional, production-ready real estate portal
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 1 — EXECUTIVE SUMMARY (Thinking as CTO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FastDeal is a real-estate listing platform built on CodeIgniter 4.
+  The codebase is structurally sound — good MVC separation, clean routes,
+  proper filter-based auth, Tailwind + Alpine.js on the frontend.
+
+  HOWEVER, there are critical gaps between the current state and a
+  "production-ready, trust-inspiring" real estate portal:
+
+  1. Several pages are SKELETON (Agents, Blog, Neighborhoods, Customer)
+     — controllers exist but data is static/hardcoded.
+
+  2. The image pipeline is broken in key ways:
+     - logo.png is referenced but the /public/assets/images/ folder is EMPTY.
+     - Gallery images on the detail page use hardcoded placeholder data.
+     - Similar Properties section uses hardcoded IDs (2, 4, 5) — will 404.
+
+  3. The search/filter system on listings is PURELY COSMETIC — it does not
+     submit to the server or filter any data.
+
+  4. The Listings page shows a hardcoded "1,245 Properties Found" counter
+     and static pagination — both misleading and broken.
+
+  5. CSRF protection is DISABLED globally (commented out in Filters.php)
+     — the lead form + newsletter form are unprotected.
+
+  6. The newsletter submit fires an alert() popup — not professional.
+
+  7. forcehttps filter is ENABLED in required filters but the app runs on
+     HTTP locally — this may cause redirect loops in production.
+
+  8. No SEO meta tags (description, og:image, og:title) on any page.
+
+  9. The Database is SQLite3 — fine for dev, must be MySQL for production.
+
+  10. No pagination implemented on Listings — just static HTML buttons.
+
+  11. The "About" and "Contact" pages use Unsplash images — fine, but
+      the Contact form does NOT actually submit (Pages::contact just
+      renders the view — no POST handling, no email, no lead save).
+
+  12. Agent detail page uses fully hardcoded data — not DB-connected.
+
+  13. Blog controller does not query a blog table — static content only.
+
+  14. No 404 / 500 error page templates in the errors/ views.
+
+  15. The `dark:` Tailwind color `dark` is incorrectly mapped to #f8fafc
+      (which is a LIGHT color) — this is a major design bug that causes
+      text color issues throughout.
+
+  16. Mobile nav uses x-data="mobileMenuOpen" but the body tag renders
+      it via renderSection('body_attributes') — if a page overrides
+      body_attributes without mobileMenuOpen, the hamburger button breaks.
+
+  17. The main.php layout has a CSS injection bug:
+      `<?= $this->renderSection('extra_css') ?>.glass-panel {` — the
+      extra_css section is rendered INLINE before the .glass-panel rule,
+      which could break page styles if extra_css is empty.
+
+  18. The delete property route uses GET (not POST/DELETE) — a CSRF risk
+      and bad REST practice.
+
+  19. Admin settings page says "save to settings table" but saves nothing.
+
+  20. No robots.txt useful content, no sitemap.xml route.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 2 — CURRENT ARCHITECTURE REVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  STRUCTURE (What's good):
+  ├── app/
+  │   ├── Controllers/       ✅ Clean MVC, 11 controllers
+  │   ├── Models/            ✅ PropertyModel (with soft-delete + slug)
+  │   │                      ✅ UserModel, LeadModel
+  │   ├── Views/
+  │   │   ├── layouts/       ✅ main.php (Tailwind+Alpine layout)
+  │   │   │                  ✅ admin.php (separate admin layout)
+  │   │   ├── partials/      ✅ nav.php (scroll-aware home nav)
+  │   │   │                  ✅ footer.php (real contact info, WhatsApp)
+  │   │   ├── home/          ✅ Rich landing page
+  │   │   ├── listings/      ✅ Index + Detail (lightbox, mortgage calc)
+  │   │   ├── admin/         ✅ Dashboard, Listings CRUD, Leads, Agents
+  │   │   ├── pages/         ✅ About, Contact (static but rich)
+  │   │   ├── agents/        ⚠️  Static hardcoded data - not DB driven
+  │   │   ├── blog/          ⚠️  Static content - no model/DB
+  │   │   ├── neighborhoods/ ⚠️  Almost empty
+  │   │   └── customer/      ⚠️  Empty dashboard
+  │   ├── Filters/           ✅ AuthFilter + AdminFilter (session-based)
+  │   ├── Database/
+  │   │   └── Migrations/    ✅ users, properties, leads tables
+  │   └── Config/
+  │       ├── Routes.php     ✅ Clean, grouped admin routes
+  │       └── Filters.php    ⚠️  CSRF disabled, forcehttps on
+  ├── public/
+  │   ├── assets/images/     ❌ EMPTY — logo.png MISSING
+  │   └── uploads/           ✅ Upload directory exists
+  └── .env                   ✅ SQLite3 configured, dev mode
+
+  DATABASE TABLES:
+  - users      (id, name, email, password, role, timestamps)
+  - properties (full schema with gallery_images, features JSON, soft-delete)
+  - leads      (property_id, name, email, phone, message, status)
+
+  MISSING TABLES:
+  - agents     (separate agent profiles with photo, bio, listings)
+  - blog_posts (title, slug, content, author, category, published_at)
+  - settings   (key, value pairs for site settings)
+  - neighborhoods (name, city, image, description)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 3 — BUG REGISTRY (Priority: CRITICAL → LOW)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [BUG-001] CRITICAL — Logo Image Missing
+  File    : public/assets/images/ (EMPTY FOLDER)
+  Impact  : Logo broken on ALL pages (nav + footer), unprofessional
+  Fix     : Add logo.png to public/assets/images/
+            OR update nav.php & footer.php to use a text/SVG logo as fallback
+
+  [BUG-002] CRITICAL — CSS Injection in Layout (Newline Bug)
+  File    : app/Views/layouts/main.php, Line 51
+  Code    : `<?= $this->renderSection('extra_css') ?>.glass-panel {`
+  Impact  : When extra_css is not empty, .glass-panel rule is prepended
+            with injected CSS — breaks glass card styling
+  Fix     : Add a newline + proper separation:
+            `<?= $this->renderSection('extra_css') ?>
+             .glass-panel { ... }`
+
+  [BUG-003] CRITICAL — CSRF Completely Disabled
+  File    : app/Config/Filters.php, Lines 77-79
+  Issue   : csrf filter commented out in globals.before
+  Impact  : Lead forms, admin forms, login form all unprotected
+            (CSRF token IS rendered in views — just never validated)
+  Fix     : Uncomment `// 'csrf',` in globals.before
+            Ensure all forms include <?= csrf_field() ?>
+            (They already do — so this is a 1-line fix)
+
+  [BUG-004] CRITICAL — Similar Properties Section Uses Hardcoded IDs
+  File    : app/Views/listings/detail.php, Lines 540, 572, 604
+  Issue   : href="listings/2", "listings/4", "listings/5" — hardcoded
+  Impact  : Will 404 if those property IDs don't exist in the database
+  Fix     : Fetch 3 similar properties in Listings::detail() controller
+            and pass them to the view
+
+  [BUG-005] HIGH — Search/Filter Does Not Work
+  File    : app/Views/listings/index.php, Lines 47-169
+            app/Controllers/Listings.php
+  Issue   : Filter sidebar is cosmetic — form has no action="" and
+            Listings::index() does not read any $_GET params
+  Impact  : Clicking "Apply Filters" does nothing — major UX failure
+  Fix     : Add GET form action to filter sidebar pointing to /listings
+            Update Listings::index() to accept query params:
+            type, listing_type, city, min_price, max_price, beds, baths
+
+  [BUG-006] HIGH — Property Count is Hardcoded
+  File    : app/Views/listings/index.php, Lines 29, 179
+  Issue   : Shows "1,245 Properties Found" regardless of actual count
+  Impact  : Confuses users — shows zero properties but "1,245 found"
+  Fix     : Pass $totalProperties from Listings::index() to view
+            Use: <?= $totalProperties ?> Properties Found
+
+  [BUG-007] HIGH — Pagination is Static HTML
+  File    : app/Views/listings/index.php, Lines 259-281
+  Issue   : Page numbers (1,2,3...12) are hardcoded buttons
+  Impact  : Only page 1 ever loads — user cannot navigate
+  Fix     : Use CI4's built-in Pager library in Listings::index()
+            Pass $pager to view and render with $pager->links()
+
+  [BUG-008] HIGH — Contact Form Does NOT Submit
+  File    : app/Controllers/Pages.php, Lines 12-16
+            app/Views/pages/contact.php
+  Issue   : Pages::contact() only handles GET — no POST logic
+  Fix     : Add $routes->post('/contact', 'Pages::contactSubmit')
+            In contactSubmit(): validate + save to leads table
+            Flash success message
+
+  [BUG-009] HIGH — forcehttps Filter Active in Dev
+  File    : app/Config/Filters.php, Lines 55-58
+  Issue   : 'forcehttps' in $required['before'] causes redirect loop
+            when running on localhost HTTP
+  Fix     : Wrap in environment check OR remove from required
+            and apply only in production via a conditional
+
+  [BUG-010] MEDIUM — Agent Detail Page is 100% Hardcoded
+  File    : app/Views/agents/detail.php
+            app/Controllers/Agents.php
+  Issue   : Agent photo, name, email, listings are all static HTML
+  Impact  : Not reflecting real agents from the users table
+  Fix     : Phase 2 — Create AgentProfile model or use users table,
+            pass agent data from controller
+
+  [BUG-011] MEDIUM — Newsletter Submit Shows alert() Popup
+  File    : app/Views/partials/footer.php, Line 73
+  Issue   : onsubmit="event.preventDefault(); alert('...')"
+  Impact  : Terrible UX for a premium real estate brand
+  Fix     : Add /newsletter/subscribe POST route
+            Show inline success message (Alpine.js state)
+
+  [BUG-012] MEDIUM — "dark" Color Token is Light (#f8fafc)
+  File    : app/Views/layouts/main.php, Line 90
+  Code    : dark: '#f8fafc'  ← this is slate-50 (almost WHITE)
+  Impact  : Any element using text-dark or bg-dark will be barely visible
+            or white on white. CTA button "bg-white text-dark" = white text
+  Fix     : Rename to 'paper': '#f8fafc' OR correct dark to '#0f172a'
+
+  [BUG-013] MEDIUM — Mobile Nav Body Attributes Can Break
+  File    : app/Views/layouts/main.php, Line 104
+  Issue   : body_attributes section renders 'x-data="{ mobileMenuOpen }"'
+            but this can be overridden by child views without mobileMenuOpen
+  Fix     : Always declare mobileMenuOpen in the layout body tag directly,
+            allow child views to EXTEND it rather than replace
+
+  [BUG-014] MEDIUM — Delete Property Uses GET Route
+  File    : app/Config/Routes.php, Line 42
+  Code    : $routes->get('listings/delete/(:num)', ...)
+  Issue   : GET requests should never modify data — CSRF bypass risk
+            A scraped URL or email link could delete properties
+  Fix     : Change to POST with a confirmation form
+            Use CSRF token for every destructive admin action
+
+  [BUG-015] MEDIUM — Property Images Use base_url() Incorrectly
+  File    : app/Views/home/index.php, Line 108
+            app/Views/listings/index.php, Line 211
+  Code    : base_url($prop['main_image'])
+            main_image is stored as "uploads/properties/filename.jpg"
+            This works IF base_url ends with /
+            But if base_url = "http://localhost:8080" (no trailing slash),
+            the URL becomes http://localhost:8080uploads/... (broken)
+  Fix     : Ensure .env has trailing slash in baseURL
+            Use base_url('uploads/...') pattern consistently
+
+  [BUG-016] LOW — Blog Has No Database Table
+  File    : app/Controllers/Blog.php
+  Issue   : Blog::index() and Blog::detail() render static views
+            No BlogPost model, no migration for blog_posts table
+  Fix     : Phase 2 — Create blog_posts migration + BlogModel
+            Or keep static but at least make it look populated
+
+  [BUG-017] LOW — Neighborhoods Page is Nearly Empty
+  File    : app/Controllers/Neighborhoods.php
+            app/Views/neighborhoods/
+  Issue   : Controller is 166 bytes — likely just returns a view
+  Fix     : Phase 2 — Create neighborhoods table + model
+            Display cities: Surat, Ahmedabad, Mumbai etc.
+            Link to filtered listings by city
+
+  [BUG-018] LOW — Customer Dashboard is Placeholder
+  File    : app/Controllers/CustomerController.php (174 bytes)
+  Issue   : After a user logs in as non-admin, they get a blank dashboard
+  Fix     : Phase 2 — Show saved properties, submitted enquiries,
+            account settings
+
+  [BUG-019] LOW — No SEO Meta Tags
+  File    : app/Views/layouts/main.php
+  Issue   : No <meta name="description">, no og:image, no og:title
+  Fix     : Add meta description section in layout
+            Pass page-specific meta from each controller
+
+  [BUG-020] LOW — Error Views are Empty
+  File    : app/Views/errors/
+  Issue   : Custom 404/500 pages likely showing CI4 default errors
+  Fix     : Create branded 404.php and production_error.php in errors/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 4 — UI/UX AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  STRENGTHS:
+  ✅ Hero section is visually strong — glass search bar, stats bar
+  ✅ Property cards have good hover-lift + scale animations
+  ✅ Detail page lightbox gallery is excellent UX
+  ✅ Mortgage calculator on detail page is a real differentiator
+  ✅ Footer has real contact info (WhatsApp, address, phone)
+  ✅ Nav scroll behaviour (transparent → blur) on home is polished
+  ✅ Lead inquiry form on property detail is well-placed
+  ✅ Font pairing (Inter + Outfit) is professional
+
+  WEAKNESSES / UX ISSUES:
+  ❌ Logo area shows broken image icon — first impression disaster
+  ❌ Hero search bar does not do anything when clicked — zero feedback
+  ❌ Category filter tabs (Bungalow, Villa etc.) on home are non-functional
+  ❌ "View All Regions" neighborhoods section shows US cities
+     (New York, Miami, Los Angeles, Seattle) — should be Indian cities
+     (Surat, Ahmedabad, Mumbai, Vadodara) to match real business
+  ❌ "Trusted By 100 Million+ Home Buyers" — inflated number, loses trust
+  ❌ Similar properties section hardcoded — may show error/broken links
+  ❌ Energy Class widget on detail page is arbitrary (shows class A always)
+     — should be removed or made functional
+  ❌ Property ID displayed as slug (e.g. "luxury-villa-1711974321") —
+     not user-friendly, should show clean numeric ID or MLS code
+  ❌ No WhatsApp floating button — very common in Indian real estate portals
+  ❌ No "Share" functionality on property detail — buttons exist but DON'T work
+  ❌ Privacy Policy / Terms / Sitemap links in footer go to non-existent routes
+  ❌ Mobile nav does not show contact quick-dial or WhatsApp link
+
+  HOME PAGE SPECIFIC IMPROVEMENTS NEEDED:
+  1. Fix logo (critical — first thing user sees)
+  2. Make hero search functional — even basic city text filter
+  3. Update Neighborhoods to Indian cities (Surat context)
+  4. Replace "100 Million+" with realistic number
+  5. Property count stats should pull from DB (currently hardcoded)
+  6. Add a WhatsApp floating CTA button
+  7. Category filter buttons (Bungalow/Villa/etc.) should filter the grid
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 5 — SECURITY AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  RISK 1  — CSRF Disabled (HIGH)
+  RISK 2  — Admin delete via GET URL (HIGH) — any link delete = malicious
+  RISK 3  — No rate limiting on lead submit or login (MEDIUM)
+            Brute-force login & lead form spam possible
+  RISK 4  — Property images stored with original random names (LOW)
+            Add virus-scanning or at least MIME validation (already partial)
+  RISK 5  — Session driver is FileHandler (default) — fine for small scale
+            Consider database session driver for production
+  RISK 6  — .env file has absolute path hardcoded:
+            /Users/kumarsunilverma/Desktop/... — must be environment-relative
+            for deployment
+  RISK 7  — No admin activity log — no record of who deleted what
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 6 — PERFORMANCE AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Tailwind CSS loaded via CDN (full build ~4MB) — slow on 3G/4G
+     FIX: For production, use Tailwind CLI to generate minimal CSS
+          (with only the classes actually used)
+
+  2. Alpine.js loaded via CDN — fine for current scale
+
+  3. Phosphor Icons loaded via unpkg CDN — entire icon set ~500KB
+     FIX: Consider using SVG icons inline for critical icons only
+          or self-host the icon subset
+
+  4. Google Fonts two requests (preconnect + font load) — fine
+
+  5. No image optimization pipeline
+     FIX: Add CI4 image manipulation on upload (resize to 800px width max,
+          use WebP conversion where possible)
+     Currently uploads any size up to 5MB per image
+
+  6. No page caching configured
+     FIX: Enable CI4 page cache for home + listing pages
+          (already have pagecache in required filters — just needs config)
+
+  7. N+1 query risk: Listings page loads all properties with findAll()
+     With 1000+ properties this will be slow
+     FIX: Add limit/offset pagination NOW, not later
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 7 — PHASED DEVELOPMENT PLAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 1 — BUG FIXES & HOMEPAGE POLISH (Do This FIRST — ~1-2 days)
+  Goal: Zero broken things. Everything that exists must work perfectly.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1.1 LOGO FIX (BUG-001)
+      → Create/add logo.png to public/assets/images/
+      → Or replace <img> with SVG text logo as fallback
+      → Test in nav header + footer
+
+  1.2 CSS BUG FIX (BUG-002)
+      → Fix main.php line 51 — add newline before .glass-panel
+      → Verify glass panel on hero search bar still renders correctly
+
+  1.3 ENABLE CSRF (BUG-003)
+      → Uncomment 'csrf' in Filters.php globals.before
+      → Test: lead form, login, admin property create/update
+
+  1.4 FIX SIMILAR PROPERTIES (BUG-004)
+      → In Listings::detail($id):
+         Fetch 3 properties WHERE id != $id, same property_type, LIMIT 3
+      → Remove hardcoded HTML cards — loop over $similarProperties array
+
+  1.5 FIX IMAGE URL BUILD (BUG-015)
+      → Verify .env baseURL has trailing slash: 'http://localhost:8080/'
+      → Test all image loads: home page cards, listings cards, detail gallery
+
+  1.6 FIX PROPERTY COUNT + PAGINATION (BUG-006, BUG-007)
+      → Listings::index(): use CI4 Pager
+         $data['properties'] = $model->paginate(12)
+         $data['pager']      = $model->pager
+         $data['total']      = $model->countAllResults()
+      → In listings/index.php replace static pagination with:
+         <?= $pager->links() ?>
+      → Replace "1,245 Properties" with actual $total
+
+  1.7 FIX FILTER FORM (BUG-005 — basic version)
+      → Add action="<?= base_url('listings') ?>" method="GET" to filter <form>
+      → Update Listings::index() to read:
+         $type     = $this->request->getGet('type')
+         $city     = $this->request->getGet('city')
+         $min      = $this->request->getGet('min_price')
+         $max      = $this->request->getGet('max_price')
+         $beds     = $this->request->getGet('beds')
+         $baths    = $this->request->getGet('baths')
+         $listType = $this->request->getGet('listing_type')
+      → Build a query with WHERE clauses accordingly
+
+  1.8 FIX DELETE TO USE POST (BUG-014)
+      → Change delete route to POST
+      → Add a small form with CSRF token and confirm dialog in admin view
+      → Never allow data deletion via GET
+
+  1.9 FIX CONTACT FORM (BUG-008)
+      → Add POST route for /contact → Pages::contactSubmit
+      → Validate: name, email, phone, message (required)
+      → Save to leads table with property_id = null
+      → Flash success: "We'll contact you within 24 hours!"
+
+  1.10 FIX HOMEPAGE — Indian Cities in Neighborhoods Section
+      → Replace New York/Miami/LA/Seattle images and names
+      → Use: Surat, Ahmedabad, Mumbai, Vadodara (or client's choice)
+      → Use relevant Unsplash images of Indian cities
+
+  1.11 FIX HOMEPAGE — Replace Hardcoded Stats with Real Data
+      → In Home::index() fetch:
+         - Total available properties count
+         - Count of cities served (distinct cities)
+      → Pass to view, render dynamically instead of "10k+" hardcoded
+
+  1.12 FIX NEWSLETTER POPUP (BUG-011)
+      → Remove alert() from footer form
+      → Add Alpine.js state: x-data="{ subscribed: false }"
+      → On submit: show inline "Thank you!" message
+      → Optional: Create /newsletter/subscribe POST route to save emails
+
+  1.13 FIX DARK COLOR TOKEN (BUG-012)
+      → In main.php Tailwind config:
+         Change `dark: '#f8fafc'` to `paper: '#f8fafc'`
+         AND add proper `dark: '#0f172a'` (slate-900)
+      → Audit all views using `text-dark` or `bg-dark`, fix accordingly
+
+  1.14 ADD WHATSAPP FLOATING BUTTON
+      → Add a fixed bottom-right WhatsApp FAB on all public pages
+      → Use the existing WhatsApp number from footer: 917383018982
+      → Simple HTML: fixed position, rounded button, ph-whatsapp-logo icon
+
+  1.15 FIX PRIVACY / TERMS / SITEMAP LINKS (BUG footer)
+      → Either add placeholder pages or remove those links from footer
+      → Broken footer links destroy trust on a real estate site
+
+  1.16 ADD CUSTOM 404 PAGE (BUG-020)
+      → Create app/Views/errors/html/error_404.php
+      → Styled with the main layout branding
+      → "Property Not Found" themed messaging with link back to listings
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 2 — CONNECT ALL PAGES TO DATABASE (~2-3 days)
+  Goal: Every page shows real data. No more static/hardcoded content.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  2.1 AGENTS MODULE (Full DB-driven)
+      → Migration: agents table
+        (id, user_id, photo, bio, whatsapp, experience_years, specialization,
+         languages, total_listings, rating, created_at, updated_at)
+      → AgentModel.php
+      → AdminController: add/edit/delete agents
+      → Agents::index() — fetch all agents from DB
+      → Agents::detail($id) — fetch agent + their current listings
+      → Update admin/agents.php to be full CRUD (currently only create)
+      → Agents index view: professional card grid with real data
+
+  2.2 NEIGHBORHOODS MODULE
+      → Migration: neighborhoods table
+        (id, name, city, state, description, image_path, property_count cache)
+      → NeighborhoodModel.php
+      → Neighborhoods::index() — fetch Indian cities
+      → In home/index.php neighborhoods grid: pull from DB
+      → Link each neighborhood to /listings?city=Surat style filter
+
+  2.3 BLOG MODULE (Minimal CMS)
+      → Migration: blog_posts table
+        (id, title, slug, excerpt, content, featured_image, author_id,
+         category, published_at, created_at)
+      → BlogPost model with slug-based routing
+      → Admin: add blog CRUD pages (list/create/edit/delete)
+      → Blog::index() — fetch published posts
+      → Blog::detail($slug) — single post view
+
+  2.4 CUSTOMER DASHBOARD
+      → CustomerController::dashboard()
+         - Show: my enquiries (leads I submitted), saved properties
+         - Account settings (update name, email, password)
+      → CustomerModel or reuse UserModel
+      → Customer views: enquiries list, basic profile edit
+
+  2.5 PROPERTY—AGENT LINKAGE
+      → When admin creates a property: assign agent_id dropdown
+      → On property detail page: show real agent info (from agents table)
+         instead of hardcoded "Michael Roberts"
+
+  2.6 ADMIN SETTINGS (Make It Work)
+      → Migration: settings table (key, value, updated_at)
+      → Load: site_name, site_phone, whatsapp, address, meta_description
+      → Admin settings form actually saves to this table
+      → Use these values in nav/footer dynamically
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 3 — UX POLISH & CONVERSION OPTIMIZATION (~2 days)
+  Goal: Users trust the site. They stay longer. They submit leads.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  3.1 HOMEPAGE — Make Hero Search Functional
+      → Search bar submits to /listings?search=<query>
+      → Or use quick city dropdown (Surat/Ahmedabad/Mumbai etc.)
+      → Buy/Rent tab sets listing_type filter param
+      → "Search" button redirects to filtered listing results
+
+  3.2 PROPERTY TYPE FILTER TABS ON HOMEPAGE
+      → Bungalow / Villa / Apartment / Penthouse tabs on home
+      → On click: filter the 6 property cards via Alpine.js OR
+        re-fetch with listing_type URL param
+
+  3.3 LISTING PAGE UI IMPROVEMENTS
+      → Show actual filter count dynamically in results header
+      → Add lazy loading to property images (loading="lazy" attribute)
+      → Add skeleton loader cards while results load
+      → Add grid/list view toggle (currently only cosmetic — make it work)
+      → Property card: show agent name/avatar on each card
+
+  3.4 PROPERTY DETAIL — IMPROVEMENTS
+      → Remove arbitrary "Energy Class" widget OR make it editable per property
+      → Replace property ID display: show "#FD-{id}" format instead of slug
+      → Make Share button work: Web Share API fallback to copy link
+      → Add "Save to Favorites" basic functionality
+        (session-based favorites, no login required)
+      → Fix agent card: pull from real agents table via property.agent_id
+
+  3.5 ADD SEO META TAGS (BUG-019)
+      → Layout: add section('meta_description'), section('og_image')
+      → Home controller: pass meta description + og:image
+      → Property detail: meta = property title + price + city
+      → Listing type, city in og:title
+
+  3.6 GOOGLE MAPS PLACEHOLDER → EMBED
+      → On property detail, show Google Maps embed for address+city
+      → Simple iframe embed using property address
+      → No API key needed for basic embed URL
+
+  3.7 PRINT-FRIENDLY PROPERTY DETAIL
+      → Property detail already has a print button — make it work
+      → Add @media print CSS to show only critical info
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 4 — PRODUCTION READINESS (~1 day)
+  Goal: Move from SQLite dev to MySQL production. Lock down security.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  4.1 SWITCH TO MYSQL
+      → Create .env.production with MySQL config
+      → Run php spark migrate on production MySQL
+      → Seed with admin user + sample properties
+
+  4.2 SECURITY HARDENING
+      → Enable all security filters in production:
+         - CSRF (already in views, just uncomment in Filters)
+         - SecureHeaders
+         - forcehttps (only in production)
+      → Add login rate-limiting (max 5 attempts per IP per 10 min)
+      → Move uploads directory or serve via CDN
+
+  4.3 TAILWIND PRODUCTION CSS
+      → Run: npx tailwindcss -i ./input.css -o ./public/assets/css/app.css --minify
+      → Replace CDN Tailwind with self-hosted minified CSS
+      → Reduces page weight from ~4MB to ~20-50KB
+
+  4.4 IMAGE OPTIMIZATION
+      → On upload: use CI4 Image class to resize to 1200px max width
+      → Convert to WebP using GD library
+      → Generate thumbnail version at 400px for card views
+
+  4.5 CREATE DEPLOYMENT SCRIPT
+      → durga_deploy.sh or deploy.php script:
+         - Pull latest code
+         - Run php spark migrate
+         - php spark cache:clear
+         - Check permissions on writable/
+
+  4.6 CREATE sitemap.xml ROUTE
+      → Auto-generate sitemap from properties + blog slugs
+      → Update robots.txt: `Sitemap: https://domain.com/sitemap.xml`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 8 — FILE-BY-FILE CHANGE SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FILES TO MODIFY (Phase 1):
+  ┌──────────────────────────────────────────────────────────┬────────────────┐
+  │ File                                                     │ Change         │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/layouts/main.php                               │ CSS bug fix,   │
+  │                                                          │ dark token fix,│
+  │                                                          │ WhatsApp FAB   │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Config/Filters.php                                   │ Enable CSRF    │
+  │                                                          │ Disable force  │
+  │                                                          │ HTTPS in dev   │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Config/Routes.php                                    │ POST for delete│
+  │                                                          │ Add /contact   │
+  │                                                          │ POST route     │
+  │                                                          │ Newsletter sub │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Controllers/Listings.php                             │ Add filters,   │
+  │                                                          │ Add pagination,│
+  │                                                          │ Similar props  │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Controllers/Home.php                                 │ Pass real stats│
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Controllers/Pages.php                                │ Add contactSub │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/home/index.php                                 │ Fix neighbor-  │
+  │                                                          │ hoods to India,│
+  │                                                          │ dynamic stats  │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/listings/index.php                             │ Real count,    │
+  │                                                          │ real pagination│
+  │                                                          │ filter form    │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/listings/detail.php                            │ Similar props  │
+  │                                                          │ from DB loop,  │
+  │                                                          │ real agent card│
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/partials/footer.php                            │ Fix newsletter │
+  │                                                          │ Remove broken  │
+  │                                                          │ footer links   │
+  ├──────────────────────────────────────────────────────────┼────────────────┤
+  │ app/Views/admin/listings.php                             │ POST delete    │
+  │                                                          │ confirm dialog │
+  └──────────────────────────────────────────────────────────┴────────────────┘
+
+  FILES TO CREATE (Phase 1):
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │ public/assets/images/logo.png          — Actual logo file               │
+  │ app/Views/errors/html/error_404.php    — Branded 404 page               │
+  │ app/Views/errors/html/error_500.php    — Branded 500 page               │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  FILES TO CREATE (Phase 2):
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │ app/Database/Migrations/*_CreateAgentsTable.php                         │
+  │ app/Database/Migrations/*_CreateNeighborhoodsTable.php                  │
+  │ app/Database/Migrations/*_CreateBlogPostsTable.php                      │
+  │ app/Database/Migrations/*_CreateSettingsTable.php                       │
+  │ app/Models/AgentModel.php                                               │
+  │ app/Models/NeighborhoodModel.php                                        │
+  │ app/Models/BlogPostModel.php                                            │
+  │ app/Models/SettingModel.php                                             │
+  │ app/Views/admin/blog_list.php                                           │
+  │ app/Views/admin/blog_form.php                                           │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 9 — TEST CREDENTIALS (for development testing)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  IMPORTANT: These are DEV-ONLY credentials.
+  Create these by running: php spark db:seed TestSeeder
+  OR manually run the SQL below in your SQLite3 database.
+
+  ┌──────────────────┬──────────────────────────┬─────────────┬────────────┐
+  │ Role             │ Email                    │ Password    │ Panel      │
+  ├──────────────────┼──────────────────────────┼─────────────┼────────────┤
+  │ Admin (owner)    │ admin@fastdeal.in        │ Admin@123   │ /admin     │
+  │ Agent / Staff    │ agent@fastdeal.in        │ Agent@123   │ /customer  │
+  │ Test Customer    │ test@example.com         │ Test@123    │ /customer  │
+  └──────────────────┴──────────────────────────┴─────────────┴────────────┘
+
+  SQL to insert (run in SQLite3 writable/database.db via DB Browser):
+
+  INSERT INTO users (name, email, password, role, created_at, updated_at)
+  VALUES
+    ('Admin User',   'admin@fastdeal.in',  '<hash>', 'admin', datetime('now'), datetime('now')),
+    ('Raj Sharma',   'agent@fastdeal.in',  '<hash>', 'agent', datetime('now'), datetime('now')),
+    ('Test Buyer',   'test@example.com',   '<hash>', 'user',  datetime('now'), datetime('now'));
+
+  Password hashes (PHP password_hash('Password', PASSWORD_DEFAULT)):
+  Admin@123  → $2y$12$... (run: php -r "echo password_hash('Admin@123', PASSWORD_DEFAULT);")
+  Agent@123  → Same method
+  Test@123   → Same method
+
+  RECOMMENDED: Create a Seeder file:
+  File: app/Database/Seeds/TestSeeder.php
+  Run: php spark db:seed TestSeeder
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 10 — EXECUTION PRIORITY SUMMARY (What to do in what order)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  DAY 1 — MUST FIX (Critical Bugs, Zero Visual Broken Things):
+  ─────────────────────────────────────────────────────────────
+  [x] 1.1  Add logo image → public/assets/images/logo.png
+  [x] 1.2  Fix CSS newline bug in main.php layout
+  [x] 1.3  Enable CSRF in Filters.php
+  [x] 1.4  Fix similar properties — DB query in Listings::detail()
+  [x] 1.5  Fix image URL — verify trailing slash in .env
+  [x] 1.6  Fix property count + pagination (real data)
+  [x] 1.7  Filter form action + Listings controller filter logic
+  [x] 1.8  Change admin delete to POST
+  [x] 1.9  Contact form POST handling
+  [x] 1.10 Update neighborhoods to Indian cities
+  [x] 1.11 Dynamic stats on homepage
+  [x] 1.12 Fix newsletter popup to inline message
+  [x] 1.13 Fix dark color token in Tailwind config
+  [x] 1.14 Add WhatsApp floating button
+  [x] 1.15 Fix footer broken links (Privacy/Terms/Sitemap)
+  [x] 1.16 Add custom 404 page
+
+  DAY 2 — IMPORTANT (Data Layer + UX):
+  ─────────────────────────────────────
+  [ ] 2.1  Create agents table + model + admin CRUD
+  [ ] 2.2  Connect property detail to real agent from DB
+  [ ] 2.3  Create neighborhoods table + admin seeding
+  [ ] 2.4  Customer dashboard (my enquiries)
+  [ ] 2.5  Blog: create table, admin CRUD, connect views
+
+  DAY 3 — POLISH (UX + Conversion):
+  ─────────────────────────────────
+  [ ] 3.1  Hero search bar functional (redirects to /listings?search=)
+  [ ] 3.2  Property type filter tabs on homepage
+  [ ] 3.3  SEO meta tags in layout
+  [ ] 3.4  Google Maps embed on property detail
+  [ ] 3.5  Share button (Web Share API)
+  [ ] 3.6  Add lazy loading to all images (loading="lazy")
+
+  DAY 4 — PRODUCTION (Deploy-Ready):
+  ─────────────────────────────────
+  [ ] 4.1  Switch DB to MySQL
+  [ ] 4.2  Generate production Tailwind CSS
+  [ ] 4.3  Image optimization on upload
+  [ ] 4.4  Sitemap XML route
+  [ ] 4.5  SecureHeaders + forcehttps (production only)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SECTION 11 — CTO FINAL NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  This project has EXCELLENT bones. The foundation is solid:
+  - CI4 is the right choice for this scale of real estate portal
+  - The UI design language is modern (glass, gradients, Phosphor icons)
+  - The admin is functional and well-structured
+  - The lightbox gallery on property detail is a genuine UX win
+  - The mortgage calculator is a real conversion driver
+
+  The gap between "current state" and "professional" is NOT code volume.
+  It's POLISH and PLUMBING. Fix the 20 bugs above, and this becomes
+  a credible, trustworthy real estate portal.
+
+  The three things that will most impact user trust and lead conversions:
+  1. Fix the logo (first impression, brand credibility)
+  2. Make filters work (search is the core function of a listing site)
+  3. Show real dynamic property counts (fake "1,245" destroys trust)
+
+  Everything else is important but those three directly impact whether
+  a potential buyer stays or leaves in the first 10 seconds.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  END OF PLAN — FastDeal CI4 Development Roadmap v1.0
+  Next step: Execute Phase 1 sequentially, test each fix before moving on
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

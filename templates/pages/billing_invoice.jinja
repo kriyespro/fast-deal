@@ -1,0 +1,155 @@
+{% extends 'base.jinja' %}
+{% block title %}Invoice {{ invoice.invoice_number }} | PropSurat{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-100 py-10 px-4">
+    <div class="max-w-2xl mx-auto">
+
+        <!-- Actions bar -->
+        <div class="flex items-center justify-between mb-6">
+            <a href="{{ url('billing_invoices') }}" class="flex items-center gap-1.5 text-sm text-slate-600 hover:text-orange transition-colors">
+                <i class="ph-bold ph-arrow-left"></i> Back to Invoices
+            </a>
+            <button onclick="window.print()" class="flex items-center gap-1.5 text-sm font-semibold text-navy border border-slate-200 bg-white px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+                <i class="ph-bold ph-printer"></i> Print / PDF
+            </button>
+        </div>
+
+        <!-- Invoice card -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden" id="invoice-print">
+
+            <!-- Header -->
+            <div class="bg-[#0C1E35] px-8 py-8">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-4">
+                            <div class="w-9 h-9 bg-orange rounded-xl flex items-center justify-center">
+                                <i class="ph-bold ph-buildings text-white text-base"></i>
+                            </div>
+                            <span class="font-outfit font-bold text-white text-xl">PropSurat</span>
+                        </div>
+                        <div class="text-white/50 text-sm">hello@propsurat.in</div>
+                        <div class="text-white/50 text-sm">+91 261 400 0000</div>
+                        <div class="text-white/50 text-sm">Surat, Gujarat — 395001</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-white/40 text-xs uppercase tracking-widest mb-1">Invoice</div>
+                        <div class="font-mono font-bold text-white text-lg">#{{ invoice.invoice_number }}</div>
+                        <div class="mt-3">
+                            {% if invoice.status == 'paid' %}
+                            <span class="inline-flex items-center gap-1.5 bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-green-500/30">
+                                <i class="ph-fill ph-check-circle"></i> PAID
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/30">
+                                PENDING
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill to + dates -->
+            <div class="px-8 py-6 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <div class="text-xs font-bold text-muted uppercase tracking-wide mb-2">Billed To</div>
+                    <div class="font-semibold text-navy">{{ invoice.user.full_name }}</div>
+                    <div class="text-muted text-sm">{{ invoice.user.email }}</div>
+                    {% if invoice.user.phone %}
+                    <div class="text-muted text-sm">{{ invoice.user.phone }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-muted uppercase tracking-wide mb-2">Invoice Details</div>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-muted">Invoice Date</span>
+                            <span class="text-navy font-medium">{{ invoice.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                        {% if invoice.paid_at %}
+                        <div class="flex justify-between">
+                            <span class="text-muted">Payment Date</span>
+                            <span class="text-navy font-medium">{{ invoice.paid_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex justify-between">
+                            <span class="text-muted">Payment Method</span>
+                            <span class="text-navy font-medium">{{ invoice.payment_method }}</span>
+                        </div>
+                        {% if invoice.transaction_id %}
+                        <div class="flex justify-between">
+                            <span class="text-muted">Transaction ID</span>
+                            <span class="text-navy font-mono text-xs">{{ invoice.transaction_id }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line items -->
+            <div class="px-8 py-6 border-b border-slate-100">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100">
+                            <th class="text-left py-2 font-semibold text-muted text-xs uppercase tracking-wide">Description</th>
+                            <th class="text-right py-2 font-semibold text-muted text-xs uppercase tracking-wide">Qty</th>
+                            <th class="text-right py-2 font-semibold text-muted text-xs uppercase tracking-wide">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-50">
+                            <td class="py-4">
+                                <div class="font-semibold text-navy">{{ invoice.plan.display_name }} Plan Subscription</div>
+                                <div class="text-muted text-xs mt-0.5">PropSurat — {{ invoice.plan.duration_days }}-day subscription</div>
+                                <div class="mt-2 flex flex-wrap gap-1.5">
+                                    {% for feature in invoice.plan.features_list[:4] %}
+                                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{{ feature }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="py-4 text-right text-muted">1</td>
+                            <td class="py-4 text-right font-semibold text-navy">₹{{ invoice.amount | int }}.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="px-8 py-6">
+                <div class="max-w-xs ml-auto space-y-2 text-sm">
+                    <div class="flex justify-between text-muted">
+                        <span>Subtotal</span>
+                        <span>₹{{ invoice.amount | int }}.00</span>
+                    </div>
+                    <div class="flex justify-between text-muted">
+                        <span>GST (18% — included)</span>
+                        <span>₹{{ ((invoice.amount * 18 / 118) | round(2)) }}</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-base border-t border-slate-200 pt-3 mt-3">
+                        <span class="text-navy">Total Paid</span>
+                        <span class="text-orange font-outfit text-xl">₹{{ invoice.amount | int }}.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-slate-50 border-t border-slate-100 px-8 py-5 text-center text-xs text-muted">
+                Shukriya PropSurat use karne ke liye! Sawaal ho toh hello@propsurat.in pe email karein.
+                <div class="mt-1">This is a computer-generated invoice and does not require a signature.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+@media print {
+    nav, header, footer, .no-print { display: none !important; }
+    body { background: white !important; }
+    #invoice-print { border: none !important; box-shadow: none !important; }
+}
+</style>
+{% endblock %}

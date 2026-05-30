@@ -1,0 +1,409 @@
+{% extends 'base.jinja' %}
+{% block title %}{{ property.title }} | PropSurat{% endblock %}
+{% block meta_description %}{{ property.title }} in {{ property.city.name if property.city else 'India' }}. {{ property.price_display }}. {{ property.bedrooms }}BHK, {{ property.area_sqft }} sqft.{% endblock %}
+
+{% block extra_head %}
+<style>
+.gallery-grid { display: grid; grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(2,250px); gap: 12px; }
+.gallery-main { grid-column: span 2; grid-row: span 2; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Property Header -->
+<div class="bg-white border-b border-slate-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+            <a href="{{ url('home') }}" class="hover:text-orange transition-colors">Home</a>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+            <a href="{{ url('listings') }}" class="hover:text-orange transition-colors">Properties</a>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+            <span class="text-slate-700 font-medium truncate">{{ property.title | truncate(50, True) }}</span>
+        </div>
+
+        <div class="flex flex-col lg:flex-row justify-between lg:items-end gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                    <span class="text-xs font-bold px-3 py-1 rounded-full
+                        {% if property.listing_type == 'sale' %}bg-navy text-white
+                        {% elif property.listing_type == 'rent' %}bg-green-600 text-white
+                        {% else %}bg-purple-600 text-white{% endif %}">
+                        {{ property.get_listing_type_display() | upper }}
+                    </span>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+                        {{ property.get_property_type_display() }}
+                    </span>
+                    {% if property.is_rera_verified %}
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-orange text-white">RERA ✓</span>
+                    {% endif %}
+                    <span class="text-slate-400 text-sm flex items-center gap-1">
+                        <i class="ph ph-eye text-slate-400"></i> {{ property.views_count }} views
+                    </span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2 font-outfit">{{ property.title }}</h1>
+                <p class="text-lg text-slate-500 flex items-center gap-2">
+                    <i class="ph-fill ph-map-pin text-orange"></i>
+                    {% if property.locality %}{{ property.locality.name }}, {% endif %}
+                    {{ property.city.name if property.city else '' }}
+                    {% if property.address %} · {{ property.address }}{% endif %}
+                </p>
+            </div>
+            <div class="text-left lg:text-right">
+                <div class="text-4xl md:text-5xl font-bold text-orange mb-1 font-outfit">{{ property.price_display }}</div>
+                {% if property.listing_type == 'rent' %}<div class="text-slate-400 text-sm">per month</div>{% endif %}
+                {% if property.price_per_sqft %}<div class="text-slate-400 text-sm">₹{{ property.price_per_sqft | int }}/sqft</div>{% endif %}
+                <div class="flex gap-3 mt-3 lg:justify-end">
+                    <!-- Save button -->
+                    {% if request.user.is_authenticated %}
+                    <div id="save-btn-detail">
+                        {% with property_pk=property.pk, is_saved=is_saved %}
+                        <div class="flex items-center">
+                            <form hx-post="{{ url('save_property', pk=property.pk) }}"
+                                  hx-target="#save-btn-detail" hx-swap="innerHTML">
+                                {{ csrf_input }}
+                                <button type="submit"
+                                        class="bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium
+                                               {{ 'text-red-500' if is_saved else 'text-slate-700' }}">
+                                    <i class="{{ 'ph-fill ph-heart text-red-500' if is_saved else 'ph-bold ph-heart' }}"></i>
+                                    {{ 'Saved' if is_saved else 'Save' }}
+                                </button>
+                            </form>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    {% endif %}
+                    <button class="bg-slate-100 hover:bg-slate-200 border border-slate-200 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm text-slate-700">
+                        <i class="ph ph-share-network text-lg"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Gallery -->
+<section class="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8"
+         x-data="{ lightbox: false, lbIdx: 0, lbImages: {{ images_json }} }"
+         @keydown.escape.window="lightbox = false"
+         @keydown.arrow-left.window="if(lightbox) lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length"
+         @keydown.arrow-right.window="if(lightbox) lbIdx = (lbIdx + 1) % lbImages.length">
+    {% set images = property.images.all() | list %}
+    {% set fallback_src = 'https://picsum.photos/seed/prop' ~ property.pk ~ '/1200/700' %}
+    {% if images %}
+    <div class="gallery-grid hidden md:grid rounded-2xl overflow-hidden">
+        <div class="gallery-main relative group overflow-hidden cursor-pointer"
+             @click="lightbox = true; lbIdx = 0">
+            <img src="{{ images[0].image.url }}" alt="{{ property.title }}"
+                 loading="eager"
+                 onerror="this.onerror=null;this.src='{{ fallback_src }}'"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors flex items-end justify-end p-3">
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-slate-900 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                    <i class="ph ph-arrows-out"></i> View all {{ images | length }} photos
+                </span>
+            </div>
+        </div>
+        {% for img in images[1:5] %}
+        <div class="relative group overflow-hidden cursor-pointer"
+             @click="lightbox = true; lbIdx = {{ loop.index }}">
+            <img src="{{ img.image.url }}" alt="{{ img.caption or property.title }}"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='{{ fallback_src ~ loop.index }}'"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            {% if loop.last and images | length > 5 %}
+            <div class="absolute inset-0 bg-slate-900/50 flex items-center justify-center pointer-events-none">
+                <div class="text-white font-bold text-xl flex items-center gap-2">
+                    <i class="ph ph-camera"></i> +{{ images | length - 5 }} Photos
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% if images | length < 5 %}
+        {% for i in range(5 - images | length) %}
+        <div class="bg-slate-100 flex items-center justify-center overflow-hidden">
+            <img src="{{ fallback_src ~ (images | length + loop.index) }}"
+                 alt="" class="w-full h-full object-cover opacity-60">
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <!-- Mobile gallery slider -->
+    <div class="md:hidden relative rounded-2xl overflow-hidden h-[350px]"
+         x-data="{ cur: 0, total: {{ images | length }} }">
+        {% for img in images %}
+        <img src="{{ img.image.url }}"
+             alt="{{ img.caption or property.title }}"
+             onerror="this.onerror=null;this.src='{{ fallback_src }}'"
+             x-show="cur === {{ loop.index0 }}"
+             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300">
+        {% endfor %}
+        {% if images | length > 1 %}
+        <button @click="cur = (cur - 1 + total) % total"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-colors">
+            <i class="ph-bold ph-caret-left text-slate-800"></i>
+        </button>
+        <button @click="cur = (cur + 1) % total"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-colors">
+            <i class="ph-bold ph-caret-right text-slate-800"></i>
+        </button>
+        {% endif %}
+        <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 px-4 py-2 rounded-full font-medium text-sm flex items-center gap-2 border border-slate-200">
+            <i class="ph ph-images"></i> <span x-text="cur + 1"></span>/{{ images | length }}
+        </div>
+    </div>
+    {% else %}
+    <div class="w-full rounded-2xl overflow-hidden h-[400px] md:h-[500px]">
+        <img src="{{ fallback_src }}" alt="{{ property.title }}" class="w-full h-full object-cover">
+    </div>
+    {% endif %}
+
+    <!-- Lightbox modal -->
+    <div x-show="lightbox" x-cloak
+         class="fixed inset-0 z-50 bg-slate-950/90 flex items-center justify-center p-4"
+         @click.self="lightbox = false">
+        <button @click="lightbox = false"
+                class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <i class="ph-bold ph-x text-lg"></i>
+        </button>
+        <button @click="lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length"
+                class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <i class="ph-bold ph-caret-left text-xl"></i>
+        </button>
+        <button @click="lbIdx = (lbIdx + 1) % lbImages.length"
+                class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <i class="ph-bold ph-caret-right text-xl"></i>
+        </button>
+        <img :src="lbImages[lbIdx]"
+             alt="{{ property.title }}"
+             class="max-w-full max-h-[85vh] rounded-xl object-contain shadow-2xl">
+        <div class="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium">
+            <span x-text="lbIdx + 1"></span> / <span x-text="lbImages.length"></span>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        <!-- Details Column -->
+        <div class="lg:col-span-2 space-y-10">
+
+            <!-- Quick Facts -->
+            <div class="flex flex-wrap gap-6 py-6 border-y border-slate-200">
+                {% if property.bedrooms %}
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                        <i class="ph ph-bed text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-slate-900">{{ property.bedrooms }}</div>
+                        <div class="text-sm text-slate-500">Bedrooms</div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if property.bathrooms %}
+                <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                        <i class="ph ph-bathtub text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-slate-900">{{ property.bathrooms }}</div>
+                        <div class="text-sm text-slate-500">Bathrooms</div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if property.area_sqft %}
+                <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                        <i class="ph ph-square text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-slate-900">{{ property.area_sqft }}</div>
+                        <div class="text-sm text-slate-500">Square Feet</div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if property.furnishing %}
+                <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                        <i class="ph ph-couch text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-base font-bold text-slate-900">{{ property.get_furnishing_display() }}</div>
+                        <div class="text-sm text-slate-500">Furnishing</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if property.description %}
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-4">About This Property</h2>
+                <div class="text-slate-600 leading-relaxed whitespace-pre-line">{{ property.description }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Amenities -->
+            {% if property.amenities_list %}
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">Features & Amenities</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                    {% for amenity in property.amenities_list %}
+                    <div class="flex items-center gap-3 text-slate-600">
+                        <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                        <span>{{ amenity }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- RERA Info -->
+            {% if property.rera_id %}
+            <div class="bg-green-50 border border-green-200 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <i class="ph-fill ph-seal-check text-green-600 text-2xl"></i>
+                    <h3 class="font-outfit font-bold text-green-800 text-lg">RERA Verified</h3>
+                </div>
+                <p class="text-green-700 text-sm">RERA Registration: <span class="font-mono font-semibold">{{ property.rera_id }}</span></p>
+            </div>
+            {% endif %}
+
+            <!-- Location -->
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">Location</h2>
+                <div class="h-64 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                    <div class="bg-white/90 p-6 rounded-2xl border border-slate-200 shadow-xl text-center">
+                        <div class="w-12 h-12 bg-orange/10 text-orange rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="ph-fill ph-map-pin text-2xl"></i>
+                        </div>
+                        <h3 class="text-slate-900 font-bold text-lg mb-1">
+                            {% if property.locality %}{{ property.locality.name }}, {% endif %}{{ property.city.name if property.city else '' }}
+                        </h3>
+                        {% if property.address %}
+                        <p class="text-slate-500 text-sm">{{ property.address }}</p>
+                        {% else %}
+                        <p class="text-slate-500 text-sm">Exact location given on viewing request.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-[80px] space-y-6">
+
+                <!-- Contact Agent / Inquiry Form -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg">
+                    {% if property.broker %}
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-full bg-orange flex items-center justify-center font-outfit font-bold text-white text-xl">
+                            {{ property.broker.full_name[0] | upper }}
+                        </div>
+                        <div>
+                            <h4 class="text-slate-900 font-bold">{{ property.broker.full_name }}</h4>
+                            <p class="text-slate-500 text-sm">Property Broker</p>
+                            {% if property.broker.profile.rera_number %}
+                            <p class="text-xs text-green-600 font-medium">RERA: {{ property.broker.profile.rera_number }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <h3 class="text-xl font-bold text-slate-900 font-outfit mb-4">Contact Agent</h3>
+                    {% endif %}
+
+                    <div id="inquiry-result"></div>
+                    {% include 'partials/_inquiry_form.jinja' %}
+                </div>
+
+                <!-- Property Details Card -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                    <h3 class="font-outfit font-bold text-navy text-lg mb-4">Property Details</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Type</span>
+                            <span class="font-semibold text-slate-700">{{ property.get_property_type_display() }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Status</span>
+                            <span class="font-semibold text-slate-700">{{ property.get_listing_type_display() }}</span>
+                        </div>
+                        {% if property.floor_number %}
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Floor</span>
+                            <span class="font-semibold text-slate-700">{{ property.floor_number }}{% if property.total_floors %}/{{ property.total_floors }}{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        {% if property.balconies %}
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Balconies</span>
+                            <span class="font-semibold text-slate-700">{{ property.balconies }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex justify-between py-2">
+                            <span class="text-slate-500">Listed</span>
+                            <span class="font-semibold text-slate-700">{{ property.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Similar Properties -->
+{% if similar %}
+<section class="bg-slate-50 border-t border-slate-200 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-end mb-10">
+            <h2 class="text-3xl font-bold text-slate-900 font-outfit">Similar Properties</h2>
+            <a href="{{ url('listings') }}" class="hidden md:flex items-center gap-2 text-orange hover:text-slate-900 transition-colors font-medium">
+                View more <i class="ph ph-arrow-right"></i>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for prop in similar %}
+            <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg">
+                <a href="{{ url('property_detail', pk=prop.pk) }}" class="block relative h-52 overflow-hidden">
+                    {% set sim_img = prop.images.first() %}
+                    <img src="{{ sim_img.image.url if sim_img else 'https://picsum.photos/seed/prop' ~ prop.pk ~ '/800/520' }}"
+                         alt="{{ prop.title }}"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='https://picsum.photos/seed/prop{{ prop.pk }}/800/520'"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute bottom-3 right-3 bg-orange/90 text-white font-bold px-3 py-1.5 rounded-lg text-sm">
+                        {{ prop.price_display }}
+                    </div>
+                </a>
+                <div class="p-5">
+                    <a href="{{ url('property_detail', pk=prop.pk) }}" class="block text-base font-bold text-slate-900 hover:text-orange transition-colors mb-1 truncate font-outfit">
+                        {{ prop.title }}
+                    </a>
+                    <p class="text-slate-500 text-sm flex items-center gap-1 mb-3 truncate">
+                        <i class="ph ph-map-pin text-slate-400"></i>
+                        {% if prop.locality %}{{ prop.locality.name }}, {% endif %}{{ prop.city.name if prop.city else '' }}
+                    </p>
+                    <div class="flex items-center gap-4 text-xs text-slate-500 pt-3 border-t border-slate-100">
+                        {% if prop.bedrooms %}<span class="flex items-center gap-1"><i class="ph ph-bed"></i> {{ prop.bedrooms }} BHK</span>{% endif %}
+                        {% if prop.area_sqft %}<span class="flex items-center gap-1"><i class="ph ph-ruler"></i> {{ prop.area_sqft }} sqft</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

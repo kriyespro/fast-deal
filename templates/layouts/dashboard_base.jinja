@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard | PropSurat{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: { extend: { colors: {
+            navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+            orange: '#E8621A', 'orange-light': '#F47B35',
+            gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+        }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+        .sidebar { background: #0C1E35; width: 260px; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s; }
+        .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 11px 20px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; transition: all 0.18s; cursor: pointer; margin: 1px 0; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+        .sidebar-link.active { background: #E8621A; color: white; }
+        .main { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+        .topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+        .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; }
+        .mini-bar { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-top: 12px; }
+        .mini-bar-fill { height: 100%; background: #E8621A; border-radius: 2px; transition: width 0.8s ease; }
+        .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+        .tag-active { background: rgba(27,122,66,0.1); color: #1B7A42; }
+        .tag-pending { background: rgba(245,158,11,0.1); color: #d97706; }
+        .tag-sold { background: rgba(99,102,241,0.1); color: #4f46e5; }
+        .tag-inactive { background: #f1f5f9; color: #64748B; }
+        .lead-row { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; transition: background 0.15s; }
+        .lead-row:hover { background: #f8fafc; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; border: none; }
+        .btn-orange { background: #E8621A; color: white; }
+        .btn-orange:hover { background: #c95516; }
+        .btn-outline { background: white; color: #374151; border: 1.5px solid #e2e8f0; }
+        .btn-outline:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .progress-bar { background: #e2e8f0; border-radius: 999px; height: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #E8621A, #F47B35); }
+        .mobile-menu-btn { display: none; }
+        .form-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
+        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .form-input:focus { border-color: #E8621A; box-shadow: 0 0 0 3px rgba(232,98,26,0.1); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .modal { background: white; border-radius: 20px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .mobile-menu-btn { display: flex; }
+        }
+        .btn-green { background: #1B7A42; color: white; }
+        .btn-green:hover { background: #155f34; }
+        .btn-red { background: #dc2626; color: white; }
+        .btn-red:hover { background: #b91c1c; }
+        .global-stat { background: linear-gradient(135deg, #0C1E35 0%, #1B3A5C 100%); border-radius: 16px; padding: 20px 24px; }
+        .approval-row { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+        .approval-row:hover { background: #f8fafc; }
+        .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+        .sidebar-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; padding: 14px 20px 4px; }
+        .city-chip { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1.5px solid #e2e8f0; background: white; color: #374151; cursor: pointer; transition: all 0.18s; }
+        .city-chip.active, .city-chip:hover { background: #E8621A; color: white; border-color: #E8621A; }
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body class="bg-slate-100" {% block body_attrs %}{% endblock %}>
+{% if request.session.get('impersonator_id') %}
+<div class="bg-purple-700 text-white text-sm flex items-center justify-center gap-4 py-2 px-4 fixed top-0 left-0 right-0 z-[999]">
+    <i class="ph-bold ph-user-switch"></i>
+    Impersonating: <strong>{{ request.user.full_name }}</strong>
+    <form method="post" action="{{ url('control:stop_impersonate') }}" class="inline">
+        {{ csrf_input }}
+        <button type="submit" class="bg-white text-purple-700 text-xs font-bold px-3 py-1 rounded-full hover:bg-purple-50 ml-2">
+            Stop Impersonating
+        </button>
+    </form>
+</div>
+{% endif %}
+{% block body %}{% endblock %}
+{% block extra_js %}{% endblock %}
+<script>
+    document.addEventListener('htmx:configRequest', function(e) {
+        var match = document.cookie.match(/csrftoken=([^;]+)/);
+        if (match) e.detail.headers['X-CSRFToken'] = match[1];
+    });
+</script>
+</body>
+</html>

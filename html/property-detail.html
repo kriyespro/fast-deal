@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropSurat — 3 BHK Luxury Flat — Koramangala</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+                :root {
+            --navy: #0C1E35;
+            --navy-mid: #1B3A5C;
+            --orange: #E8621A;
+            --orange-light: #F47B35;
+            --cream: #F6F1EA;
+            --text: #1C2333;
+            --muted: #64748B;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1C2333; }
+        h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        .nav-link { color: #374151; font-size: 14px; font-weight: 500; transition: color 0.2s; padding: 4px 0; }
+        .nav-link:hover { color: #E8621A; }
+        .text-gradient { background: linear-gradient(135deg, #E8621A 0%, #F4A340 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 250px);
+            gap: 12px;
+        }
+
+        .gallery-main {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        /* Hide scrollbar for gallery thumbnails */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+    </script>
+</head>
+
+<body class="antialiased overflow-x-hidden min-h-screen flex flex-col" x-data="{ mobileMenu: false }">
+
+    
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="listings.html" class="nav-link text-orange border-b-2 border-orange">Buy</a>
+                <a href="agents.html" class="nav-link">Brokers</a>
+                <a href="neighborhoods.html" class="nav-link">Localities</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Login</a>
+                <a href="register.html" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">List Property</a>
+            </div>
+            <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="md:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-1">
+        <a href="listings.html" class="block py-2.5 text-orange font-semibold text-sm">Buy</a>
+        <a href="agents.html" class="block py-2.5 text-slate-700 text-sm">Brokers</a>
+        <a href="neighborhoods.html" class="block py-2.5 text-slate-700 text-sm">Localities</a>
+        <a href="blog.html" class="block py-2.5 text-slate-700 text-sm">Blog</a>
+        <a href="about.html" class="block py-2.5 text-slate-700 text-sm">About</a>
+        <div class="flex gap-2 pt-2">
+            <a href="login.html" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Login</a>
+            <a href="register.html" class="flex-1 text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Register</a>
+        </div>
+    </div>
+</nav>
+
+    <!-- Property Header Info -->
+    <div class="bg-white border-b border-slate-200 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row justify-between lg:items-end gap-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span
+                            class="bg-navy/20 text-orange border border-orange/30 text-xs font-bold px-3 py-1 rounded-full">FOR
+                            SALE</span>
+                        <span class="text-slate-500 text-sm"><i class="ph ph-clock text-orange"></i> Listed 2 days
+                            ago</span>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-2 font-outfit">3 BHK Luxury Flat — Koramangala
+                    </h1>
+                    <p class="text-lg text-slate-500 flex items-center gap-2">
+                        <i class="ph-fill ph-map-pin text-orange"></i> 123 Mumbai, Maharashtra 90210
+                    </p>
+                </div>
+                <div class="text-left lg:text-right">
+                    <div class="text-4xl md:text-5xl font-bold text-orange mb-2">₹1.85 Crore</div>
+                    <div class="flex gap-3 text-slate-600">
+                        <button
+                            class="bg-slate-100 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                            <i class="ph ph-heart text-lg"></i> Save
+                        </button>
+                        <button
+                            class="bg-slate-100 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                            <i class="ph ph-share-network text-lg"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Gallery Section -->
+    <section class="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="gallery-grid hidden md:grid rounded-2xl overflow-hidden">
+            <a href="#" class="gallery-main relative group overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                    alt="Main"
+                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors"></div>
+            </a>
+            <a href="#" class="relative group overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Living"
+                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors"></div>
+            </a>
+            <a href="#" class="relative group overflow-hidden bg-slate-50">
+                <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Kitchen"
+                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 opacity-80">
+                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors"></div>
+            </a>
+            <a href="#" class="relative group overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Bedroom"
+                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors"></div>
+            </a>
+            <a href="#" class="relative group overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="Bathroom"
+                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-slate-50/60 flex items-center justify-center transition-colors">
+                    <div class="text-slate-900 font-bold text-xl flex items-center gap-2"><i class="ph ph-camera"></i> +8
+                        Photos</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Mobile Gallery -->
+        <div class="md:hidden relative rounded-2xl overflow-hidden h-[350px]">
+            <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Main" class="w-full h-full object-cover">
+            <div
+                class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 px-4 py-2 rounded-full font-medium text-sm flex items-center gap-2 border border-slate-200">
+                <i class="ph ph-images"></i> 1/12
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            <!-- Details Column -->
+            <div class="lg:col-span-2 space-y-12">
+
+                <!-- Quick Facts -->
+                <div class="flex flex-wrap gap-4 py-6 border-y border-slate-200">
+                    <div class="flex items-center gap-3 w-[45%] sm:w-auto">
+                        <div
+                            class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                            <i class="ph ph-bed text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-slate-900">4</div>
+                            <div class="text-sm text-slate-500">Bedrooms</div>
+                        </div>
+                    </div>
+                    <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                    <div class="flex items-center gap-3 w-[45%] sm:w-auto">
+                        <div
+                            class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                            <i class="ph ph-bathtub text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-slate-900">3.5</div>
+                            <div class="text-sm text-slate-500">Bathrooms</div>
+                        </div>
+                    </div>
+                    <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                    <div class="flex items-center gap-3 w-[45%] sm:w-auto mt-4 sm:mt-0">
+                        <div
+                            class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                            <i class="ph ph-square text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-slate-900">4,200</div>
+                            <div class="text-sm text-slate-500">Square Feet</div>
+                        </div>
+                    </div>
+                    <div class="w-px h-12 bg-slate-100 hidden sm:block"></div>
+                    <div class="flex items-center gap-3 w-[45%] sm:w-auto mt-4 sm:mt-0">
+                        <div
+                            class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-orange border border-slate-200">
+                            <i class="ph ph-calendar-blank text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-slate-900">2022</div>
+                            <div class="text-sm text-slate-500">Year Built</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">About This Property</h2>
+                    <div class="prose prose-invert max-w-none text-slate-600 space-y-4">
+                        <p>Welcome to this stunning architectural masterpiece in the heart of Koramangala, Bangalore. This modern
+                            glass villa offers unparalleled luxury and breathtaking views from every angle. Seamlessly
+                            blending indoor and outdoor living, this property is designed for those who appreciate the
+                            finer things in life.</p>
+
+                        <p>The open-concept main floor features soaring 14-foot ceilings, floor-to-ceiling retractable
+                            glass walls, and a state-of-the-art chef's kitchen imported from Italy. The primary suite is
+                            a true sanctuary, occupying its own wing with a private terrace, dual walk-in closets, and a
+                            spa-like bathroom enveloped in Calacatta marble.</p>
+
+                        <p>Step outside to discover a private oasis complete with a zero-edge infinity pool, outdoor
+                            kitchen, fire pit, and manicured terraced gardens perfectly scaled for intimate gatherings
+                            or lavish entertaining.</p>
+                    </div>
+                    <button
+                        class="text-orange font-medium hover:text-slate-900 mt-4 transition-colors flex items-center gap-1">
+                        Read more <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <!-- Features & Amenities -->
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">Features & Amenities</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Smart Home System</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Infinity Pool</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Wine Cellar</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Home Theater</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Chef's Kitchen</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>3-Car Garage</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Outdoor Kitchen</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Radiant Heating</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-600">
+                            <i class="ph-fill ph-check-circle text-orange text-xl"></i>
+                            <span>Solar Panels</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Location -->
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">Location</h2>
+                    <div class="h-[400px] w-full rounded-2xl overflow-hidden border border-slate-200 relative bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                            alt="Map" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="bg-white/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-200 shadow-2xl text-center flex flex-col items-center">
+                                <div
+                                    class="w-12 h-12 bg-navy/20 text-orange rounded-full flex items-center justify-center mb-3">
+                                    <i class="ph-fill ph-map-pin text-2xl"></i>
+                                </div>
+                                <h3 class="text-slate-900 font-bold text-lg mb-1">Koramangala, Bangalore</h3>
+                                <p class="text-slate-500 text-sm">Exact location provided upon viewing request.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sticky Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-[100px] space-y-6">
+
+                    <!-- Contact Agent Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-navy/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none">
+                        </div>
+
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-6 relative z-10">Contact Agent</h3>
+
+                        <div class="flex items-center gap-4 mb-8 relative z-10">
+                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-orange/50">
+                                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                    alt="Agent" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-slate-900 font-bold text-lg">Rajesh Patel</h4>
+                                <p class="text-slate-500 text-sm">Senior Property Consultant</p>
+                                <div class="flex items-center gap-1 mt-1">
+                                    <i class="ph-fill ph-star text-orange text-sm"></i>
+                                    <i class="ph-fill ph-star text-orange text-sm"></i>
+                                    <i class="ph-fill ph-star text-orange text-sm"></i>
+                                    <i class="ph-fill ph-star text-orange text-sm"></i>
+                                    <i class="ph-fill ph-star text-orange text-sm"></i>
+                                    <span class="text-xs text-slate-400 ml-1">(48 Reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form class="space-y-4 relative z-10">
+                            <div>
+                                <input type="text" placeholder="Your Name"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <input type="email" placeholder="Your Email"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <input type="tel" placeholder="Your Phone"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <textarea rows="3" placeholder="I am interested in 123 Koramangala, Bangalore..."
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors resize-none"></textarea>
+                            </div>
+
+                            <button type="button"
+                                class="w-full bg-orange hover:bg-orange-700 text-white font-bold rounded-lg px-4 py-4 transition-colors shadow-lg shadow-orange/20 flex justify-center items-center gap-2 group">
+                                Send Message <i
+                                    class="ph-bold ph-paper-plane-tilt group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                            </button>
+
+                            <div class="flex gap-4 mt-4">
+                                <button type="button"
+                                    class="flex-1 bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 transition-colors flex justify-center items-center gap-2">
+                                    <i class="ph-bold ph-phone"></i> Call
+                                </button>
+                                <button type="button"
+                                    class="flex-1 bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 rounded-lg px-4 py-3 transition-colors flex justify-center items-center gap-2">
+                                    <i class="ph-bold ph-whatsapp-logo text-green-500"></i> Chat
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Mortgage Calculator -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl"
+                        x-data="{ price: 3450000, downPayment: 20, interest: 5.5, years: 30, calcPayment() { let P = this.price * (1 - this.downPayment / 100); let r = this.interest / 100 / 12; let n = this.years * 12; if (r === 0) return Math.round(P / n); return Math.round(P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)); } }">
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-6">Mortgage Calculator</h3>
+
+                        <div class="mb-8">
+                            <div class="text-sm text-slate-500 mb-1">Estimated Monthly Payment</div>
+                            <div class="text-3xl font-bold text-orange" x-text="'$' + calcPayment().toLocaleString()"></div>
+                        </div>
+
+                        <div class="space-y-5 text-sm">
+                            <div class="flex justify-between border-b border-slate-200 pb-2">
+                                <span class="text-slate-500">Total Price</span>
+                                <span class="text-slate-900 font-medium" x-text="'$' + price.toLocaleString()"></span>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-slate-500">Down Payment</span>
+                                    <span class="text-slate-900 font-medium"
+                                        x-text="'$' + (price * downPayment / 100).toLocaleString() + ' (' + downPayment + '%)'"></span>
+                                </div>
+                                <input type="range" x-model="downPayment" min="0" max="100"
+                                    class="w-full accent-primary bg-slate-100 rounded-lg appearance-none h-1 mb-2">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-slate-500">Term</span>
+                                    <span class="text-slate-900 font-medium" x-text="years + ' Years'"></span>
+                                </div>
+                                <div class="flex bg-slate-50 rounded p-1 border border-slate-200">
+                                    <button @click="years = 15"
+                                        :class="years == 15 ? 'bg-orange text-white' : 'text-gray-400'"
+                                        class="flex-1 rounded py-1 transition-colors">15y</button>
+                                    <button @click="years = 20"
+                                        :class="years == 20 ? 'bg-orange text-white' : 'text-gray-400'"
+                                        class="flex-1 rounded py-1 transition-colors">20y</button>
+                                    <button @click="years = 30"
+                                        :class="years == 30 ? 'bg-orange text-white' : 'text-gray-400'"
+                                        class="flex-1 rounded py-1 transition-colors">30y</button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 pt-4">
+                                <span class="text-slate-500">Interest Rate</span>
+                                <span class="text-slate-900 font-medium">5.5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Properties -->
+    <section class="bg-white border-t border-slate-200 py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 font-outfit">Similar Properties</h2>
+                <a href="listings.html"
+                    class="hidden md:flex items-center gap-2 text-orange hover:text-slate-900 transition-colors font-medium">
+                    View more <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Carousel Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card -->
+                <div
+                    class="group rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 hover:border-slate-200 transition-transform duration-300 hover:-translate-y-2 relative shadow-xl">
+                    <a href="#" class="block relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="Villa"
+                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                        </div>
+                        <div
+                            class="absolute bottom-3 right-3 z-20 bg-orange/90 backdrop-blur-sm text-dark font-bold px-3 py-1.5 rounded-lg text-sm">
+                            $4,200,000
+                        </div>
+                    </a>
+                    <div class="p-5">
+                        <a href="#"
+                            class="block text-lg font-bold text-slate-900 hover:text-orange transition-colors mb-2 truncate">Hillside
+                            Contemporary</a>
+                        <p class="text-slate-500 text-sm flex items-center gap-1 mb-4 truncate">
+                            <i class="ph ph-map-pin text-slate-400"></i> Hollywood Hills, CA
+                        </p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><i class="ph ph-bed text-slate-500 text-lg"></i>
+                                    <span class="text-slate-900 text-xs">5</span></span>
+                                <span class="flex items-center gap-1"><i
+                                        class="ph ph-bathtub text-slate-500 text-lg"></i> <span
+                                        class="text-slate-900 text-xs">4.5</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div
+                    class="group rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 hover:border-slate-200 transition-transform duration-300 hover:-translate-y-2 relative shadow-xl">
+                    <a href="#" class="block relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="Villa"
+                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                        </div>
+                        <div
+                            class="absolute bottom-3 right-3 z-20 bg-orange/90 backdrop-blur-sm text-dark font-bold px-3 py-1.5 rounded-lg text-sm">
+                            $3,950,000
+                        </div>
+                    </a>
+                    <div class="p-5">
+                        <a href="#"
+                            class="block text-lg font-bold text-slate-900 hover:text-orange transition-colors mb-2 truncate">Minimalist
+                            Mansion</a>
+                        <p class="text-slate-500 text-sm flex items-center gap-1 mb-4 truncate">
+                            <i class="ph ph-map-pin text-slate-400"></i> Koramangala, Bangalore
+                        </p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><i class="ph ph-bed text-slate-500 text-lg"></i>
+                                    <span class="text-slate-900 text-xs">4</span></span>
+                                <span class="flex items-center gap-1"><i
+                                        class="ph ph-bathtub text-slate-500 text-lg"></i> <span
+                                        class="text-slate-900 text-xs">4</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div
+                    class="group rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 hover:border-slate-200 transition-transform duration-300 hover:-translate-y-2 relative shadow-xl hidden lg:block">
+                    <a href="#" class="block relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1628624747186-a941c476b7ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="Villa"
+                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                        </div>
+                        <div
+                            class="absolute bottom-3 right-3 z-20 bg-orange/90 backdrop-blur-sm text-dark font-bold px-3 py-1.5 rounded-lg text-sm">
+                            $2,800,000
+                        </div>
+                    </a>
+                    <div class="p-5">
+                        <a href="#"
+                            class="block text-lg font-bold text-slate-900 hover:text-orange transition-colors mb-2 truncate">Mid-Century
+                            Modern</a>
+                        <p class="text-slate-500 text-sm flex items-center gap-1 mb-4 truncate">
+                            <i class="ph ph-map-pin text-slate-400"></i> Trousdale Estates, CA
+                        </p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><i class="ph ph-bed text-slate-500 text-lg"></i>
+                                    <span class="text-slate-900 text-xs">3</span></span>
+                                <span class="flex items-center gap-1"><i
+                                        class="ph ph-bathtub text-slate-500 text-lg"></i> <span
+                                        class="text-slate-900 text-xs">3</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center md:hidden">
+                <a href="listings.html"
+                    class="inline-flex items-center justify-center border border-slate-300 px-8 py-3 rounded-full text-slate-900 font-medium hover:bg-slate-100 transition-colors">
+                    View More Properties
+                </a>
+            </div>
+        </div>
+    </section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="bg-[#08111F] pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+            <!-- Brand -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center">
+                        <i class="ph-fill ph-house-line text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-outfit text-xl font-800 text-white">Prop<span class="text-orange">Surat</span></span>
+                        <div class="text-[9px] font-semibold tracking-[.15em] uppercase text-white/40">India's Property Portal</div>
+                    </div>
+                </div>
+                <p class="text-white/50 text-sm leading-relaxed mb-5">India ka sabse trusted multi-broker property portal — 5 roles, 50 cities, 1 goal: Aapka Apna Ghar.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-facebook-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-instagram-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-twitter-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-youtube-logo"></i></a>
+                </div>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Buy Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Rent Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">New Projects</a></li>
+                    <li><a href="agents.html" class="text-white/50 hover:text-orange transition-colors">Find Brokers</a></li>
+                    <li><a href="about.html" class="text-white/50 hover:text-orange transition-colors">About Us</a></li>
+                    <li><a href="contact.html" class="text-white/50 hover:text-orange transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            <!-- Cities -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Top Cities</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Mumbai</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Delhi NCR</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Bangalore</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Hyderabad</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Surat</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Pune</a></li>
+                </ul>
+            </div>
+            <!-- For Partners -->
+            <div>
+                <h4 class="text-white font-bold mb-4">For Partners</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Broker</a></li>
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Builder</a></li>
+                    <li><a href="dashboard-broker.html" class="text-white/50 hover:text-orange transition-colors">Broker Dashboard</a></li>
+                    <li><a href="dashboard-builder.html" class="text-white/50 hover:text-orange transition-colors">Builder Dashboard</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Advertise With Us</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">API Access</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Newsletter -->
+        <div class="border-t border-white/10 pt-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="text-white font-bold mb-1">📧 Newsletter Subscribe Karo</h4>
+                    <p class="text-white/40 text-sm">New properties, market news, exclusive deals — inbox mein.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="email" placeholder="aapka@email.com" class="flex-1 md:w-64 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none focus:border-orange">
+                    <button class="btn-primary px-5 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom -->
+        <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/30">
+            <span>© 2026 PropSurat. All rights reserved. RERA Compliant Platform.</span>
+            <div class="flex gap-5">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                <a href="#" class="hover:text-white transition-colors">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+</html>

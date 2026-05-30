@@ -1,0 +1,15 @@
+{% extends 'base.jinja' %}
+{% block title %}Server Error | PropSurat{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex items-center justify-center min-h-[60vh] px-4">
+    <div class="text-center max-w-md">
+        <div class="text-8xl font-bold text-navy font-outfit mb-4">500</div>
+        <h1 class="text-3xl font-bold text-slate-900 font-outfit mb-3">Kuch Gadbad Hui</h1>
+        <p class="text-slate-500 mb-8">Humari team ko pata chal gaya. Thodi der mein theek ho jayega.</p>
+        <a href="{{ url('home') }}" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold">
+            <i class="ph-bold ph-house"></i> Home Pe Jao
+        </a>
+    </div>
+</div>
+{% endblock %}

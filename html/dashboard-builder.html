@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder Dashboard | PropSurat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+    .sidebar { background: #0C1E35; width: 260px; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 11px 20px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; transition: all 0.18s; cursor: pointer; margin: 1px 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .sidebar-link.active { background: #E8621A; color: white; }
+    .main { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+    .topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; }
+    .progress-bar { background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; }
+    .project-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; transition: all 0.2s; }
+    .project-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.09); transform: translateY(-2px); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; border: none; }
+    .btn-orange { background: #E8621A; color: white; }
+    .btn-orange:hover { background: #c95516; }
+    .btn-outline { background: white; color: #374151; border: 1.5px solid #e2e8f0; }
+    .btn-outline:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .unit-box { border-radius: 8px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; transition: all 0.15s; cursor: pointer; }
+    .unit-box:hover { transform: scale(1.1); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal { background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .form-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
+    .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-input:focus { border-color: #E8621A; box-shadow: 0 0 0 3px rgba(232,98,26,0.1); }
+    .mobile-menu-btn { display: none; }
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        .main { margin-left: 0; }
+        .mobile-menu-btn { display: flex; }
+    }
+</style>
+</head>
+<body class="bg-slate-100" x-data="{
+    activeTab: 'overview',
+    sidebarOpen: false,
+    showAddProject: false,
+    selectedProject: 0,
+    projects: [
+        {
+            id: 0,
+            name: 'Surat Heights Phase 2',
+            location: 'Vesu, Surat',
+            type: 'Residential',
+            status: 'ongoing',
+            completion: 68,
+            total: 120,
+            sold: 82,
+            available: 28,
+            blocked: 10,
+            price: '₹72L – ₹1.2Cr',
+            bhk: ['2 BHK', '3 BHK', '4 BHK'],
+            rera: 'RERA/GJ/R/2023/001',
+            img: 'photo-1545324418-cc1a3fa10c00',
+            revenue: '₹42 Cr',
+            inquiry: 48
+        },
+        {
+            id: 1,
+            name: 'Green Valley Residences',
+            location: 'Adajan, Surat',
+            type: 'Residential',
+            status: 'upcoming',
+            completion: 0,
+            total: 80,
+            sold: 0,
+            available: 80,
+            blocked: 0,
+            price: '₹55L – ₹85L',
+            bhk: ['1 BHK', '2 BHK', '3 BHK'],
+            rera: 'RERA/GJ/R/2024/004',
+            img: 'photo-1558618666-fcd25c85cd64',
+            revenue: '₹0',
+            inquiry: 22
+        },
+        {
+            id: 2,
+            name: 'Trade Hub Surat',
+            location: 'Ring Road, Surat',
+            type: 'Commercial',
+            status: 'completed',
+            completion: 100,
+            total: 45,
+            sold: 40,
+            available: 5,
+            blocked: 0,
+            price: '₹60L – ₹1.5Cr',
+            bhk: ['Office', 'Shop', 'Showroom'],
+            rera: 'RERA/GJ/C/2022/007',
+            img: 'photo-1512917774080-9991f1c4c750',
+            revenue: '₹22 Cr',
+            inquiry: 5
+        }
+    ]
+}">
+
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-orange/20 flex items-center justify-center">
+                <i class="ph-bold ph-crane-tower text-orange text-lg"></i>
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">Surat Infra Developers</div>
+                <div class="text-white/40 text-xs">Builder Account</div>
+            </div>
+        </div>
+    </div>
+    <nav class="px-3 py-4 space-y-0.5">
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''" @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four ph"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='projects' ? 'active' : ''" @click="activeTab='projects'; sidebarOpen=false">
+            <i class="ph-bold ph-buildings ph"></i> My Projects
+            <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">3</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='inventory' ? 'active' : ''" @click="activeTab='inventory'; sidebarOpen=false">
+            <i class="ph-bold ph-grid-nine ph"></i> Inventory Map
+        </div>
+        <div class="sidebar-link" :class="activeTab==='inquiries' ? 'active' : ''" @click="activeTab='inquiries'; sidebarOpen=false">
+            <i class="ph-bold ph-chat-dots ph"></i> Inquiries
+            <span class="ml-auto bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full font-semibold">5 new</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='sales' ? 'active' : ''" @click="activeTab='sales'; sidebarOpen=false">
+            <i class="ph-bold ph-chart-bar ph"></i> Sales Analytics
+        </div>
+        <div class="sidebar-link" :class="activeTab==='profile' ? 'active' : ''" @click="activeTab='profile'; sidebarOpen=false">
+            <i class="ph-bold ph-building-office ph"></i> Company Profile
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <a href="login.html" class="sidebar-link text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                <i class="ph-bold ph-sign-out ph"></i> Logout
+            </a>
+        </div>
+    </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg" x-text="
+                    activeTab==='overview' ? 'Builder Dashboard' :
+                    activeTab==='projects' ? 'My Projects' :
+                    activeTab==='inventory' ? 'Inventory Map' :
+                    activeTab==='inquiries' ? 'Inquiries' :
+                    activeTab==='sales' ? 'Sales Analytics' : 'Company Profile'"></h1>
+                <p class="text-muted text-xs hidden sm:block">Surat Infra Developers · May 2026</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-bell text-slate-600 text-lg"></i>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button @click="showAddProject=true" class="btn btn-orange hidden sm:flex">
+                <i class="ph-bold ph-plus"></i> New Project
+            </button>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        <!-- OVERVIEW -->
+        <div x-show="activeTab==='overview'" x-transition>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center"><i class="ph-fill ph-buildings text-blue-600 text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">1 upcoming</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">3</div>
+                    <div class="text-muted text-sm mt-1">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center"><i class="ph-fill ph-check-circle text-green-600 text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">82 + 40</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">122</div>
+                    <div class="text-muted text-sm mt-1">Units Sold</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-orange/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-chat-dots text-orange text-lg"></i></div>
+                        <span class="text-xs text-red-500 font-semibold">5 new</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">75</div>
+                    <div class="text-muted text-sm mt-1">Total Inquiries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-currency-inr text-gold text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">↑22% YoY</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">₹64 Cr</div>
+                    <div class="text-muted text-sm mt-1">Total Revenue</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Projects overview -->
+                <div class="lg:col-span-2 space-y-4">
+                    <h2 class="font-outfit font-semibold text-navy text-lg">Active Projects</h2>
+                    <template x-for="p in projects">
+                        <div class="project-card p-5">
+                            <div class="flex items-start gap-4">
+                                <img :src="'https://images.unsplash.com/' + p.img + '?w=80&h=80&fit=crop'" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" alt="">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div>
+                                            <h3 class="font-outfit font-semibold text-navy" x-text="p.name"></h3>
+                                            <p class="text-muted text-xs"><i class="ph-bold ph-map-pin mr-0.5"></i><span x-text="p.location"></span></p>
+                                        </div>
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+                                            :class="{
+                                                'bg-orange/10 text-orange': p.status==='ongoing',
+                                                'bg-blue-100 text-blue-700': p.status==='upcoming',
+                                                'bg-green-100 text-green-700': p.status==='completed'
+                                            }"
+                                            x-text="p.status.charAt(0).toUpperCase() + p.status.slice(1)">
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-3 text-xs text-muted">
+                                        <span><i class="ph-bold ph-house mr-0.5"></i><span x-text="p.total"></span> units</span>
+                                        <span class="text-green"><i class="ph-bold ph-check-circle mr-0.5"></i><span x-text="p.sold"></span> sold</span>
+                                        <span class="text-orange"><i class="ph-bold ph-key mr-0.5"></i><span x-text="p.available"></span> available</span>
+                                    </div>
+                                    <div x-show="p.status !== 'upcoming'" class="mt-3">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-muted">Construction Progress</span>
+                                            <span class="font-semibold text-navy" x-text="p.completion + '%'"></span>
+                                        </div>
+                                        <div class="progress-bar h-2">
+                                            <div class="progress-fill bg-orange" :style="'width:' + p.completion + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Right column -->
+                <div class="space-y-4">
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-4">RERA Compliance</h3>
+                        <div class="space-y-3">
+                            <template x-for="p in projects">
+                                <div class="flex items-center gap-3 p-3 rounded-xl"
+                                    :class="p.status==='completed' ? 'bg-green-50' : 'bg-orange/5'">
+                                    <i class="ph-bold ph-seal-check text-lg flex-shrink-0"
+                                        :class="p.status==='completed' ? 'text-green-600' : 'text-orange'"></i>
+                                    <div>
+                                        <div class="text-xs font-semibold text-navy" x-text="p.name.split(' ').slice(0,2).join(' ')"></div>
+                                        <div class="text-xs text-muted font-mono" x-text="p.rera"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Quick Actions</h3>
+                        <div class="space-y-2">
+                            <button @click="showAddProject=true" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-orange/10 rounded-lg flex items-center justify-center"><i class="ph-bold ph-plus text-orange"></i></div>
+                                Add New Project
+                            </button>
+                            <button @click="activeTab='inventory'" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center"><i class="ph-bold ph-grid-nine text-blue-600"></i></div>
+                                View Inventory
+                            </button>
+                            <button @click="activeTab='inquiries'" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center"><i class="ph-bold ph-chat-dots text-red-500"></i></div>
+                                View Inquiries <span class="ml-auto text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-semibold">5</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS -->
+        <div x-show="activeTab==='projects'" x-transition>
+            <div class="flex justify-between items-center mb-5">
+                <div class="flex gap-2">
+                    <button class="btn btn-outline text-sm py-2">All (3)</button>
+                    <button class="btn btn-outline text-sm py-2">Ongoing (1)</button>
+                    <button class="btn btn-outline text-sm py-2">Upcoming (1)</button>
+                </div>
+                <button @click="showAddProject=true" class="btn btn-orange"><i class="ph-bold ph-plus"></i> New Project</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                <template x-for="p in projects">
+                    <div class="project-card">
+                        <div class="relative">
+                            <img :src="'https://images.unsplash.com/' + p.img + '?w=400&h=200&fit=crop'" class="w-full h-44 object-cover" alt="">
+                            <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+                                :class="{
+                                    'bg-orange text-white': p.status==='ongoing',
+                                    'bg-blue-500 text-white': p.status==='upcoming',
+                                    'bg-green-500 text-white': p.status==='completed'
+                                }"
+                                x-text="p.status.charAt(0).toUpperCase() + p.status.slice(1)">
+                            </span>
+                            <span class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full" x-text="p.type"></span>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-outfit font-semibold text-navy" x-text="p.name"></h3>
+                            <p class="text-muted text-xs flex items-center gap-1 mt-0.5"><i class="ph-bold ph-map-pin"></i><span x-text="p.location"></span></p>
+                            <div class="flex flex-wrap gap-1.5 mt-3">
+                                <template x-for="b in p.bhk">
+                                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full" x-text="b"></span>
+                                </template>
+                            </div>
+                            <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
+                                <div>
+                                    <div class="font-outfit font-bold text-navy text-sm" x-text="p.price"></div>
+                                    <div class="text-muted text-xs mt-0.5">
+                                        <span x-text="p.sold"></span>/<span x-text="p.total"></span> sold
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-green font-bold text-sm" x-text="p.revenue"></div>
+                                    <div class="text-muted text-xs">Revenue</div>
+                                </div>
+                            </div>
+                            <div x-show="p.status !== 'upcoming'" class="mt-3">
+                                <div class="progress-bar h-1.5">
+                                    <div class="progress-fill bg-orange" :style="'width:' + p.completion + '%'"></div>
+                                </div>
+                                <div class="text-xs text-muted mt-1" x-text="p.completion + '% complete'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- INVENTORY MAP -->
+        <div x-show="activeTab==='inventory'" x-transition>
+            <!-- Project selector -->
+            <div class="flex gap-3 mb-6">
+                <template x-for="(p, idx) in projects" :key="idx">
+                    <button @click="selectedProject = idx"
+                        :class="selectedProject === idx ? 'bg-orange text-white' : 'bg-white text-slate-600 border border-slate-200'"
+                        class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                        x-text="p.name.split(' ').slice(0,2).join(' ')">
+                    </button>
+                </template>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-outfit font-semibold text-navy text-lg" x-text="projects[selectedProject].name"></h2>
+                        <p class="text-muted text-sm" x-text="'Total: ' + projects[selectedProject].total + ' units'"></p>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-green-400"></div> Available</div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-orange-400"></div> Sold</div>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-amber-300"></div> Blocked</div>
+                    </div>
+                </div>
+
+                <!-- Floor plan grid -->
+                <div class="space-y-3">
+                    <template x-for="floor in [12,11,10,9,8,7,6,5,4,3,2,1]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-16 text-xs text-muted text-right font-medium flex-shrink-0">Floor <span x-text="floor"></span></div>
+                            <div class="flex gap-1.5 flex-wrap">
+                                <template x-for="unit in [1,2,3,4,5,6,7,8,9,10]">
+                                    <div class="unit-box w-10 h-10 rounded text-xs font-bold"
+                                        :class="{
+                                            'bg-green-100 text-green-700 hover:bg-green-200': (floor * unit) % 5 !== 0 && (floor + unit) % 3 !== 0,
+                                            'bg-orange/20 text-orange hover:bg-orange/30': (floor + unit) % 3 === 0,
+                                            'bg-amber-100 text-amber-700 hover:bg-amber-200': (floor * unit) % 5 === 0 && (floor + unit) % 3 !== 0
+                                        }"
+                                        :title="'Floor ' + floor + ', Unit ' + unit">
+                                        <span x-text="floor + String.fromCharCode(64 + unit)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-6 text-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded bg-green-400"></div>
+                        <span class="text-muted">Available: <strong class="text-green-700" x-text="projects[selectedProject].available"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded bg-orange-400"></div>
+                        <span class="text-muted">Sold: <strong class="text-orange" x-text="projects[selectedProject].sold"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded bg-amber-300"></div>
+                        <span class="text-muted">Blocked: <strong class="text-amber-700" x-text="projects[selectedProject].blocked"></strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INQUIRIES -->
+        <div x-show="activeTab==='inquiries'" x-transition>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h2 class="font-outfit font-semibold text-navy">All Inquiries</h2>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-orange text-white text-xs font-semibold">All (75)</button>
+                        <button class="px-3 py-1.5 rounded-lg hover:bg-slate-100 text-xs text-slate-600">New (5)</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50">
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Buyer</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Project</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Interest</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                                <th class="px-5 py-3.5">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="i in [
+                                {name:'Priya Sharma', phone:'98765 43210', project:'Surat Heights Ph.2', interest:'3 BHK', status:'new'},
+                                {name:'Vijay Patel', phone:'87654 32109', project:'Surat Heights Ph.2', interest:'2 BHK', status:'new'},
+                                {name:'Neha Joshi', phone:'76543 21098', project:'Green Valley', interest:'2 BHK', status:'new'},
+                                {name:'Rohit Kumar', phone:'65432 10987', project:'Trade Hub', interest:'Office', status:'contacted'},
+                                {name:'Sunita Singh', phone:'54321 09876', project:'Surat Heights Ph.2', interest:'4 BHK', status:'new'},
+                                {name:'Dinesh Mehta', phone:'43210 98765', project:'Green Valley', interest:'1 BHK', status:'site-visit'},
+                                {name:'Kavita Gupta', phone:'32109 87654', project:'Surat Heights Ph.2', interest:'3 BHK', status:'booked'},
+                                {name:'Amit Shah', phone:'21098 76543', project:'Trade Hub', interest:'Shop', status:'contacted'}
+                            ]">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">
+                                        <div class="font-medium text-navy" x-text="i.name"></div>
+                                        <div class="text-xs text-muted" x-text="i.phone"></div>
+                                    </td>
+                                    <td class="px-5 py-4 text-muted text-xs hidden md:table-cell" x-text="i.project"></td>
+                                    <td class="px-5 py-4 hidden lg:table-cell">
+                                        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full" x-text="i.interest"></span>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                            :class="{
+                                                'bg-red-100 text-red-700': i.status==='new',
+                                                'bg-blue-100 text-blue-700': i.status==='contacted',
+                                                'bg-orange/10 text-orange': i.status==='site-visit',
+                                                'bg-green-100 text-green-700': i.status==='booked'
+                                            }"
+                                            x-text="i.status.charAt(0).toUpperCase() + i.status.slice(1)">
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <div class="flex gap-1.5">
+                                            <button class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-colors">
+                                                <i class="ph-bold ph-phone text-green-700 text-xs"></i>
+                                            </button>
+                                            <button class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+                                                <i class="ph-bold ph-chat-dots text-blue-700 text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SALES ANALYTICS -->
+        <div x-show="activeTab==='sales'" x-transition>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card lg:col-span-2">
+                    <h3 class="font-outfit font-semibold text-navy mb-5">Revenue by Project</h3>
+                    <div class="space-y-4">
+                        <template x-for="p in projects">
+                            <div>
+                                <div class="flex items-center justify-between text-sm mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-navy" x-text="p.name"></span>
+                                        <span class="text-xs text-muted" x-text="p.sold + '/' + p.total + ' units'"></span>
+                                    </div>
+                                    <span class="font-bold text-orange" x-text="p.revenue"></span>
+                                </div>
+                                <div class="progress-bar h-2">
+                                    <div class="progress-fill bg-gradient-to-r from-orange to-orange-light" :style="'width:' + (p.total > 0 ? (p.sold/p.total*100) : 0) + '%'"></div>
+                                </div>
+                                <div class="text-xs text-muted mt-1" x-text="(p.total > 0 ? Math.round(p.sold/p.total*100) : 0) + '% sold'"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Monthly Bookings</h3>
+                    <div class="flex items-end gap-2 h-32">
+                        <template x-for="(h,i) in [3,5,8,6,12,9,15,11,7,14,10,16]">
+                            <div class="flex-1 flex flex-col items-center gap-1">
+                                <div class="w-full rounded-t-lg bg-orange/80 transition-all hover:bg-orange" :style="'height:' + (h/16*100) + '%'"></div>
+                                <span class="text-xs text-muted" x-text="['J','F','M','A','M','J','J','A','S','O','N','D'][i]"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Inquiry Sources</h3>
+                    <div class="space-y-3">
+                        <template x-for="s in [
+                            {label:'PropSurat Website', pct:45, color:'bg-orange'},
+                            {label:'Direct / Walk-in', pct:25, color:'bg-navy-mid'},
+                            {label:'Broker Referral', pct:18, color:'bg-blue-500'},
+                            {label:'Social Media', pct:8, color:'bg-purple-500'},
+                            {label:'Other', pct:4, color:'bg-slate-400'}
+                        ]">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-600 w-36" x-text="s.label"></span>
+                                <div class="flex-1 progress-bar h-2">
+                                    <div class="progress-fill h-full" :class="s.color" :style="'width:' + s.pct + '%'"></div>
+                                </div>
+                                <span class="text-xs font-bold text-navy w-8 text-right" x-text="s.pct + '%'"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPANY PROFILE -->
+        <div x-show="activeTab==='profile'" x-transition>
+            <div class="max-w-2xl">
+                <div class="bg-white rounded-2xl border border-slate-200 p-8">
+                    <div class="flex items-start gap-5 mb-8">
+                        <div class="w-20 h-20 bg-navy rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="ph-bold ph-crane-tower text-orange text-3xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit text-2xl font-bold text-navy">Surat Infra Developers</h2>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="text-xs bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">Verified Builder</span>
+                                <span class="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-full">RERA Compliant</span>
+                                <span class="text-xs bg-gold/10 text-gold font-semibold px-2.5 py-1 rounded-full">PropSurat Premium</span>
+                            </div>
+                            <div class="flex items-center gap-4 mt-2 text-sm text-muted">
+                                <span><i class="ph-bold ph-buildings mr-1"></i>3 Projects</span>
+                                <span><i class="ph-bold ph-calendar mr-1"></i>Est. 2012</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Company Name</label>
+                            <input type="text" value="Surat Infra Developers Pvt. Ltd." class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">GST Number</label>
+                            <input type="text" value="24AABCS1429B1Z1" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-orange">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Contact Person</label>
+                            <input type="text" value="Nilesh Shah (Director)" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
+                            <input type="tel" value="+91 99876 54321" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Office Address</label>
+                            <input type="text" value="402, Titanium Business Park, Vesu, Surat - 395007" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">About Company</label>
+                            <textarea rows="3" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange resize-none">Surat Infra Developers 2012 se Gujarat mein quality residential aur commercial projects bana raha hai. 500+ families ko dream home diya hai. RERA compliant, on-time delivery guarantee.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-4 border-t border-slate-100">
+                        <button class="bg-orange text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-orange-600">Save Changes</button>
+                        <button class="border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-medium text-sm hover:bg-slate-50">View Public Profile</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Add Project Modal -->
+<div x-show="showAddProject" x-transition class="modal-overlay" @click.self="showAddProject=false">
+    <div class="modal">
+        <div class="flex items-center justify-between p-6 border-b border-slate-100">
+            <h2 class="font-outfit text-xl font-bold text-navy">Naya Project Add Karein</h2>
+            <button @click="showAddProject=false" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center"><i class="ph-bold ph-x text-slate-600"></i></button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" placeholder="e.g. Sunrise Towers Phase 1" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Project Type</label>
+                    <select class="form-input"><option>Residential</option><option>Commercial</option><option>Mixed Use</option></select>
+                </div>
+                <div>
+                    <label class="form-label">Status</label>
+                    <select class="form-input"><option>Upcoming</option><option>Ongoing</option><option>Ready to Move</option></select>
+                </div>
+                <div>
+                    <label class="form-label">Total Units</label>
+                    <input type="number" placeholder="120" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Starting Price (₹)</label>
+                    <input type="text" placeholder="e.g. 55,00,000" class="form-input">
+                </div>
+                <div class="col-span-2">
+                    <label class="form-label">Location</label>
+                    <input type="text" placeholder="Locality, City" class="form-input">
+                </div>
+                <div class="col-span-2">
+                    <label class="form-label">RERA Registration Number</label>
+                    <input type="text" placeholder="RERA/GJ/R/2024/XXXXXX" class="form-input" style="text-transform:uppercase">
+                </div>
+                <div class="col-span-2">
+                    <label class="form-label">Description</label>
+                    <textarea rows="3" class="form-input" style="padding-left:14px" placeholder="Project ke features, amenities, expected possession date..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 p-6 border-t border-slate-100">
+            <button @click="showAddProject=false" class="flex-1 btn btn-outline">Cancel</button>
+            <button @click="showAddProject=false" class="flex-1 btn btn-orange">Submit for Review</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

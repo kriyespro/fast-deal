@@ -1,0 +1,50 @@
+<tr id="listing-row-{{ property.pk }}" class="hover:bg-slate-50 transition-colors">
+    <td class="px-5 py-4 font-mono text-xs text-muted">#{{ property.pk }}</td>
+    <td class="px-5 py-4">
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">Listing</span>
+            <span class="font-medium text-navy text-sm truncate max-w-xs">{{ property.title }}</span>
+        </div>
+    </td>
+    <td class="px-5 py-4 text-xs text-muted hidden md:table-cell">
+        {{ property.broker.full_name if property.broker else '—' }}
+    </td>
+    <td class="px-5 py-4 text-xs text-muted hidden lg:table-cell">
+        {{ property.created_at.strftime('%d %b %Y') }}
+    </td>
+    <td class="px-5 py-4">
+        {% if property.status == 'pending' %}
+        <span class="badge bg-amber-100 text-amber-700">Pending</span>
+        {% elif property.status == 'active' %}
+        <span class="badge bg-green-100 text-green-700">Active</span>
+        {% elif property.status == 'inactive' %}
+        <span class="badge bg-red-100 text-red-600">Rejected</span>
+        {% else %}
+        <span class="badge bg-slate-100 text-slate-500">{{ property.get_status_display() }}</span>
+        {% endif %}
+    </td>
+    <td class="px-5 py-4 text-right">
+        {% if property.status == 'pending' %}
+        <div class="flex gap-1.5 justify-end">
+            <button hx-post="{{ url('approve_listing', pk=property.pk) }}"
+                    hx-target="#listing-row-{{ property.pk }}"
+                    hx-swap="outerHTML"
+                    class="btn btn-green text-xs py-1.5 px-3">
+                <i class="ph-bold ph-check"></i> Approve
+            </button>
+            <button hx-post="{{ url('reject_listing', pk=property.pk) }}"
+                    hx-target="#listing-row-{{ property.pk }}"
+                    hx-swap="outerHTML"
+                    class="btn btn-red text-xs py-1.5 px-3">
+                <i class="ph-bold ph-x"></i> Reject
+            </button>
+            <a href="{{ url('property_detail', pk=property.pk) }}" target="_blank"
+               class="btn btn-outline text-xs py-1.5 px-3">
+                <i class="ph-bold ph-eye"></i>
+            </a>
+        </div>
+        {% else %}
+        <span class="text-xs text-muted">Action taken</span>
+        {% endif %}
+    </td>
+</tr>

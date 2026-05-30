@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Properties | PropSurat — India's Trusted Property Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+    .nav-link { color: #374151; font-size: 14px; font-weight: 500; transition: color 0.2s; padding: 4px 0; }
+    .nav-link:hover { color: #E8621A; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .tag-sale { background: rgba(232,98,26,.1); color: #C4500F; }
+    .tag-rent { background: rgba(27,122,66,.1); color: #1B7A42; }
+    .tag-new { background: rgba(37,99,235,.1); color: #1D4ED8; }
+    .tag-rera { background: rgba(27,122,66,.1); color: #1B7A42; border: 1px solid rgba(27,122,66,.2); }
+    .filter-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+    .filter-chip:hover, .filter-chip.active { border-color: #E8621A; background: #fff8f5; color: #E8621A; }
+    .prop-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .prop-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.09); transform: translateY(-3px); }
+    .prop-card-list { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.18s; display: flex; }
+    .prop-card-list:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
+    .form-select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 9px 14px; font-size: 13px; outline: none; appearance: none; cursor: pointer; background: white; }
+    .form-select:focus { border-color: #E8621A; }
+    .sidebar-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 10px; }
+    .range-input { width: 100%; accent-color: #E8621A; }
+    .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; font-size: 13px; color: #374151; }
+    .checkbox-label input { accent-color: #E8621A; width: 16px; height: 16px; }
+</style>
+</head>
+<body class="bg-slate-50" x-data="{
+    mobileMenu: false,
+    mobileFilter: false,
+    viewMode: 'grid',
+    sortBy: 'relevance',
+    activeType: 'all',
+    priceMax: 10000000,
+    properties: [
+        {id:1,title:'3 BHK Luxury Flat',loc:'Vesu, Surat',price:'₹85 L',priceNum:8500000,type:'sale',bhk:'3BHK',sqft:'1,250 sq.ft',img:'photo-1545324418-cc1a3fa10c00',rera:true,age:'New',broker:'Ramesh Patel',parking:true,furnished:'Semi'},
+        {id:2,title:'2 BHK Apartment',loc:'Koramangala, Bangalore',price:'₹28K/mo',priceNum:28000,type:'rent',bhk:'2BHK',sqft:'980 sq.ft',img:'photo-1558618666-fcd25c85cd64',rera:true,age:'3 yr',broker:'Suresh Kumar',parking:true,furnished:'Fully'},
+        {id:3,title:'4 BHK Sea-View Villa',loc:'Juhu, Mumbai',price:'₹3.8 Cr',priceNum:38000000,type:'sale',bhk:'4BHK',sqft:'2,800 sq.ft',img:'photo-1512917774080-9991f1c4c750',rera:true,age:'New',broker:'Priya Shah',parking:true,furnished:'Unfurnished'},
+        {id:4,title:'2 BHK Premium Flat',loc:'DLF Phase 4, Gurgaon',price:'₹1.2 Cr',priceNum:12000000,type:'sale',bhk:'2BHK',sqft:'1,100 sq.ft',img:'photo-1600585154340-be6161a56a0c',rera:true,age:'2 yr',broker:'Ankit Gupta',parking:false,furnished:'Semi'},
+        {id:5,title:'Studio Apartment',loc:'Baner, Pune',price:'₹14K/mo',priceNum:14000,type:'rent',bhk:'1BHK',sqft:'450 sq.ft',img:'photo-1580587771525-78b9dba3b914',rera:false,age:'1 yr',broker:'Kavita Singh',parking:false,furnished:'Fully'},
+        {id:6,title:'3 BHK Gated Society',loc:'Whitefield, Bangalore',price:'₹72 L',priceNum:7200000,type:'sale',bhk:'3BHK',sqft:'1,400 sq.ft',img:'photo-1504615755583-2916b52192a3',rera:true,age:'New',broker:'Ravi Nair',parking:true,furnished:'Unfurnished'},
+        {id:7,title:'2 BHK Modern Flat',loc:'Adajan, Surat',price:'₹18K/mo',priceNum:18000,type:'rent',bhk:'2BHK',sqft:'900 sq.ft',img:'photo-1560518883-ce09059eeffa',rera:true,age:'2 yr',broker:'Ramesh Patel',parking:true,furnished:'Semi'},
+        {id:8,title:'3 BHK Penthouse',loc:'Banjara Hills, Hyderabad',price:'₹1.8 Cr',priceNum:18000000,type:'sale',bhk:'3BHK',sqft:'2,200 sq.ft',img:'photo-1582407947304-fd86f28f958f',rera:true,age:'New',broker:'Kiran Reddy',parking:true,furnished:'Unfurnished'},
+        {id:9,title:'1 BHK Cosy Flat',loc:'Andheri West, Mumbai',price:'₹38K/mo',priceNum:38000,type:'rent',bhk:'1BHK',sqft:'550 sq.ft',img:'photo-1565402170291-8491f14678db',rera:false,age:'5 yr',broker:'Amit Shah',parking:false,furnished:'Fully'},
+        {id:10,title:'4 BHK Builder Floor',loc:'Vasant Vihar, Delhi',price:'₹4.5 Cr',priceNum:45000000,type:'sale',bhk:'4BHK',sqft:'3,100 sq.ft',img:'photo-1600607687939-ce8a6c25118c',rera:true,age:'4 yr',broker:'Deepak Mehta',parking:true,furnished:'Semi'},
+        {id:11,title:'2 BHK New Project',loc:'Wakad, Pune',price:'₹58 L',priceNum:5800000,type:'new',bhk:'2BHK',sqft:'1,050 sq.ft',img:'photo-1571055107559-3e67626fa8be',rera:true,age:'New',broker:'Neha Sharma',parking:true,furnished:'Unfurnished'},
+        {id:12,title:'3 BHK Flat',loc:'Gota, Ahmedabad',price:'₹52 L',priceNum:5200000,type:'sale',bhk:'3BHK',sqft:'1,300 sq.ft',img:'photo-1512918728675-ed5a9ecdebfd',rera:true,age:'2 yr',broker:'Vijay Patel',parking:true,furnished:'Semi'},
+    ],
+    saved: [],
+    toggleSave(id) {
+        if(this.saved.includes(id)) this.saved = this.saved.filter(x => x !== id);
+        else this.saved.push(id);
+    },
+    get filtered() {
+        return this.properties.filter(p =>
+            (this.activeType === 'all' || p.type === this.activeType)
+        );
+    }
+}">
+
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="listings.html" class="nav-link text-orange border-b-2 border-orange">Properties</a>
+                <a href="agents.html" class="nav-link">Brokers</a>
+                <a href="neighborhoods.html" class="nav-link">Localities</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Login</a>
+                <a href="register.html" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">List Property</a>
+            </div>
+            <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="md:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-1">
+        <a href="listings.html" class="block py-2.5 text-orange font-semibold text-sm">Properties</a>
+        <a href="agents.html" class="block py-2.5 text-slate-700 text-sm">Brokers</a>
+        <a href="neighborhoods.html" class="block py-2.5 text-slate-700 text-sm">Localities</a>
+        <a href="blog.html" class="block py-2.5 text-slate-700 text-sm">Blog</a>
+        <a href="about.html" class="block py-2.5 text-slate-700 text-sm">About</a>
+        <div class="flex gap-2 pt-2">
+            <a href="login.html" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Login</a>
+            <a href="register.html" class="flex-1 text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Register</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Search bar -->
+<div class="bg-navy py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl p-3 flex flex-col sm:flex-row gap-2">
+            <div class="flex-1 relative">
+                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"></i>
+                <input type="search" placeholder="Locality, city, project ya pin code khojein..." class="w-full pl-10 pr-4 py-2.5 text-sm outline-none text-slate-700 rounded-xl">
+            </div>
+            <select class="form-select text-sm">
+                <option>For Sale</option><option>For Rent</option><option>New Projects</option><option>PG / Co-living</option>
+            </select>
+            <select class="form-select text-sm">
+                <option>All Cities</option><option>Mumbai</option><option>Delhi NCR</option><option>Bangalore</option>
+                <option>Hyderabad</option><option>Pune</option><option selected>Surat</option><option>Ahmedabad</option>
+            </select>
+            <button class="bg-orange text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-orange-600 transition-colors whitespace-nowrap">
+                <i class="ph-bold ph-magnifying-glass mr-1"></i> Search
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Breadcrumb + count -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-sm text-muted">
+            <a href="index.html" class="hover:text-orange">Home</a>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+            <span class="text-navy font-medium">Properties</span>
+        </div>
+        <p class="text-sm text-muted"><span class="font-semibold text-navy" x-text="filtered.length"></span> properties mile</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex gap-7">
+
+    <!-- SIDEBAR FILTERS (desktop) -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 sticky top-24 space-y-6">
+
+            <!-- Type -->
+            <div>
+                <div class="sidebar-section">Property Type</div>
+                <div class="space-y-2">
+                    <template x-for="t in [{val:'all',label:'All Properties'},{val:'sale',label:'For Sale'},{val:'rent',label:'For Rent'},{val:'new',label:'New Projects'}]">
+                        <label class="checkbox-label">
+                            <input type="radio" name="type" :value="t.val" x-model="activeType" class="accent-orange w-4 h-4">
+                            <span x-text="t.label"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100"></div>
+
+            <!-- BHK -->
+            <div>
+                <div class="sidebar-section">BHK Configuration</div>
+                <div class="flex flex-wrap gap-2">
+                    <template x-for="b in ['1 RK','1 BHK','2 BHK','3 BHK','4 BHK','4 BHK+']">
+                        <button class="filter-chip text-xs" x-text="b"></button>
+                    </template>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100"></div>
+
+            <!-- Price -->
+            <div>
+                <div class="sidebar-section">Budget</div>
+                <div class="flex gap-2 mb-3">
+                    <select class="form-select text-xs flex-1"><option>Min</option><option>₹10 L</option><option>₹25 L</option><option>₹50 L</option><option>₹1 Cr</option></select>
+                    <select class="form-select text-xs flex-1"><option>Max</option><option>₹50 L</option><option>₹1 Cr</option><option>₹2 Cr</option><option>₹5 Cr+</option></select>
+                </div>
+                <input type="range" class="range-input" min="1000000" max="100000000" step="500000" x-model="priceMax">
+                <div class="flex justify-between text-xs text-muted mt-1">
+                    <span>₹10L</span>
+                    <span class="text-orange font-semibold" x-text="priceMax >= 10000000 ? '₹' + (priceMax/10000000).toFixed(1) + ' Cr' : '₹' + Math.round(priceMax/100000) + ' L'"></span>
+                    <span>₹10 Cr</span>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100"></div>
+
+            <!-- Furnishing -->
+            <div>
+                <div class="sidebar-section">Furnishing</div>
+                <div class="space-y-2">
+                    <template x-for="f in ['Fully Furnished','Semi Furnished','Unfurnished']">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="accent-orange w-4 h-4">
+                            <span x-text="f"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100"></div>
+
+            <!-- Amenities -->
+            <div>
+                <div class="sidebar-section">Amenities</div>
+                <div class="space-y-2">
+                    <template x-for="a in ['Parking','Gym','Swimming Pool','Lift','Security','Power Backup','Clubhouse']">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="accent-orange w-4 h-4">
+                            <span x-text="a"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100"></div>
+
+            <!-- RERA -->
+            <div>
+                <div class="sidebar-section">RERA Status</div>
+                <label class="checkbox-label">
+                    <input type="checkbox" class="accent-orange w-4 h-4" checked>
+                    <span>RERA Verified Only</span>
+                    <i class="ph-fill ph-seal-check text-green text-base ml-auto"></i>
+                </label>
+            </div>
+
+            <button class="w-full py-2.5 text-sm font-semibold text-slate-500 hover:text-red-500 border border-slate-200 rounded-xl transition-colors">
+                <i class="ph-bold ph-arrow-counter-clockwise mr-1"></i> Filters Clear Karein
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 min-w-0">
+
+        <!-- Toolbar -->
+        <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
+            <!-- Type quick tabs -->
+            <div class="flex gap-2 overflow-x-auto pb-1">
+                <template x-for="t in [{val:'all',label:'All'},{val:'sale',label:'Buy'},{val:'rent',label:'Rent'},{val:'new',label:'New Projects'}]">
+                    <button @click="activeType=t.val"
+                        :class="activeType===t.val ? 'bg-navy text-white' : 'bg-white text-slate-600 border border-slate-200'"
+                        class="filter-chip text-xs whitespace-nowrap"
+                        x-text="t.label">
+                    </button>
+                </template>
+                <!-- Mobile filter -->
+                <button @click="mobileFilter=!mobileFilter" class="filter-chip text-xs lg:hidden">
+                    <i class="ph-bold ph-funnel mr-1"></i> Filters
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Sort -->
+                <select x-model="sortBy" class="form-select text-xs">
+                    <option value="relevance">Sort: Relevance</option>
+                    <option value="price-low">Price: Low → High</option>
+                    <option value="price-high">Price: High → Low</option>
+                    <option value="newest">Newest First</option>
+                </select>
+                <!-- View toggle -->
+                <div class="flex bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <button @click="viewMode='grid'" class="px-3 py-2 transition-colors" :class="viewMode==='grid' ? 'bg-navy text-white' : 'text-slate-500 hover:bg-slate-50'">
+                        <i class="ph-bold ph-grid-four text-sm"></i>
+                    </button>
+                    <button @click="viewMode='list'" class="px-3 py-2 transition-colors" :class="viewMode==='list' ? 'bg-navy text-white' : 'text-slate-500 hover:bg-slate-50'">
+                        <i class="ph-bold ph-list text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active filters -->
+        <div class="flex gap-2 flex-wrap mb-5">
+            <div class="flex items-center gap-1.5 bg-orange/10 border border-orange/20 text-orange text-xs font-medium px-3 py-1.5 rounded-full">
+                Surat <button class="ml-1"><i class="ph-bold ph-x text-xs"></i></button>
+            </div>
+            <div class="flex items-center gap-1.5 bg-orange/10 border border-orange/20 text-orange text-xs font-medium px-3 py-1.5 rounded-full">
+                RERA Verified <button class="ml-1"><i class="ph-bold ph-x text-xs"></i></button>
+            </div>
+        </div>
+
+        <!-- GRID VIEW -->
+        <div x-show="viewMode==='grid'" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <template x-for="p in filtered">
+                <div class="prop-card">
+                    <div class="relative">
+                        <img :src="'https://images.unsplash.com/' + p.img + '?w=400&h=220&fit=crop'" class="w-full h-48 object-cover" :alt="p.title">
+                        <div class="absolute top-3 left-3 flex gap-1.5">
+                            <span class="tag" :class="p.type==='rent' ? 'tag-rent' : p.type==='new' ? 'tag-new' : 'tag-sale'" x-text="p.type==='rent' ? 'For Rent' : p.type==='new' ? 'New Project' : 'For Sale'"></span>
+                            <span x-show="p.rera" class="tag tag-rera"><i class="ph-fill ph-seal-check text-xs"></i> RERA</span>
+                        </div>
+                        <button @click="toggleSave(p.id)" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow transition-colors hover:bg-red-50">
+                            <i :class="saved.includes(p.id) ? 'ph-fill ph-heart text-red-500' : 'ph-bold ph-heart text-slate-400'"></i>
+                        </button>
+                        <div class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-lg"><i class="ph-bold ph-camera mr-0.5"></i>8 photos</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <h3 class="font-outfit font-semibold text-navy text-base leading-snug" x-text="p.title"></h3>
+                            <div class="font-outfit font-bold text-navy text-base whitespace-nowrap" x-text="p.price"></div>
+                        </div>
+                        <p class="text-muted text-xs flex items-center gap-1 mb-3"><i class="ph-bold ph-map-pin"></i><span x-text="p.loc"></span></p>
+                        <div class="flex items-center gap-3 text-xs text-slate-500 pb-3 border-b border-slate-100">
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-door"></i><span x-text="p.bhk"></span></span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-arrows-out-simple"></i><span x-text="p.sqft"></span></span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-building"></i><span x-text="p.age"></span></span>
+                            <span x-show="p.parking" class="flex items-center gap-1"><i class="ph-bold ph-parking"></i>Parking</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy text-xs" x-text="p.broker.charAt(0)"></div>
+                                <span class="text-xs text-muted" x-text="p.broker"></span>
+                            </div>
+                            <a href="property-detail.html" class="text-xs bg-orange text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-orange-600 transition-colors">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- LIST VIEW -->
+        <div x-show="viewMode==='list'" class="space-y-4">
+            <template x-for="p in filtered">
+                <div class="prop-card-list">
+                    <div class="relative w-52 flex-shrink-0">
+                        <img :src="'https://images.unsplash.com/' + p.img + '?w=220&h=180&fit=crop'" class="w-full h-full object-cover min-h-[140px]" :alt="p.title">
+                        <div class="absolute top-3 left-3 flex flex-col gap-1">
+                            <span class="tag" :class="p.type==='rent' ? 'tag-rent' : p.type==='new' ? 'tag-new' : 'tag-sale'" x-text="p.type==='rent' ? 'Rent' : p.type==='new' ? 'New' : 'Sale'"></span>
+                            <span x-show="p.rera" class="tag tag-rera text-xs"><i class="ph-fill ph-seal-check text-xs"></i> RERA</span>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 class="font-outfit font-semibold text-navy text-base" x-text="p.title"></h3>
+                                    <p class="text-muted text-xs flex items-center gap-1 mt-0.5"><i class="ph-bold ph-map-pin"></i><span x-text="p.loc"></span></p>
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <div class="font-outfit font-bold text-navy text-lg" x-text="p.price"></div>
+                                    <div class="text-xs text-muted" x-text="p.sqft"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 mt-3 text-xs text-slate-500">
+                                <span class="flex items-center gap-1"><i class="ph-bold ph-door"></i><span x-text="p.bhk"></span></span>
+                                <span class="flex items-center gap-1"><i class="ph-bold ph-building"></i><span x-text="p.age"></span></span>
+                                <span class="flex items-center gap-1"><i class="ph-bold ph-couch"></i><span x-text="p.furnished"></span></span>
+                                <span x-show="p.parking" class="flex items-center gap-1 text-green"><i class="ph-bold ph-parking"></i>Parking</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy text-xs" x-text="p.broker.charAt(0)"></div>
+                                <span class="text-xs text-muted" x-text="p.broker"></span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="text-xs border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg font-medium hover:border-orange hover:text-orange transition-colors">
+                                    <i class="ph-bold ph-phone mr-1"></i>Contact
+                                </button>
+                                <a href="property-detail.html" class="text-xs bg-orange text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-orange-600 transition-colors">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-center gap-2 mt-10">
+            <button class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-muted hover:border-orange hover:text-orange transition-colors">
+                <i class="ph-bold ph-caret-left text-sm"></i>
+            </button>
+            <template x-for="n in [1,2,3,4,5]">
+                <button class="w-9 h-9 rounded-xl border text-sm font-semibold transition-colors"
+                    :class="n===1 ? 'bg-orange text-white border-orange' : 'border-slate-200 text-slate-600 hover:border-orange hover:text-orange'"
+                    x-text="n">
+                </button>
+            </template>
+            <button class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-muted hover:border-orange hover:text-orange transition-colors">
+                <i class="ph-bold ph-caret-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-navy text-white pt-14 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <div class="col-span-2 md:col-span-1">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                        <i class="ph-bold ph-buildings text-white"></i>
+                    </div>
+                    <span class="font-outfit font-bold text-xl">Prop<span class="text-orange">Surat</span></span>
+                </div>
+                <p class="text-white/50 text-sm leading-relaxed">India's trusted property portal. 1.2 lakh+ verified listings across 50+ cities.</p>
+            </div>
+            <div>
+                <h4 class="font-outfit font-semibold mb-4 text-sm">Quick Links</h4>
+                <div class="space-y-2 text-sm text-white/50">
+                    <a href="listings.html" class="block hover:text-orange transition-colors">Buy Property</a>
+                    <a href="listings.html" class="block hover:text-orange transition-colors">Rent Property</a>
+                    <a href="agents.html" class="block hover:text-orange transition-colors">Find Broker</a>
+                    <a href="neighborhoods.html" class="block hover:text-orange transition-colors">Localities</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-outfit font-semibold mb-4 text-sm">Company</h4>
+                <div class="space-y-2 text-sm text-white/50">
+                    <a href="about.html" class="block hover:text-orange transition-colors">About Us</a>
+                    <a href="blog.html" class="block hover:text-orange transition-colors">Blog</a>
+                    <a href="contact.html" class="block hover:text-orange transition-colors">Contact</a>
+                    <a href="login.html" class="block hover:text-orange transition-colors">Login</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-outfit font-semibold mb-4 text-sm">Contact</h4>
+                <div class="space-y-2 text-sm text-white/50">
+                    <p class="flex items-center gap-2"><i class="ph-bold ph-phone"></i> +91 98765 00000</p>
+                    <p class="flex items-center gap-2"><i class="ph-bold ph-envelope"></i> hello@propsurat.in</p>
+                    <p class="flex items-start gap-2"><i class="ph-bold ph-map-pin flex-shrink-0"></i> Vesu, Surat, Gujarat 395007</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
+            <p>© 2026 PropSurat. All rights reserved. RERA compliant platform.</p>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

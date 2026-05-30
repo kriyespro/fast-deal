@@ -1,0 +1,111 @@
+{% extends 'base.jinja' %}
+
+{% block title %}Login | PropSurat{% endblock %}
+{% block meta_description %}PropSurat mein login karein — India's trusted property portal.{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex">
+    <!-- Left panel — branding -->
+    <div class="hidden lg:flex lg:w-1/2 bg-navy flex-col justify-between p-12 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-96 h-96 bg-orange rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-64 h-64 bg-orange rounded-full blur-2xl"></div>
+        </div>
+        <a href="{{ url('home') }}" class="flex items-center gap-2.5 relative z-10">
+            <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-xl"></i>
+            </div>
+            <span class="font-outfit text-2xl font-bold text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+        <div class="relative z-10">
+            <h2 class="text-4xl font-bold text-white mb-4 font-outfit leading-tight">
+                India Ka Sabse<br><span class="text-orange">Trusted</span><br>Property Portal
+            </h2>
+            <p class="text-white/60 text-lg mb-8">50,000+ verified listings · 5,000+ RERA brokers · 50+ cities</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div class="text-orange text-2xl font-bold font-outfit">₹10,000 Cr+</div>
+                    <div class="text-white/60 text-sm mt-1">Properties Listed</div>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div class="text-orange text-2xl font-bold font-outfit">50,000+</div>
+                    <div class="text-white/60 text-sm mt-1">Verified Listings</div>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div class="text-orange text-2xl font-bold font-outfit">5,000+</div>
+                    <div class="text-white/60 text-sm mt-1">RERA Brokers</div>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div class="text-orange text-2xl font-bold font-outfit">50+</div>
+                    <div class="text-white/60 text-sm mt-1">Cities</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-white/30 text-sm relative z-10">© 2026 PropSurat. RERA Compliant Platform.</div>
+    </div>
+
+    <!-- Right panel — form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+        <div class="w-full max-w-md">
+            <!-- Mobile logo -->
+            <a href="{{ url('home') }}" class="flex items-center gap-2 mb-8 lg:hidden">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+
+            <h1 class="text-3xl font-bold text-slate-900 font-outfit mb-2">Welcome back</h1>
+            <p class="text-slate-500 mb-8">Apne account mein login karein</p>
+
+            {% for message in get_messages(request) %}
+                <div class="mb-4 px-4 py-3 rounded-xl text-sm {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <form method="post" action="{{ url('login') }}" class="space-y-5">
+                {{ csrf_input }}
+                <input type="hidden" name="next" value="{{ request.GET.get('next', '') }}">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-sm font-medium text-slate-700">Password</label>
+                        <a href="#" class="text-xs text-orange hover:underline">Bhool gaye?</a>
+                    </div>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors() %}
+                    <div class="px-4 py-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-sm">
+                        {{ form.non_field_errors().0 }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="w-full btn-primary py-3.5 rounded-xl font-bold text-sm tracking-wide">
+                    Login Karein
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-slate-500 mt-6">
+                Account nahi hai?
+                <a href="{{ url('register') }}" class="text-orange font-semibold hover:underline">Register Karein</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

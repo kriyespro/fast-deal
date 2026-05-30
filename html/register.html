@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register | PropSurat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+
+    .left-panel {
+        background: linear-gradient(160deg, #0C1E35 0%, #1B3A5C 50%, #0C1E35 100%);
+        position: relative; overflow: hidden;
+    }
+    .left-panel::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=70') center/cover no-repeat;
+        opacity: 0.18;
+    }
+    .left-panel-content { position: relative; z-index: 1; }
+
+    .role-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fff;
+    }
+    .role-card:hover { border-color: #E8621A; background: #fff8f5; }
+    .role-card.selected { border-color: #E8621A; background: #fff4ef; box-shadow: 0 0 0 3px rgba(232,98,26,0.1); }
+
+    .form-input {
+        width: 100%;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 16px 11px 44px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fff;
+        color: #1C2333;
+    }
+    .form-input:focus { border-color: #E8621A; box-shadow: 0 0 0 3px rgba(232,98,26,0.12); }
+    .form-input::placeholder { color: #94a3b8; }
+    .form-input-no-icon { padding-left: 16px; }
+
+    .btn-primary {
+        width: 100%;
+        background: #E8621A;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 13px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Outfit', sans-serif;
+    }
+    .btn-primary:hover { background: #c95516; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(232,98,26,0.3); }
+
+    .step-dot {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+    }
+    .step-dot.done { background: #E8621A; color: white; }
+    .step-dot.active { background: #0C1E35; color: white; }
+    .step-dot.pending { background: #e2e8f0; color: #94a3b8; }
+
+    .step-line { flex: 1; height: 2px; background: #e2e8f0; }
+    .step-line.done { background: #E8621A; }
+
+    .check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.65); }
+
+    .showpass-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; }
+
+    @media (max-width: 768px) { .left-panel { display: none; } }
+</style>
+</head>
+<body class="bg-cream min-h-screen" x-data="{
+    step: 1,
+    role: '',
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPass: '',
+    showPass: false,
+    showConfirm: false,
+    city: '',
+    reraNo: '',
+    companyName: '',
+    agreed: false,
+    loading: false,
+    get canStep1() { return this.role !== ''; },
+    get canStep2() {
+        return this.name.trim() !== '' && this.email.includes('@') && this.phone.length >= 10 && this.password.length >= 6 && this.password === this.confirmPass;
+    },
+    nextStep() { if(this.step < 3) this.step++; },
+    prevStep() { if(this.step > 1) this.step--; },
+    submit() {
+        this.loading = true;
+        setTimeout(() => {
+            this.loading = false;
+            const map = { client: 'dashboard-client.html', broker: 'dashboard-broker.html', builder: 'dashboard-builder.html' };
+            window.location.href = map[this.role] || 'index.html';
+        }, 1500);
+    }
+}">
+
+<div class="min-h-screen flex">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel w-5/12 flex flex-col justify-between p-12 hidden md:flex">
+        <div class="left-panel-content">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-lg"></i>
+                </div>
+                <span class="font-outfit font-bold text-2xl text-white">Prop<span class="text-orange">Surat</span></span>
+            </a>
+
+            <div class="mt-16">
+                <h1 class="font-outfit text-4xl font-bold text-white leading-tight mb-4">
+                    Join India's<br>
+                    <span class="text-orange">#1 Property</span><br>
+                    Platform
+                </h1>
+                <p class="text-white/60 text-base leading-relaxed">
+                    Free mein register karein aur apne property journey shuru karein aaj se.
+                </p>
+            </div>
+
+            <div class="mt-12 space-y-3">
+                <div class="check-item">
+                    <div class="w-5 h-5 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-bold ph-check text-orange text-xs"></i>
+                    </div>
+                    Free account, no hidden charges
+                </div>
+                <div class="check-item">
+                    <div class="w-5 h-5 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-bold ph-check text-orange text-xs"></i>
+                    </div>
+                    1.2 lakh+ verified listings access
+                </div>
+                <div class="check-item">
+                    <div class="w-5 h-5 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-bold ph-check text-orange text-xs"></i>
+                    </div>
+                    RERA-certified brokers se direct connect
+                </div>
+                <div class="check-item">
+                    <div class="w-5 h-5 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-bold ph-check text-orange text-xs"></i>
+                    </div>
+                    Price trends, locality reports free
+                </div>
+                <div class="check-item">
+                    <div class="w-5 h-5 rounded-full bg-orange/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-bold ph-check text-orange text-xs"></i>
+                    </div>
+                    Personal dashboard with saved properties
+                </div>
+            </div>
+        </div>
+
+        <div class="left-panel-content">
+            <div class="bg-white/8 border border-white/12 rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-orange/20 flex items-center justify-center">
+                        <i class="ph-fill ph-users-three text-orange text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-white font-semibold text-sm">85,000+ members</div>
+                        <div class="text-white/45 text-xs">joined this month</div>
+                    </div>
+                </div>
+                <div class="flex -space-x-2">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" class="w-8 h-8 rounded-full border-2 border-navy-mid" alt="">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" class="w-8 h-8 rounded-full border-2 border-navy-mid" alt="">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face" class="w-8 h-8 rounded-full border-2 border-navy-mid" alt="">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face" class="w-8 h-8 rounded-full border-2 border-navy-mid" alt="">
+                    <div class="w-8 h-8 rounded-full border-2 border-navy-mid bg-orange flex items-center justify-center text-white text-xs font-bold">+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="flex-1 flex items-center justify-center p-6 md:p-10 bg-white overflow-y-auto">
+        <div class="w-full max-w-lg">
+
+            <!-- Mobile logo -->
+            <div class="flex items-center gap-2 mb-6 md:hidden">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </div>
+
+            <!-- Step progress -->
+            <div class="flex items-center gap-0 mb-8">
+                <div class="flex flex-col items-center">
+                    <div class="step-dot" :class="step > 1 ? 'done' : step===1 ? 'active' : 'pending'">
+                        <template x-if="step > 1"><i class="ph-bold ph-check text-xs"></i></template>
+                        <template x-if="step <= 1"><span>1</span></template>
+                    </div>
+                    <span class="text-xs mt-1" :class="step===1 ? 'text-navy font-semibold' : 'text-muted'">Role</span>
+                </div>
+                <div class="step-line mb-4 mx-2" :class="step > 1 ? 'done' : ''"></div>
+                <div class="flex flex-col items-center">
+                    <div class="step-dot" :class="step > 2 ? 'done' : step===2 ? 'active' : 'pending'">
+                        <template x-if="step > 2"><i class="ph-bold ph-check text-xs"></i></template>
+                        <template x-if="step <= 2"><span>2</span></template>
+                    </div>
+                    <span class="text-xs mt-1" :class="step===2 ? 'text-navy font-semibold' : 'text-muted'">Details</span>
+                </div>
+                <div class="step-line mb-4 mx-2" :class="step > 2 ? 'done' : ''"></div>
+                <div class="flex flex-col items-center">
+                    <div class="step-dot" :class="step===3 ? 'active' : 'pending'">3</div>
+                    <span class="text-xs mt-1" :class="step===3 ? 'text-navy font-semibold' : 'text-muted'">Verify</span>
+                </div>
+            </div>
+
+            <!-- STEP 1: Role selection -->
+            <div x-show="step===1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="font-outfit text-2xl font-bold text-navy mb-1">Aap kaun hain? 🤔</h2>
+                <p class="text-muted text-sm mb-6">Apna role select karein — iske basis pe dashboard milega</p>
+
+                <div class="space-y-3">
+                    <!-- Client -->
+                    <div class="role-card" :class="role==='client' ? 'selected' : ''" @click="role='client'">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" :style="role==='client' ? 'background:rgba(232,98,26,0.12)' : 'background:#f1f5f9'">
+                                <i class="ph-bold ph-user text-xl" :style="role==='client' ? 'color:#E8621A' : 'color:#64748B'"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-outfit font-semibold text-navy">Client / Buyer / Renter</h3>
+                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                        :class="role==='client' ? 'border-orange bg-orange' : 'border-slate-300'">
+                                        <i x-show="role==='client'" class="ph-bold ph-check text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <p class="text-slate-500 text-sm mt-1">Property dhundh raha hoon — buy, rent, ya PG ke liye</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Broker -->
+                    <div class="role-card" :class="role==='broker' ? 'selected' : ''" @click="role='broker'">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" :style="role==='broker' ? 'background:rgba(232,98,26,0.12)' : 'background:#f1f5f9'">
+                                <i class="ph-bold ph-handshake text-xl" :style="role==='broker' ? 'color:#E8621A' : 'color:#64748B'"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-outfit font-semibold text-navy">Real Estate Broker</h3>
+                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                        :class="role==='broker' ? 'border-orange bg-orange' : 'border-slate-300'">
+                                        <i x-show="role==='broker'" class="ph-bold ph-check text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <p class="text-slate-500 text-sm mt-1">Properties list karta hoon, clients se milata hoon</p>
+                                <div class="mt-2 inline-flex items-center gap-1 text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
+                                    <i class="ph-bold ph-info"></i> RERA number required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Builder -->
+                    <div class="role-card" :class="role==='builder' ? 'selected' : ''" @click="role='builder'">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" :style="role==='builder' ? 'background:rgba(232,98,26,0.12)' : 'background:#f1f5f9'">
+                                <i class="ph-bold ph-crane-tower text-xl" :style="role==='builder' ? 'color:#E8621A' : 'color:#64748B'"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-outfit font-semibold text-navy">Builder / Developer</h3>
+                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                        :class="role==='builder' ? 'border-orange bg-orange' : 'border-slate-300'">
+                                        <i x-show="role==='builder'" class="ph-bold ph-check text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <p class="text-slate-500 text-sm mt-1">Apne projects list karta hoon — residential, commercial</p>
+                                <div class="mt-2 inline-flex items-center gap-1 text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
+                                    <i class="ph-bold ph-info"></i> Company verification needed
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="canStep1 && nextStep()" class="btn-primary mt-6" :class="!canStep1 ? 'opacity-50 cursor-not-allowed' : ''">
+                    Aage badhein <i class="ph-bold ph-arrow-right ml-1"></i>
+                </button>
+            </div>
+
+            <!-- STEP 2: Personal details -->
+            <div x-show="step===2" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="font-outfit text-2xl font-bold text-navy mb-1">Apni details bharein 📝</h2>
+                <p class="text-muted text-sm mb-6">Basic information chahiye — 2 minute ka kaam</p>
+
+                <div class="space-y-4">
+                    <div class="relative">
+                        <i class="ph-bold ph-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input x-model="name" type="text" placeholder="Aapka poora naam" class="form-input">
+                    </div>
+                    <div class="relative">
+                        <i class="ph-bold ph-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input x-model="email" type="email" placeholder="Email address" class="form-input">
+                    </div>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                            <span class="text-sm font-medium text-slate-700">🇮🇳 +91</span>
+                            <span class="text-slate-300">|</span>
+                        </div>
+                        <input x-model="phone" type="tel" placeholder="Mobile number" class="form-input" style="padding-left:72px" maxlength="10">
+                    </div>
+                    <div class="relative">
+                        <i class="ph-bold ph-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <select x-model="city" class="form-input appearance-none">
+                            <option value="" disabled selected>Aapka sheher</option>
+                            <option>Mumbai</option><option>Delhi NCR</option><option>Bangalore</option>
+                            <option>Hyderabad</option><option>Pune</option><option>Surat</option>
+                            <option>Ahmedabad</option><option>Chennai</option><option>Kolkata</option>
+                            <option>Jaipur</option><option>Other</option>
+                        </select>
+                        <i class="ph-bold ph-caret-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Broker/Builder extras -->
+                    <div x-show="role==='broker'" x-transition>
+                        <div class="relative">
+                            <i class="ph-bold ph-certificate absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input x-model="reraNo" type="text" placeholder="RERA Registration Number" class="form-input" style="text-transform:uppercase">
+                        </div>
+                    </div>
+                    <div x-show="role==='builder'" x-transition>
+                        <div class="relative">
+                            <i class="ph-bold ph-buildings absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input x-model="companyName" type="text" placeholder="Company / Developer name" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative">
+                            <i class="ph-bold ph-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input x-model="password" :type="showPass ? 'text' : 'password'" placeholder="Password" class="form-input pr-10">
+                            <span @click="showPass=!showPass" class="showpass-btn">
+                                <i :class="showPass ? 'ph-eye-slash' : 'ph-eye'" class="ph-bold text-base"></i>
+                            </span>
+                        </div>
+                        <div class="relative">
+                            <i class="ph-bold ph-lock-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input x-model="confirmPass" :type="showConfirm ? 'text' : 'password'" placeholder="Confirm" class="form-input pr-10">
+                            <span @click="showConfirm=!showConfirm" class="showpass-btn">
+                                <i :class="showConfirm ? 'ph-eye-slash' : 'ph-eye'" class="ph-bold text-base"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div x-show="confirmPass.length > 0 && password !== confirmPass" class="text-red-500 text-xs flex items-center gap-1">
+                        <i class="ph-bold ph-warning-circle"></i> Passwords match nahi kar rahe
+                    </div>
+                    <div x-show="password.length > 0 && password.length < 6" class="text-amber-600 text-xs flex items-center gap-1">
+                        <i class="ph-bold ph-info"></i> Password kam se kam 6 characters ka hona chahiye
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button @click="prevStep()" class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-600 font-medium hover:border-slate-300 transition-all">
+                        <i class="ph-bold ph-arrow-left mr-1"></i> Back
+                    </button>
+                    <button @click="canStep2 && nextStep()" class="flex-[2] btn-primary" :class="!canStep2 ? 'opacity-50 cursor-not-allowed' : ''">
+                        Aage badhein <i class="ph-bold ph-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Verify + submit -->
+            <div x-show="step===3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="font-outfit text-2xl font-bold text-navy mb-1">Almost done! ✅</h2>
+                <p class="text-muted text-sm mb-6">Details check karein aur account banayein</p>
+
+                <!-- Summary card -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-3">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">Role</span>
+                        <span class="font-medium text-navy capitalize" x-text="role || '—'"></span>
+                    </div>
+                    <div class="border-t border-slate-200"></div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">Naam</span>
+                        <span class="font-medium text-navy" x-text="name || '—'"></span>
+                    </div>
+                    <div class="border-t border-slate-200"></div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">Email</span>
+                        <span class="font-medium text-navy" x-text="email || '—'"></span>
+                    </div>
+                    <div class="border-t border-slate-200"></div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">Phone</span>
+                        <span class="font-medium text-navy">+91 <span x-text="phone"></span></span>
+                    </div>
+                    <div class="border-t border-slate-200"></div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">City</span>
+                        <span class="font-medium text-navy" x-text="city || '—'"></span>
+                    </div>
+                    <template x-if="role==='broker' && reraNo">
+                        <div>
+                            <div class="border-t border-slate-200 mb-3"></div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-muted">RERA No.</span>
+                                <span class="font-medium text-navy font-mono text-xs" x-text="reraNo"></span>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="role==='builder' && companyName">
+                        <div>
+                            <div class="border-t border-slate-200 mb-3"></div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-muted">Company</span>
+                                <span class="font-medium text-navy" x-text="companyName"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- OTP verification notice -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 flex gap-3">
+                    <i class="ph-bold ph-device-mobile text-blue-600 text-lg flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="text-blue-800 text-sm font-medium">OTP verification hogi</p>
+                        <p class="text-blue-600 text-xs mt-0.5">+91 <span x-text="phone"></span> pe OTP bheja jayega account activate karne ke liye</p>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <label class="flex items-start gap-3 mb-5 cursor-pointer">
+                    <input type="checkbox" x-model="agreed" class="w-4 h-4 mt-0.5 accent-orange rounded flex-shrink-0">
+                    <span class="text-sm text-slate-600 leading-relaxed">
+                        Main <a href="#" class="text-orange hover:underline">Terms of Service</a> aur
+                        <a href="#" class="text-orange hover:underline">Privacy Policy</a> se agree karta/karti hoon.
+                        PropSurat RERA guidelines follow karta hai.
+                    </span>
+                </label>
+
+                <div class="flex gap-3">
+                    <button @click="prevStep()" class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-600 font-medium hover:border-slate-300 transition-all">
+                        <i class="ph-bold ph-arrow-left mr-1"></i> Back
+                    </button>
+                    <button @click="agreed && submit()" class="flex-[2] btn-primary" :class="!agreed || loading ? 'opacity-60 cursor-not-allowed' : ''">
+                        <span x-show="!loading" class="flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-rocket-launch"></i> Account Banayein
+                        </span>
+                        <span x-show="loading" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+                                <path d="M12 2a10 10 0 0 1 10 10" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                            Creating account...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login link -->
+            <p class="text-center text-sm text-slate-500 mt-6">
+                Pehle se account hai?
+                <a href="login.html" class="text-orange font-semibold hover:underline ml-1">Login karein</a>
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

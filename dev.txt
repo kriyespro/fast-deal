@@ -1,0 +1,242 @@
+[DONE] Phase 0 — Static HTML audit + full brand migration
+
+Pages already on PropSurat theme (untouched):
+- index.html
+- listings.html
+- login.html
+- register.html
+- dashboard-admin.html
+- dashboard-broker.html
+- dashboard-client.html
+- dashboard-builder.html
+
+Pages migrated from FastDeal → PropSurat theme:
+- property-detail.html
+- agents.html
+- agent-detail.html
+- neighborhoods.html
+- blog.html
+- blog-detail.html
+- about.html
+- contact.html
+
+Changes per migrated page:
+- CSS vars replaced: --color-primary/accent/red → --navy/orange
+- Tailwind config replaced: navy/orange/gold/cream/green palette
+- Nav replaced: PropSurat logo (orange square icon), sticky white nav, correct active links
+- mobileMenuOpen → mobileMenu (Alpine.js var)
+- text-accent/bg-red/text-primary → text-orange/bg-orange/text-navy
+- text-gradient: gold → orange gradient
+- All "FastDeal" references → "PropSurat"
+- US content Indianized: Michael Harrison→Rajesh Patel, Beverly Hills→Mumbai, etc.
+
+[DONE] Phase 0 — Full content audit + Indianization of all 8 migrated pages:
+  - agents.html: Brokers page, Indian cities dropdown, Indian broker names
+  - agent-detail.html: Rajesh Patel profile, RERA license, Indian languages, tabs fixed
+  - neighborhoods.html: Mumbai (Bandra West, Juhu, Powai) + Bangalore (Koramangala, Whitefield, Indiranagar) localities, ₹ prices
+  - about.html: Indian stats (₹10,000 Cr+, 50+ cities, 5,000+ brokers), Indian leadership (Vikram Mehta, Deepa Iyer, Rahul Kapoor)
+  - contact.html: Surat address, +91 phone, hello@propsurat.in
+  - blog.html + blog-detail.html: Indian article titles
+  - property-detail.html: Koramangala address, ₹ price
+  - Common fixes: shadow-red→orange, from-primary→navy, broken tailwind config, duplicate CSS removed, hero padding fixed
+
+[DONE] Phase 0 — Footer unification + CSS var fixes:
+  - All 8 migrated pages: replaced simple light footer with index.html rich dark footer (bg-[#08111F], 5-col grid, newsletter, social links)
+  - blog-detail.html: fixed undefined --color-primary/accent/text/muted → --orange/--text/--muted
+  - agent-detail.html: fixed --color-primary in .tab-active → #0C1E35 (navy)
+  - about.html: removed orphaned CSS block after .text-gradient, fixed Value 2 English text → Hindi, fixed duplicate "Team Team" comment
+
+[READY] All 16 HTML pages consistent on PropSurat brand + unified footer. Ready for Django migration.
+
+[DONE] Mobile Responsiveness Audit + Deep Fix (2026-05-25):
+  CRITICAL HTML BUGS FIXED:
+  - agents.jinja: 12 broken <a> tags (all 4 agents × 3 social icons) — missing > before <i> tag. All social links now functional.
+  - contact.jinja: broken map div — missing > before <i> tag
+  - neighborhoods.jinja: 2 broken <button> zoom tags — missing > before <i> tags
+
+  MOBILE LAYOUT FIXES:
+  - index.jinja: hero floating stats card now hidden on mobile (hidden sm:block) to prevent overlap with search panel
+  - index.jinja: "Why PropSurat" image section — added pb-20 lg:pb-0 so absolute stats card has room below images
+  - index.jinja: app download stats — flex-wrap + min-w-[90px] prevents overflow on 320px screens
+  - about.jinja: hero h1 text-5xl → text-3xl sm:text-5xl, stats section text-4xl → text-2xl md:text-5xl, reduced p-8→p-5 on mobile, border-b row separators, hide dividers on mobile (hidden sm:block)
+  - about.jinja: network stats card — inline-flex → flex flex-wrap justify-center, responsive padding, hidden sm:block dividers
+  - contact.jinja: hero h1 text-5xl → text-3xl sm:text-5xl
+  - neighborhoods.jinja: map height h-[500px] → h-[260px] sm:h-[400px] md:h-[500px]
+  - neighborhoods.jinja: filter pills — responsive padding/font, whitespace-nowrap
+  - neighborhoods.jinja: hero h1 text-5xl → text-3xl sm:text-5xl
+  - blog.jinja: added .hide-scrollbar CSS (was missing, caused JS error on category tab scroll)
+  - dashboard_broker.jinja: profile card p-8 → p-4 sm:p-8, leads table min-w-[480px]
+  - control/users.jinja: table wrapped in overflow-x-auto + min-w-[480px] to prevent mobile clip
+
+[DONE] Phase 1 — Django Bootstrap:
+  - Django 5 project created (core/ + manage.py)
+  - requirements.txt: Django, Jinja2, Pillow, whitenoise, django-htmx, python-decouple
+  - settings.py: Jinja2 PRIMARY, DjangoTemplates for /sd/ admin, Asia/Kolkata TZ, whitenoise static
+  - core/jinja2.py: custom environment (static, url, get_messages globals)
+  - .gitignore created
+  - durga.py dev runner created
+
+[DONE] Phase 2.1-2.3 — Users App + Migrations:
+  - Custom User model: email login, 5 roles (client/broker/builder/city_admin/global_admin)
+  - Profile model: avatar, city, bio, rera_number, company_name, website
+  - Migration 0001_initial applied
+  - Superuser: admin@propsurat.in / admin1234
+
+[DONE] Phase 2.4-2.7 — Auth Views + Templates:
+  - LoginForm, RegisterForm (ModelForm with role selection)
+  - Login view (role-based redirect after login)
+  - Register view (creates user, logs in, redirects to dashboard)
+  - Logout view (POST only)
+  - users/urls.py: /login/, /register/, /logout/
+  - templates/base.jinja: full PropSurat base layout
+  - templates/components/nav.jinja: dynamic auth-aware nav
+  - templates/components/footer.jinja: rich dark footer
+  - templates/pages/login.jinja: two-panel login page
+  - templates/pages/register.jinja: two-panel register with role selection
+  - templates/pages/index.jinja: home placeholder
+  - Dashboard placeholder URLs: /dashboard/client|broker|builder|admin/
+
+[DONE] Phase 3 — All static pages converted to Jinja2 + wired to Django:
+  - pages/ app created (PageView CBV base)
+  - 10 public pages: index, listings, property_detail, agents, agent_detail,
+    neighborhoods, about, contact, blog, blog_detail — all 200 OK
+  - 4 dashboard pages: broker, builder, client, admin — extend dashboard_base.jinja
+  - templates/layouts/dashboard_base.jinja — shared dashboard CSS/Alpine base
+  - 404.jinja + 500.jinja error pages wired to handler404/500
+  - core/jinja2.py: url() helper supports kwargs (url('view', pk=1))
+  - All href="*.html" replaced with url() Jinja2 calls
+  - Dashboard pages: @login_required, redirect to /login/ if unauthenticated
+
+[DONE] Phase 4 — Properties App:
+  - Models: City, Locality, Property, PropertyImage, Inquiry
+  - Property fields: title, type, listing_type, status, city, locality, price,
+    bedrooms, area_sqft, furnishing, rera_id, amenities, is_featured, views_count
+  - Migration 0001_initial applied
+  - services.py: get_active_properties (with filters), get_featured_properties,
+    get_property_detail, create_inquiry, get_broker_stats
+  - forms.py: InquiryForm, PropertyFilterForm
+  - views.py: ListingsView (HTMX filter), PropertyDetailView (HTMX inquiry POST)
+  - properties/urls.py: /listings/, /property/<pk>/
+  - partials/_property_cards.jinja: HTMX-compatible card grid + pagination
+  - partials/_inquiry_form.jinja: HTMX inquiry form
+  - listings.jinja: fully rewired with HTMX filter bar (hx-get on change/keyup)
+  - Seed data: 8 cities, 25 localities, 8 demo properties, broker user
+  - All pages 200 OK confirmed
+
+[DONE] Phase 6 — Client Dashboard (saved properties + property detail wired):
+  - SavedProperty model (user FK, property FK, unique_together, created_at)
+  - Migration 0002_add_saved_property applied
+  - services.py: toggle_saved_property, get_client_saved_properties
+  - ToggleSaveView (HTMX POST, login_required) → /property/<pk>/save/
+  - partials/_save_btn.jinja: HTMX heart toggle (save/unsave, hx-target=this)
+  - _property_cards.jinja: save button on each card for logged-in users
+  - property_detail.jinja: full rewrite — real title/price/images/specs/amenities/RERA, save button, inquiry form, similar properties grid
+  - dashboard_client.jinja: Saved Properties tab now shows real saved cards with unsave button; sidebar count badge; overview stat is real
+  - pages/views.py DashboardClientView: passes saved_properties queryset
+  - properties/views.py ListingsView: passes saved_ids set; PropertyDetailView: passes is_saved bool
+  - All pages 200 OK verified; save/unsave toggle verified
+
+[DONE] Phase 7 — Builder Dashboard fully wired:
+  - Project model: builder FK, name, project_type, status, city, locality, address, price_min/max, total/sold/available_units, completion_pct, rera_id, expected_possession, image
+  - ProjectType/ProjectStatus TextChoices (residential/commercial/mixed, upcoming/ongoing/completed)
+  - Migration 0003_add_project applied
+  - services.py: get_builder_projects, get_builder_project_stats (total/ongoing/upcoming/completed/units)
+  - forms.py: ProjectForm (ModelForm), BuilderProfileForm (Form)
+  - properties/views.py: AddProjectView (HTMX GET/POST → _project_form.jinja), BuilderProfileView (HTMX GET/POST → _builder_profile_form.jinja)
+  - properties/urls.py: /builder/project/add/, /builder/profile/
+  - partials/_project_form.jinja: full HTMX project submission form
+  - partials/_builder_profile_form.jinja: company/RERA/website/bio edit form
+  - pages/views.py DashboardBuilderView: now uses get_builder_projects/project_stats context (no more broker properties)
+  - dashboard_builder.jinja: full rewrite — project cards with completion bar, HTMX Add Project panel (hx-get, hx-trigger=revealed), HTMX Profile tab (hx-get on load), sidebar uses project_stats
+  - builder@propsurat.in / test1234 test user created
+  - All builder views 200 OK verified
+
+[DONE] Phase 5 — All Dashboards wired with real data:
+  - dashboard_broker.jinja: real properties, stats, inquiries from DB
+  - dashboard_client.jinja: fixed broken body_attrs, real my_inquiries, proper logout, EMI calculator
+  - dashboard_builder.jinja: fixed broken body_attrs, real properties/stats/inquiries, proper logout
+  - pages/views.py: DashboardClientView + DashboardBuilderView now pass real context
+  - users/models.py: post_save signal auto-creates Profile on User creation
+  - All 3 dashboards: 200 OK verified
+  - Fix: CSS injected via fix_templates.py, domain propsurat.com, base.jinja body_attrs block
+  - Fix: index.jinja transparent-scroll nav, scroll/activeTab Alpine state
+
+[DONE] Phase 8 — CityAdmin Dashboard:
+  - User.is_verified + Profile.assigned_city FK → migration 0002 applied
+  - properties/services.py: get_city_stats, get_city_pending_properties, get_city_all_listings, get_city_brokers, approve_property, reject_property, verify_broker, suspend_broker, reinstate_broker
+  - DashboardAdminView: real context for city_admin (city_stats, pending_properties, all_listings, city_brokers)
+  - HTMX views: ApproveListingView, RejectListingView, VerifyBrokerView, SuspendBrokerView, ReinstateBrokerView
+  - URLs: /cityadmin/listing/<pk>/approve|reject/, /cityadmin/broker/<pk>/verify|suspend|reinstate/
+  - dashboard_admin.jinja: full rewrite — fixed body_attrs bug, real CityAdmin data, GlobalAdmin static placeholder
+  - partials/_city_listing_row.jinja + _city_broker_row.jinja: HTMX row swap
+  - dashboard_base.jinja: added missing CSS (btn-green/red, badge, sidebar-section etc.) + HTMX CSRF auto-config
+  - All pages 200 OK verified
+
+[DONE] Phase 10 — Billing & Subscriptions (Demo Payment Mode):
+  - billing/ app: models.py, services.py, views.py, urls.py
+  - Models: Plan (Free/Basic/Pro), Subscription (OneToOne User), Invoice
+  - Migration 0001_initial applied
+  - Seed data: Free (₹0, 2 listings, 1 project), Basic (₹999, 10/5), Pro (₹2499, ∞/∞)
+  - Services: get_user_active_plan, can_add_listing, can_add_project, process_demo_payment
+  - Views: BillingPlansView, SubscribeView, PaymentView, InvoiceListView, InvoiceDetailView
+  - URLs: /billing/, /billing/subscribe/<id>/, /billing/payment/<id>/, /billing/invoices/, /billing/invoice/<pk>/
+  - Templates: billing_plans.jinja (plan cards), billing_payment.jinja (demo card form), billing_invoices.jinja, billing_invoice.jinja (printable)
+  - Paywall: AddProjectView checks can_add_project() → shows upgrade prompt if at limit
+  - Broker dashboard: can_add_listing context → paywall in Add Listing modal
+  - Broker + Builder dashboards: Billing & Plans sidebar link added
+  - Demo flow: Subscribe → Payment page (pre-filled test card) → POST confirms → Invoice created → Redirect to receipt
+  - All billing routes 200 OK verified ✓
+
+[DONE] Phase 1–9 Audit (2026-05-25) — Full bug check + fixes:
+  - Django system check: 0 issues ✓
+  - All migrations applied ✓
+  - All 14 public/auth routes: 200 OK or correct 302 ✓
+  - Fixed: nav.jinja — 4 broken href="#" links → real url() calls (agents, neighborhoods, blog, about, listings)
+  - Fixed: nav.jinja — added Dashboard link for authenticated users (role-aware redirect)
+  - Fixed: nav.jinja — mobile menu same fixes applied
+  - Fixed: properties/services.py increment_views — race condition → atomic F('views_count') + 1
+  - Fixed: test_user.txt — builder email was blank, added builder@propsurat.in
+  - Verified: csrf_input works via Django Jinja2 backend ✓
+  - Verified: HTMX partials (_save_btn, _inquiry_form, _city_listing_row, _city_broker_row) consistent ✓
+  - Verified: Mission Control /admin/ + /admin/users/ render 200 for global_admin ✓
+  - Verified: broker/builder/client dashboards all render 200 ✓
+
+[DONE] Phase 9 — Mission Control (GlobalAdmin):
+  - control/ app: models.py, services.py, views.py, urls.py, apps.py
+  - AdminLog model: action, admin FK, target_user FK, ip_address, created_at → migration 0001 applied
+  - URL: /admin/ (separate from /sd/ Django admin and /dashboard/admin/ CityAdmin)
+  - control/services.py: get_platform_stats, get_users_list, get_recent_admin_logs, log_admin_action
+  - Views: DashboardView (live stats + activity), UserListView (HTMX search), BanUserView (HTMX ban/unban), ImpersonateView, StopImpersonateView, StatsCardView, ActivityFeedView
+  - Templates: base_control.jinja (dark sidebar), dashboard.jinja, users.jinja
+  - Partials: _stats_card.jinja (hx-trigger="every 30s"), _activity_feed.jinja (hx-trigger="every 30s"), _user_row.jinja (HTMX ban/unban + impersonate)
+  - Impersonation banner wired to base.jinja + dashboard_base.jinja
+  - ControlAccessMixin: staff OR global_admin role required
+  - core/settings.py: 'control' added to INSTALLED_APPS
+  - core/urls.py: path('admin/', include('control.urls', namespace='control'))
+  - All Mission Control endpoints 200 OK verified
+
+[DONE] Image Fix + About Page Redesign (2026-05-28):
+  - Created properties/management/commands/seed_images.py
+  - Downloaded 19 real Unsplash property photos to media/properties/seed/
+  - All 8 properties now have 2-4 images (PropertyImage records in DB)
+  - Fixed SSL cert issue on macOS (ssl.CERT_NONE for download only)
+  - about.jinja full rewrite:
+    - FIXED: hero bg image was on LEFT (inset-0 + w-1/2 conflict) → now top-0 right-0 bottom-0 w-1/2
+    - Updated all Unsplash URLs to modern format (no ixlib param)
+    - Mission section: fixed overflow with fixed-height image grid containers
+    - Team cards: smooth scale hover, rounded social icon buttons
+    - India Network section: dark navy bg with city tags pill grid
+    - New CTA section added at bottom
+
+[DONE] Image Upload Fix + Gallery Improvements (2026-05-28):
+  - FIXED: PropertyImage._compress() path bug — new_abs used dirname(dirname(path)) which
+    put compressed file in media/properties/2026/compressed/ but DB stored properties/compressed/
+    → path mismatch caused 404 on newly uploaded images. Fixed to use settings.MEDIA_ROOT.
+  - ADDED: Admin inline image preview (PropertyImageInline) — readonly 'preview' field shows
+    70px thumbnail for each uploaded image in /sd/ admin.
+  - FIXED: Mobile property detail gallery — was single static image (images[0] only).
+    Replaced with Alpine.js slider: prev/next arrows, counter shows "cur+1/total".
+  - ADDED: Desktop gallery lightbox — click any image to open full-screen modal.
+    Alpine.js: keyboard left/right/ESC, click-outside-to-close, image counter.
+  - ADDED: images_json context to PropertyDetailView — list of image URLs passed to template.
+  - ADDED: [x-cloak] { display: none } to base.jinja to prevent lightbox flash on load.

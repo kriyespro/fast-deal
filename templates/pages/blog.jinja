@@ -1,0 +1,344 @@
+{% extends 'base.jinja' %}
+
+{% block title %}PropSurat — Real Estate News & Insights{% endblock %}
+{% block extra_head %}
+<style>
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="pt-24 pb-12 bg-white border-b border-slate-200 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5">
+        </div>
+        <div
+            class="absolute bottom-0 right-0 w-96 h-96 bg-navy/10 rounded-full blur-3xl translate-y-1/2 translate-x-1/2 pointer-events-none">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 font-outfit mb-6">Real Estate <span class="text-gradient">Gyaan</span></h1>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto">
+                India ke property market ki latest trends, RERA updates, home loan tips aur expert analysis — sab kuch yahan.
+            </p>
+        </div>
+    </div>
+
+    <!-- Featured Post -->
+    <section class="py-12 bg-slate-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div
+                class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-2xl group flex flex-col md:flex-row relative">
+                <div class="absolute top-4 left-4 z-20">
+                    <span
+                        class="bg-orange hover:bg-orange-700 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer uppercase tracking-wider shadow-lg">Featured</span>
+                </div>
+
+                <a href="{{ url('blog_detail', pk=1) }}" class="md:w-1/2 block relative h-64 md:h-auto overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                        alt="Featured Post"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10"></div>
+                </a>
+
+                <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                    <div class="flex items-center gap-4 text-sm text-slate-500 mb-4">
+                        <span class="flex items-center gap-1"><i class="ph ph-calendar-blank text-slate-400"></i> May 20, 2026</span>
+                        <div class="w-1 h-1 rounded-full bg-slate-200"></div>
+                        <span class="text-orange cursor-pointer hover:text-slate-900 transition-colors">Market Trends</span>
+                    </div>
+
+                    <a href="{{ url('blog_detail', pk=1) }}"
+                        class="block text-3xl font-bold text-slate-900 font-outfit mb-4 hover:text-orange transition-colors leading-tight">
+                        Surat Mein 2026 Ke Top Localities — Kahan Invest Karein?
+                    </a>
+
+                    <p class="text-slate-500 mb-8 leading-relaxed line-clamp-3">
+                        Surat ke real estate market mein 2026 mein kaunse areas sabse zyada grow kar rahe hain? Vesu, Pal, Adajan — expert analysis padho aur sahi jagah invest karo.
+                    </p>
+
+                    <div class="flex items-center justify-between mt-auto pt-6 border-t border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full overflow-hidden border border-slate-200">
+                                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                                    alt="Author" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-medium text-slate-900">Rajesh Patel</span>
+                        </div>
+                        <a href="{{ url('blog_detail', pk=1) }}"
+                            class="text-orange hover:text-slate-900 font-medium flex items-center gap-1 transition-colors text-sm">
+                            Read Article <i class="ph ph-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Area -->
+    <section class="py-16 flex-grow bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-12">
+
+                <!-- Main Grid -->
+                <div class="w-full lg:w-2/3">
+
+                    <!-- Filters/Categories -->
+                    <div
+                        class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200 overflow-x-auto hide-scrollbar">
+                        <div class="flex gap-6 text-sm font-medium">
+                            <a href="#" class="text-slate-900 border-b-2 border-orange pb-4 whitespace-nowrap">All
+                                Topics</a>
+                            <a href="#"
+                                class="text-slate-500 hover:text-slate-900 pb-4 border-b-2 border-transparent transition-colors whitespace-nowrap">Market
+                                Trends</a>
+                            <a href="#"
+                                class="text-slate-500 hover:text-slate-900 pb-4 border-b-2 border-transparent transition-colors whitespace-nowrap">Architecture</a>
+                            <a href="#"
+                                class="text-slate-500 hover:text-slate-900 pb-4 border-b-2 border-transparent transition-colors whitespace-nowrap">Interior
+                                Design</a>
+                            <a href="#"
+                                class="text-slate-500 hover:text-slate-900 pb-4 border-b-2 border-transparent transition-colors whitespace-nowrap">Localities</a>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        <!-- Article 1 -->
+                        <div
+                            class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-200 transition-all shadow-lg hover:-translate-y-1 relative flex flex-col">
+                            <a href="{{ url('blog_detail', pk=1) }}" class="block relative h-56 overflow-hidden">
+                                <span
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1 rounded-full z-20 border border-slate-200 text-orange uppercase tracking-wider">Localities</span>
+                                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Article"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                            </a>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                                    <i class="ph ph-clock"></i> 5 min read &bull; Oct 18, 2025
+                                </div>
+                                <h3
+                                    class="text-xl font-bold text-slate-900 font-outfit mb-3 hover:text-orange transition-colors leading-snug">
+                                    <a href="{{ url('blog_detail', pk=1) }}">Why Bandra Remains Mumbai's Most Sought-After Locality for
+                                        Luxury</a>
+                                </h3>
+                                <p class="text-slate-500 text-sm line-clamp-3 mb-6 flex-grow">
+                                    Despite market fluctuations, the 90210 zip code continues to command premium prices.
+                                    We analyze the enduring appeal of America's most famous neighborhood.
+                                </p>
+                                <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+                                    <span class="text-sm font-medium text-slate-600">By Elena Rodriguez</span>
+                                    <a href="{{ url('blog_detail', pk=1) }}"
+                                        class="text-orange hover:text-slate-900 transition-colors text-sm font-medium"><i
+                                            class="ph ph-arrow-right text-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 2 -->
+                        <div
+                            class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-200 transition-all shadow-lg hover:-translate-y-1 relative flex flex-col">
+                            <a href="{{ url('blog_detail', pk=1) }}" class="block relative h-56 overflow-hidden">
+                                <span
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1 rounded-full z-20 border border-slate-200 text-orange uppercase tracking-wider">Interior
+                                    Design</span>
+                                <img src="https://images.unsplash.com/photo-1600210491369-e753d80a41f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Article"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                            </a>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                                    <i class="ph ph-clock"></i> 4 min read &bull; Oct 12, 2025
+                                </div>
+                                <h3
+                                    class="text-xl font-bold text-slate-900 font-outfit mb-3 hover:text-orange transition-colors leading-snug">
+                                    <a href="{{ url('blog_detail', pk=1) }}">The Rebirth of the Formal Dining Room</a>
+                                </h3>
+                                <p class="text-slate-500 text-sm line-clamp-3 mb-6 flex-grow">
+                                    After a decade of open-concept dominance, affluent homeowners are once again seeking
+                                    dedicated, highly curated spaces for formal entertaining.
+                                </p>
+                                <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+                                    <span class="text-sm font-medium text-slate-600">By Sarah Jenkins</span>
+                                    <a href="{{ url('blog_detail', pk=1) }}"
+                                        class="text-orange hover:text-slate-900 transition-colors text-sm font-medium"><i
+                                            class="ph ph-arrow-right text-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 3 -->
+                        <div
+                            class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-200 transition-all shadow-lg hover:-translate-y-1 relative flex flex-col">
+                            <a href="{{ url('blog_detail', pk=1) }}" class="block relative h-56 overflow-hidden">
+                                <span
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1 rounded-full z-20 border border-slate-200 text-orange uppercase tracking-wider">Architecture</span>
+                                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Article"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                            </a>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                                    <i class="ph ph-clock"></i> 7 min read &bull; Oct 05, 2025
+                                </div>
+                                <h3
+                                    class="text-xl font-bold text-slate-900 font-outfit mb-3 hover:text-orange transition-colors leading-snug">
+                                    <a href="{{ url('blog_detail', pk=1) }}">Sustainable Luxury: Zero-Emission Estates</a>
+                                </h3>
+                                <p class="text-slate-500 text-sm line-clamp-3 mb-6 flex-grow">
+                                    How the world's top architects are creating massive off-grid mansions without
+                                    sacrificing an ounce of modern luxury.
+                                </p>
+                                <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+                                    <span class="text-sm font-medium text-slate-600">By David Chen</span>
+                                    <a href="{{ url('blog_detail', pk=1) }}"
+                                        class="text-orange hover:text-slate-900 transition-colors text-sm font-medium"><i
+                                            class="ph ph-arrow-right text-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 4 -->
+                        <div
+                            class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-200 transition-all shadow-lg hover:-translate-y-1 relative flex flex-col">
+                            <a href="{{ url('blog_detail', pk=1) }}" class="block relative h-56 overflow-hidden">
+                                <span
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1 rounded-full z-20 border border-slate-200 text-orange uppercase tracking-wider">Market
+                                    Trends</span>
+                                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Article"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                            </a>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                                    <i class="ph ph-clock"></i> 6 min read &bull; Sep 28, 2025
+                                </div>
+                                <h3
+                                    class="text-xl font-bold text-slate-900 font-outfit mb-3 hover:text-orange transition-colors leading-snug">
+                                    <a href="{{ url('blog_detail', pk=1) }}">The Resurgence of the NYC Penthouse Market</a>
+                                </h3>
+                                <p class="text-slate-500 text-sm line-clamp-3 mb-6 flex-grow">
+                                    After a brief cooling period, Manhattan's ultra-luxury sky-mansions are seeing
+                                    unprecedented demand from international buyers and domestic tech executives alike.
+                                </p>
+                                <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+                                    <span class="text-sm font-medium text-slate-600">By Rajesh Patel</span>
+                                    <a href="{{ url('blog_detail', pk=1) }}"
+                                        class="text-orange hover:text-slate-900 transition-colors text-sm font-medium"><i
+                                            class="ph ph-arrow-right text-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-12 flex justify-center">
+                        <button
+                            class="bg-white hover:bg-slate-100 border border-slate-200 text-slate-900 font-medium px-8 py-3 rounded-lg transition-colors">
+                            Load More Articles
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Sidebar -->
+                <div class="w-full lg:w-1/3 space-y-8">
+
+                    <!-- Search Widget -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-4">Search</h3>
+                        <div class="relative">
+                            <i
+                                class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" placeholder="Search articles..."
+                                class="w-full bg-slate-50 border border-slate-200 rounded-lg py-3 pl-12 pr-4 text-slate-900 focus:outline-none focus:border-orange">
+                        </div>
+                    </div>
+
+                    <!-- Newsletter Widget -->
+                    <div
+                        class="bg-navy/10 border border-orange/20 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-navy/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-2 relative z-10">Luxe Insights</h3>
+                        <p class="text-slate-500 text-sm mb-6 relative z-10">Get the latest luxury market analysis
+                            delivered directly to your inbox every week.</p>
+                        <form class="space-y-3 relative z-10">
+                            <input type="email" placeholder="Your email address"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange border-orange/30">
+                            <button type="button"
+                                class="w-full bg-orange hover:bg-orange-700 text-white font-bold rounded-lg px-4 py-3 transition-colors shadow-lg shadow-orange/20">
+                                Subscribe
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Trending Widget -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-6">Trending Now</h3>
+                        <div class="space-y-6">
+                            <a href="{{ url('blog_detail', pk=1) }}" class="flex gap-4 group">
+                                <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                        alt="News"
+                                        class="w-full h-full object-cover transform group-hover:scale-110 transition-duration-500">
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <h4
+                                        class="text-slate-900 font-medium text-sm leading-snug group-hover:text-orange transition-colors mb-1 line-clamp-2">
+                                        Miami's Off-Market Mega Sales: What's Driving the Surge?</h4>
+                                    <span class="text-slate-400 text-xs">Oct 14, 2025</span>
+                                </div>
+                            </a>
+                            <a href="{{ url('blog_detail', pk=1) }}" class="flex gap-4 group">
+                                <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1628624747186-a941c476b7ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                        alt="News"
+                                        class="w-full h-full object-cover transform group-hover:scale-110 transition-duration-500">
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <h4
+                                        class="text-slate-900 font-medium text-sm leading-snug group-hover:text-orange transition-colors mb-1 line-clamp-2">
+                                        The 5 Amenities Every $10M+ Buyer Demands in 2026</h4>
+                                    <span class="text-slate-400 text-xs">Oct 02, 2025</span>
+                                </div>
+                            </a>
+                            <a href="{{ url('blog_detail', pk=1) }}" class="flex gap-4 group">
+                                <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1505843513577-22bb7abd5eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                        alt="News"
+                                        class="w-full h-full object-cover transform group-hover:scale-110 transition-duration-500">
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <h4
+                                        class="text-slate-900 font-medium text-sm leading-snug group-hover:text-orange transition-colors mb-1 line-clamp-2">
+                                        Gurgaon Property Market: 2026 Mein Top 5 Localities</h4>
+                                    <span class="text-slate-400 text-xs">Sep 15, 2025</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

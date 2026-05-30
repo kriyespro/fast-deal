@@ -1,0 +1,815 @@
+{% extends 'base.jinja' %}
+
+{% block body_attrs %}x-data="{ mobileMenu: false, scrolled: false, activeTab: 'buy' }" @scroll.window="scrolled = window.pageYOffset > 40"{% endblock %}
+
+{% block title %}PropSurat – Apna Ghar Dhundo | India's Property Portal{% endblock %}
+{% block extra_head %}
+<style>
+.card-hover { transition: all .3s cubic-bezier(.4,0,.2,1); }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -10px rgba(12,30,53,.15); }
+        .hero-overlay { background: linear-gradient(135deg, rgba(12,30,53,.92) 0%, rgba(12,30,53,.7) 50%, rgba(12,30,53,.2) 100%); }
+        .search-glass { background: rgba(255,255,255,.97); backdrop-filter: blur(20px); }
+        .rera-badge { background: linear-gradient(135deg, #1B7A42, #27AE60); }
+        .verified-badge { background: linear-gradient(135deg, #1B3A5C, #2563EB); }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .ticker-content { display: inline-block; animation: ticker 30s linear infinite; }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .city-card:hover img { transform: scale(1.08); }
+        .city-card img { transition: transform .5s ease; }
+        .city-overlay { background: linear-gradient(to top, rgba(12,30,53,.85) 0%, rgba(12,30,53,.2) 60%, transparent 100%); }
+        .prop-tag-rent { background: rgba(27,122,66,.15); color: #1B7A42; border: 1px solid rgba(27,122,66,.3); }
+        .prop-tag-sale { background: rgba(232,98,26,.12); color: #C4500F; border: 1px solid rgba(232,98,26,.25); }
+        .prop-tag-new { background: rgba(37,99,235,.12); color: #1D4ED8; border: 1px solid rgba(37,99,235,.25); }
+        .testimonial-card { background: linear-gradient(135deg, #fff 0%, #fef9f6 100%); }
+</style>
+{% endblock %}
+
+{% block nav %}
+<nav :class="scrolled ? 'bg-white/98 shadow-lg backdrop-blur-md' : 'bg-transparent'"
+     class="fixed w-full z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <a href="{{ url('home') }}" class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center shadow-md">
+                    <i class="ph-fill ph-house-line text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-outfit text-xl font-800 leading-none" :class="scrolled ? 'text-navy' : 'text-white'">Prop<span class="text-orange">Surat</span></span>
+                    <div class="text-[9px] font-semibold tracking-[.15em] uppercase" :class="scrolled ? 'text-muted' : 'text-white/70'">India's Property Portal</div>
+                </div>
+            </a>
+            <div class="hidden lg:flex items-center gap-6">
+                <a href="{{ url('listings') }}" class="text-sm font-medium transition-colors" :class="scrolled ? 'text-slate-600 hover:text-orange' : 'text-white/90 hover:text-orange'">Buy</a>
+                <a href="{{ url('listings') }}" class="text-sm font-medium transition-colors" :class="scrolled ? 'text-slate-600 hover:text-orange' : 'text-white/90 hover:text-orange'">Rent</a>
+                <a href="{{ url('neighborhoods') }}" class="text-sm font-medium transition-colors" :class="scrolled ? 'text-slate-600 hover:text-orange' : 'text-white/90 hover:text-orange'">Localities</a>
+                <a href="{{ url('agents') }}" class="text-sm font-medium transition-colors" :class="scrolled ? 'text-slate-600 hover:text-orange' : 'text-white/90 hover:text-orange'">Brokers</a>
+                <a href="{{ url('about') }}" class="text-sm font-medium transition-colors" :class="scrolled ? 'text-slate-600 hover:text-orange' : 'text-white/90 hover:text-orange'">About</a>
+            </div>
+            <div class="hidden lg:flex items-center gap-3">
+                {% if request.user.is_authenticated %}
+                    <span class="text-sm font-medium" :class="scrolled ? 'text-navy' : 'text-white/80'">{{ request.user.full_name }}</span>
+                    <form method="post" action="{{ url('logout') }}" class="inline">{{ csrf_input }}
+                        <button type="submit" class="text-sm font-semibold px-4 py-2 rounded-lg transition-colors" :class="scrolled ? 'text-navy hover:bg-slate-100' : 'text-white hover:bg-white/10'">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url('login') }}" class="text-sm font-semibold px-4 py-2 rounded-lg transition-colors" :class="scrolled ? 'text-navy hover:bg-slate-100' : 'text-white hover:bg-white/10'">Login</a>
+                    <a href="{{ url('register') }}" class="text-sm font-semibold px-4 py-2 rounded-lg border transition-colors" :class="scrolled ? 'border-orange text-orange hover:bg-orange hover:text-white' : 'border-white/50 text-white hover:bg-white hover:text-navy'">Register</a>
+                    <a href="{{ url('register') }}" class="btn-primary text-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5">
+                        <i class="ph-bold ph-plus-circle"></i> List Property
+                    </a>
+                {% endif %}
+            </div>
+            <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 rounded-lg" :class="scrolled ? 'text-navy' : 'text-white'">
+                <i class="ph text-2xl" :class="mobileMenu ? 'ph-x' : 'ph-list'"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="lg:hidden bg-white border-t border-slate-100 shadow-xl">
+        <div class="px-4 py-4 space-y-1">
+            <a href="{{ url('listings') }}" class="block py-3 px-4 rounded-lg text-slate-700 hover:bg-orange/5 hover:text-orange font-medium">Buy Property</a>
+            <a href="{{ url('listings') }}" class="block py-3 px-4 rounded-lg text-slate-700 hover:bg-orange/5 hover:text-orange font-medium">Rent Property</a>
+            <a href="{{ url('neighborhoods') }}" class="block py-3 px-4 rounded-lg text-slate-700 hover:bg-orange/5 hover:text-orange font-medium">Localities</a>
+            <a href="{{ url('agents') }}" class="block py-3 px-4 rounded-lg text-slate-700 hover:bg-orange/5 hover:text-orange font-medium">Brokers</a>
+            <a href="{{ url('about') }}" class="block py-3 px-4 rounded-lg text-slate-700 hover:bg-orange/5 hover:text-orange font-medium">About Us</a>
+            <div class="flex gap-3 pt-3 border-t border-slate-100">
+                <a href="{{ url('login') }}" class="flex-1 text-center py-2.5 border border-slate-300 rounded-xl text-navy font-semibold text-sm">Login</a>
+                <a href="{{ url('register') }}" class="flex-1 text-center py-2.5 btn-primary rounded-xl font-semibold text-sm">Register</a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="relative min-h-screen flex items-center" style="min-height: 680px;">
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=85"
+             alt="Beautiful Home" class="w-full h-full object-cover">
+        <div class="absolute inset-0 hero-overlay"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 bg-orange/20 backdrop-blur-sm border border-orange/40 text-orange px-4 py-1.5 rounded-full text-sm font-semibold mb-5">
+                <i class="ph-fill ph-seal-check"></i> RERA Verified Properties
+            </div>
+            <h1 class="font-outfit text-4xl sm:text-5xl md:text-6xl font-900 text-white leading-tight mb-4">
+                Apna Ghar Dhundo<br/>
+                <span class="text-gradient">Sahi Deal Ke Saath</span>
+            </h1>
+            <p class="text-white/80 text-lg md:text-xl mb-8 leading-relaxed max-w-2xl">
+                India's most trusted property portal — 50,000+ verified listings across 50+ cities. Broker se milao, ghar dhundo!
+            </p>
+
+            <!-- Search Panel -->
+            <div class="search-glass rounded-2xl shadow-2xl overflow-hidden border border-white/20">
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-100 px-2 pt-2">
+                    <button @click="activeTab='buy'" :class="activeTab==='buy' ? 'border-orange text-orange bg-orange/5' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                        class="flex-1 sm:flex-none px-5 py-3 text-sm font-semibold border-b-2 transition-all">
+                        <i class="ph-fill ph-house mr-1"></i> Buy
+                    </button>
+                    <button @click="activeTab='rent'" :class="activeTab==='rent' ? 'border-orange text-orange bg-orange/5' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                        class="flex-1 sm:flex-none px-5 py-3 text-sm font-semibold border-b-2 transition-all">
+                        <i class="ph-fill ph-key mr-1"></i> Rent
+                    </button>
+                    <button @click="activeTab='new'" :class="activeTab==='new' ? 'border-orange text-orange bg-orange/5' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                        class="flex-1 sm:flex-none px-5 py-3 text-sm font-semibold border-b-2 transition-all">
+                        <i class="ph-fill ph-buildings mr-1"></i> New Projects
+                    </button>
+                    <button @click="activeTab='pg'" :class="activeTab==='pg' ? 'border-orange text-orange bg-orange/5' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                        class="hidden sm:block flex-none px-5 py-3 text-sm font-semibold border-b-2 transition-all">
+                        <i class="ph-fill ph-bed mr-1"></i> PG / Co-living
+                    </button>
+                </div>
+                <!-- Search Inputs -->
+                <div class="p-3 sm:p-4">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="flex-1 relative">
+                            <i class="ph ph-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-orange text-lg"></i>
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-10 pr-4 text-sm text-slate-800 focus:outline-none focus:border-orange cursor-pointer appearance-none">
+                                <option value="">📍 Select City</option>
+                                <option>Mumbai</option><option>Delhi NCR</option><option>Bangalore</option>
+                                <option>Hyderabad</option><option>Pune</option><option>Chennai</option>
+                                <option>Kolkata</option><option>Surat</option><option>Ahmedabad</option>
+                                <option>Jaipur</option><option>Lucknow</option><option>Kochi</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 relative">
+                            <i class="ph ph-buildings absolute left-3.5 top-1/2 -translate-y-1/2 text-orange text-lg"></i>
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-10 pr-4 text-sm text-slate-800 focus:outline-none focus:border-orange cursor-pointer appearance-none">
+                                <option value="">🏠 Property Type</option>
+                                <option>Flat / Apartment</option><option>Independent House/Villa</option>
+                                <option>Plot / Land</option><option>Commercial Office</option>
+                                <option>Commercial Shop</option><option>PG / Hostel</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 relative">
+                            <i class="ph ph-currency-inr absolute left-3.5 top-1/2 -translate-y-1/2 text-orange text-lg"></i>
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-10 pr-4 text-sm text-slate-800 focus:outline-none focus:border-orange cursor-pointer appearance-none">
+                                <option value="">💰 Budget</option>
+                                <option>Under ₹25 Lakh</option><option>₹25L – ₹50L</option>
+                                <option>₹50L – ₹1 Crore</option><option>₹1Cr – ₹2Cr</option>
+                                <option>₹2Cr – ₹5Cr</option><option>Above ₹5 Crore</option>
+                            </select>
+                        </div>
+                        <a href="{{ url('listings') }}" class="btn-primary flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm whitespace-nowrap">
+                            <i class="ph-bold ph-magnifying-glass text-lg"></i>
+                            <span>Search</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Searches -->
+            <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-white/60 text-xs font-medium py-1">Popular:</span>
+                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">2 BHK in Mumbai</a>
+                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Villas in Bangalore</a>
+                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Flats in Hyderabad</a>
+                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Plots in Pune</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating stats -->
+    <div class="hidden sm:block absolute bottom-6 right-6 z-10">
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
+                    <i class="ph-fill ph-buildings text-orange text-lg"></i>
+                </div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">50,000+</div><div class="text-white/60 text-xs">Verified Properties</div></div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
+                    <i class="ph-fill ph-users text-orange text-lg"></i>
+                </div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">5,000+</div><div class="text-white/60 text-xs">Verified Brokers</div></div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
+                    <i class="ph-fill ph-city text-orange text-lg"></i>
+                </div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">50+ Cities</div><div class="text-white/60 text-xs">Pan India Coverage</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ STATS TICKER ═══════════════ -->
+<div class="bg-navy py-3 overflow-hidden">
+    <div class="ticker-wrap">
+        <div class="ticker-content text-white/80 text-sm font-medium">
+            &nbsp;🏠 50,000+ Verified Properties &nbsp;•&nbsp; 🏙️ 50+ Cities &nbsp;•&nbsp; 👔 5,000+ Brokers &nbsp;•&nbsp;
+            🏗️ 500+ Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
+            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 10 Lakh+ Happy Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
+            🏠 50,000+ Verified Properties &nbsp;•&nbsp; 🏙️ 50+ Cities &nbsp;•&nbsp; 👔 5,000+ Brokers &nbsp;•&nbsp;
+            🏗️ 500+ Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
+            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 10 Lakh+ Happy Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ FEATURED PROPERTIES ═══════════════ -->
+<section class="py-20 bg-cream" x-data="{ propTab: 'all' }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Trending Now</div>
+                <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy">Featured Properties</h2>
+                <p class="text-muted mt-2">Sahi Jagah Pe, Sahi Daam Mein — RERA verified listings</p>
+            </div>
+            <a href="{{ url('listings') }}" class="inline-flex items-center gap-2 text-orange font-semibold hover:gap-3 transition-all text-sm">
+                Sabhi Properties Dekho <i class="ph ph-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            <button @click="propTab='all'" :class="propTab==='all' ? 'bg-navy text-white' : 'bg-white text-slate-600 hover:text-navy border border-slate-200 hover:border-navy'" class="px-5 py-2 rounded-full text-sm font-semibold transition-all">All Types</button>
+            <button @click="propTab='flat'" :class="propTab==='flat' ? 'bg-navy text-white' : 'bg-white text-slate-600 hover:text-navy border border-slate-200 hover:border-navy'" class="px-5 py-2 rounded-full text-sm font-semibold transition-all">🏢 Flats</button>
+            <button @click="propTab='villa'" :class="propTab==='villa' ? 'bg-navy text-white' : 'bg-white text-slate-600 hover:text-navy border border-slate-200 hover:border-navy'" class="px-5 py-2 rounded-full text-sm font-semibold transition-all">🏡 Villas</button>
+            <button @click="propTab='plot'" :class="propTab==='plot' ? 'bg-navy text-white' : 'bg-white text-slate-600 hover:text-navy border border-slate-200 hover:border-navy'" class="px-5 py-2 rounded-full text-sm font-semibold transition-all">🌿 Plots</button>
+            <button @click="propTab='commercial'" :class="propTab==='commercial' ? 'bg-navy text-white' : 'bg-white text-slate-600 hover:text-navy border border-slate-200 hover:border-navy'" class="px-5 py-2 rounded-full text-sm font-semibold transition-all">🏪 Commercial</button>
+        </div>
+
+        <!-- Property Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Property Card 1 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80" alt="Property" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="prop-tag-sale text-xs font-bold px-2.5 py-1 rounded-full">For Sale</span>
+                        <span class="rera-badge text-white text-xs font-bold px-2.5 py-1 rounded-full">✓ RERA</span>
+                    </div>
+                    <button class="absolute top-3 right-3 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shadow-md">
+                        <i class="ph ph-heart text-lg"></i>
+                    </button>
+                    <div class="absolute bottom-3 left-3 bg-navy/90 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                        <i class="ph ph-camera mr-1"></i>12 Photos
+                    </div>
+                    <div class="absolute bottom-3 right-3 bg-orange text-white text-sm font-bold px-3 py-1 rounded-full">
+                        ₹1.85 Cr
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-1">
+                        <div>
+                            <div class="text-xs text-orange font-bold uppercase tracking-wider mb-1">3 BHK Flat</div>
+                            <a href="{{ url('property_detail', pk=1) }}" class="font-outfit text-base font-700 text-navy hover:text-orange transition-colors leading-snug">Godrej Meridien, Koramangala</a>
+                        </div>
+                    </div>
+                    <p class="text-muted text-sm flex items-center gap-1 mt-1 mb-3">
+                        <i class="ph ph-map-pin text-orange text-base"></i> Koramangala, Bangalore
+                    </p>
+                    <div class="flex items-center gap-4 py-3 border-t border-slate-100 text-slate-600 text-sm">
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bed text-slate-400 text-base"></i> 3 BHK</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bathtub text-slate-400 text-base"></i> 2 Bath</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-square text-slate-400 text-base"></i> 1,450 sqft</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border border-slate-200" alt="broker">
+                            <span class="text-xs text-muted">Rajesh Kumar</span>
+                        </div>
+                        <a href="{{ url('property_detail', pk=1) }}" class="text-xs font-semibold text-orange hover:underline">View Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 2 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" alt="Property" class="w-full h-full object-cover transition-transform duration-500">
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="prop-tag-new text-xs font-bold px-2.5 py-1 rounded-full">New Launch</span>
+                        <span class="rera-badge text-white text-xs font-bold px-2.5 py-1 rounded-full">✓ RERA</span>
+                    </div>
+                    <button class="absolute top-3 right-3 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center text-red-500 transition-colors shadow-md">
+                        <i class="ph-fill ph-heart text-lg"></i>
+                    </button>
+                    <div class="absolute bottom-3 right-3 bg-orange text-white text-sm font-bold px-3 py-1 rounded-full">
+                        ₹4.2 Cr
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="text-xs text-orange font-bold uppercase tracking-wider mb-1">4 BHK Villa</div>
+                    <a href="{{ url('property_detail', pk=1) }}" class="font-outfit text-base font-700 text-navy hover:text-orange transition-colors leading-snug">Prestige Palm Beach, Juhu</a>
+                    <p class="text-muted text-sm flex items-center gap-1 mt-1 mb-3">
+                        <i class="ph ph-map-pin text-orange text-base"></i> Juhu, Mumbai
+                    </p>
+                    <div class="flex items-center gap-4 py-3 border-t border-slate-100 text-slate-600 text-sm">
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bed text-slate-400 text-base"></i> 4 BHK</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bathtub text-slate-400 text-base"></i> 4 Bath</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-square text-slate-400 text-base"></i> 3,200 sqft</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border border-slate-200" alt="broker">
+                            <span class="text-xs text-muted">Priya Sharma</span>
+                        </div>
+                        <a href="{{ url('property_detail', pk=1) }}" class="text-xs font-semibold text-orange hover:underline">View Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 3 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80" alt="Property" class="w-full h-full object-cover transition-transform duration-500">
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="prop-tag-rent text-xs font-bold px-2.5 py-1 rounded-full">For Rent</span>
+                    </div>
+                    <button class="absolute top-3 right-3 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shadow-md">
+                        <i class="ph ph-heart text-lg"></i>
+                    </button>
+                    <div class="absolute bottom-3 right-3 bg-orange text-white text-sm font-bold px-3 py-1 rounded-full">
+                        ₹45,000/mo
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="text-xs text-orange font-bold uppercase tracking-wider mb-1">2 BHK Flat</div>
+                    <a href="{{ url('property_detail', pk=1) }}" class="font-outfit text-base font-700 text-navy hover:text-orange transition-colors leading-snug">DLF Park Place, Sector 54</a>
+                    <p class="text-muted text-sm flex items-center gap-1 mt-1 mb-3">
+                        <i class="ph ph-map-pin text-orange text-base"></i> Gurgaon, Delhi NCR
+                    </p>
+                    <div class="flex items-center gap-4 py-3 border-t border-slate-100 text-slate-600 text-sm">
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bed text-slate-400 text-base"></i> 2 BHK</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bathtub text-slate-400 text-base"></i> 2 Bath</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-square text-slate-400 text-base"></i> 1,100 sqft</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border border-slate-200" alt="broker">
+                            <span class="text-xs text-muted">Amit Verma</span>
+                        </div>
+                        <a href="{{ url('property_detail', pk=1) }}" class="text-xs font-semibold text-orange hover:underline">View Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 4 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=800&q=80" alt="Property" class="w-full h-full object-cover transition-transform duration-500">
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="prop-tag-sale text-xs font-bold px-2.5 py-1 rounded-full">For Sale</span>
+                        <span class="bg-amber-100 text-amber-700 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-full">Ready to Move</span>
+                    </div>
+                    <div class="absolute bottom-3 right-3 bg-orange text-white text-sm font-bold px-3 py-1 rounded-full">₹82 Lakh</div>
+                </div>
+                <div class="p-4">
+                    <div class="text-xs text-orange font-bold uppercase tracking-wider mb-1">2 BHK Flat</div>
+                    <a href="{{ url('property_detail', pk=1) }}" class="font-outfit text-base font-700 text-navy hover:text-orange transition-colors leading-snug">Adani Western Heights, Vesu</a>
+                    <p class="text-muted text-sm flex items-center gap-1 mt-1 mb-3">
+                        <i class="ph ph-map-pin text-orange text-base"></i> Vesu, Surat
+                    </p>
+                    <div class="flex items-center gap-4 py-3 border-t border-slate-100 text-slate-600 text-sm">
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bed text-slate-400 text-base"></i> 2 BHK</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bathtub text-slate-400 text-base"></i> 2 Bath</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-square text-slate-400 text-base"></i> 985 sqft</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <span class="text-xs bg-green/10 text-green font-semibold px-2 py-0.5 rounded-full">Vastu Compliant ✓</span>
+                        <a href="{{ url('property_detail', pk=1) }}" class="text-xs font-semibold text-orange hover:underline">View Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 5 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1600607687931-cebf10cbdf10?auto=format&fit=crop&w=800&q=80" alt="Property" class="w-full h-full object-cover transition-transform duration-500">
+                    <div class="absolute top-3 left-3 flex gap-2">
+                        <span class="prop-tag-new text-xs font-bold px-2.5 py-1 rounded-full">Under Construction</span>
+                    </div>
+                    <div class="absolute bottom-3 right-3 bg-orange text-white text-sm font-bold px-3 py-1 rounded-full">₹1.2 Cr</div>
+                </div>
+                <div class="p-4">
+                    <div class="text-xs text-orange font-bold uppercase tracking-wider mb-1">3 BHK Flat</div>
+                    <a href="{{ url('property_detail', pk=1) }}" class="font-outfit text-base font-700 text-navy hover:text-orange transition-colors leading-snug">Brigade Palmsprings, Whitefield</a>
+                    <p class="text-muted text-sm flex items-center gap-1 mt-1 mb-3">
+                        <i class="ph ph-map-pin text-orange text-base"></i> Whitefield, Bangalore
+                    </p>
+                    <div class="flex items-center gap-4 py-3 border-t border-slate-100 text-slate-600 text-sm">
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bed text-slate-400 text-base"></i> 3 BHK</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-bathtub text-slate-400 text-base"></i> 2 Bath</span>
+                        <span class="flex items-center gap-1.5"><i class="ph ph-square text-slate-400 text-base"></i> 1,350 sqft</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <span class="text-xs text-muted"><i class="ph ph-calendar text-slate-400"></i> Possession: Dec 2026</span>
+                        <a href="{{ url('property_detail', pk=1) }}" class="text-xs font-semibold text-orange hover:underline">View Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 6 - CTA Card -->
+            <div class="bg-navy rounded-2xl overflow-hidden shadow-md card-hover flex flex-col items-center justify-center p-8 text-center">
+                <div class="w-16 h-16 bg-orange/20 rounded-2xl flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-buildings text-orange text-3xl"></i>
+                </div>
+                <h3 class="font-outfit text-xl font-700 text-white mb-2">Aur bhi Properties hain!</h3>
+                <p class="text-white/60 text-sm mb-6">1,200+ properties available in your chosen city</p>
+                <a href="{{ url('listings') }}" class="btn-primary px-6 py-3 rounded-xl font-bold text-sm w-full text-center">
+                    Sabhi Dekho →
+                </a>
+                <a href="{{ url('listings') }}" class="mt-3 text-white/50 hover:text-white text-xs transition-colors">Filter by Budget, BHK & More</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ POPULAR CITIES ═══════════════ -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Pan India Coverage</div>
+            <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Popular Cities</h2>
+            <p class="text-muted max-w-xl mx-auto">Desh ke har kone mein, PropSurat hai aapke saath</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Mumbai -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?auto=format&fit=crop&w=600&q=80" alt="Mumbai" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-xl font-700 text-white">Mumbai</h3>
+                    <p class="text-white/70 text-xs">12,400+ Properties</p>
+                </div>
+            </a>
+            <!-- Delhi NCR -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&w=600&q=80" alt="Delhi" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-xl font-700 text-white">Delhi NCR</h3>
+                    <p class="text-white/70 text-xs">9,800+ Properties</p>
+                </div>
+            </a>
+            <!-- Bangalore -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80" alt="Bangalore" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-xl font-700 text-white">Bangalore</h3>
+                    <p class="text-white/70 text-xs">8,200+ Properties</p>
+                </div>
+            </a>
+            <!-- Hyderabad -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1519082274554-1ca37b4c3b0b?auto=format&fit=crop&w=600&q=80" alt="Hyderabad" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-xl font-700 text-white">Hyderabad</h3>
+                    <p class="text-white/70 text-xs">6,500+ Properties</p>
+                </div>
+            </a>
+            <!-- Pune -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=600&q=80" alt="Pune" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-lg font-700 text-white">Pune</h3>
+                    <p class="text-white/70 text-xs">5,200+ Properties</p>
+                </div>
+            </a>
+            <!-- Surat -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=600&q=80" alt="Surat" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-lg font-700 text-white">Surat</h3>
+                    <p class="text-white/70 text-xs">3,100+ Properties</p>
+                </div>
+            </a>
+            <!-- Ahmedabad -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=600&q=80" alt="Ahmedabad" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-lg font-700 text-white">Ahmedabad</h3>
+                    <p class="text-white/70 text-xs">4,300+ Properties</p>
+                </div>
+            </a>
+            <!-- Chennai -->
+            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" alt="Chennai" class="w-full h-full object-cover">
+                <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
+                    <h3 class="font-outfit text-lg font-700 text-white">Chennai</h3>
+                    <p class="text-white/70 text-xs">4,800+ Properties</p>
+                </div>
+            </a>
+        </div>
+        <div class="text-center mt-8">
+            <a href="{{ url('neighborhoods') }}" class="inline-flex items-center gap-2 border border-navy text-navy hover:bg-navy hover:text-white px-7 py-3 rounded-xl font-semibold text-sm transition-all">
+                Baaki Cities Dekho <i class="ph ph-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ WHY PROPSURAT ═══════════════ -->
+<section class="py-20 bg-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-16 items-center">
+            <div class="w-full lg:w-1/2">
+                <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Kyon PropSurat?</div>
+                <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-4">Tension-Free Property Search</h2>
+                <p class="text-muted text-lg mb-8 leading-relaxed">RERA verified listings, verified brokers, aur best deals — sab kuch ek jagah pe. Koi fraud nahi, koi tension nahi!</p>
+                <div class="space-y-5">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-orange/20">
+                            <i class="ph-fill ph-seal-check text-orange text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-outfit text-lg font-700 text-navy mb-1">RERA Verified Properties</h4>
+                            <p class="text-muted text-sm">Har property RERA number ke saath list hoti hai — government approved, 100% legal.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-orange/20">
+                            <i class="ph-fill ph-users text-orange text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-outfit text-lg font-700 text-navy mb-1">Verified Brokers Only</h4>
+                            <p class="text-muted text-sm">5,000+ background-verified brokers. Aapke paise, aapki safety — humari zimmedari.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-orange/20">
+                            <i class="ph-fill ph-video-camera text-orange text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-outfit text-lg font-700 text-navy mb-1">Virtual Tour Available</h4>
+                            <p class="text-muted text-sm">Ghar se hi ghar dekho — 360° virtual tours, HD photos, and floor plans.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-orange/20">
+                            <i class="ph-fill ph-calculator text-orange text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-outfit text-lg font-700 text-navy mb-1">Free EMI Calculator</h4>
+                            <p class="text-muted text-sm">Kitni EMI banti hai? Instant calculate karo, bank compare karo — bilkul free.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2 relative pb-20 lg:pb-0">
+                <div class="grid grid-cols-2 gap-4">
+                    <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=80" class="rounded-2xl shadow-xl translate-y-6 border border-slate-200" alt="Home">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" class="rounded-2xl shadow-xl -translate-y-4 border border-slate-200" alt="Interior">
+                </div>
+                <!-- Floating stats card -->
+                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-navy text-white rounded-2xl p-4 sm:p-5 shadow-2xl flex gap-4 sm:gap-6 w-max">
+                    <div class="text-center">
+                        <div class="font-outfit text-2xl font-800 text-orange">10L+</div>
+                        <div class="text-white/60 text-xs mt-0.5">Happy Families</div>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="font-outfit text-2xl font-800 text-orange">4.8★</div>
+                        <div class="text-white/60 text-xs mt-0.5">App Rating</div>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="font-outfit text-2xl font-800 text-orange">₹0</div>
+                        <div class="text-white/60 text-xs mt-0.5">Hidden Charges</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-14">
+            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Simple Process</div>
+            <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Ghar Dhundna Hai? 3 Steps Mein!</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div class="hidden md:block absolute top-16 left-1/3 right-1/3 h-0.5 step-line"></div>
+            <!-- Step 1 -->
+            <div class="text-center relative">
+                <div class="w-16 h-16 bg-orange rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange/30">
+                    <i class="ph-fill ph-magnifying-glass text-white text-3xl"></i>
+                </div>
+                <div class="absolute top-4 right-4 md:right-0 w-7 h-7 bg-navy rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
+                <h3 class="font-outfit text-xl font-700 text-navy mb-2">Search Karo</h3>
+                <p class="text-muted text-sm leading-relaxed">City, budget, BHK — apni zaroorat enter karo. Thousands of verified listings milenge.</p>
+            </div>
+            <!-- Step 2 -->
+            <div class="text-center relative">
+                <div class="w-16 h-16 bg-orange rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange/30">
+                    <i class="ph-fill ph-phone-call text-white text-3xl"></i>
+                </div>
+                <div class="absolute top-4 right-4 md:right-0 w-7 h-7 bg-navy rounded-full flex items-center justify-center text-white text-xs font-bold">2</div>
+                <h3 class="font-outfit text-xl font-700 text-navy mb-2">Broker Se Milao</h3>
+                <p class="text-muted text-sm leading-relaxed">Verified broker se directly connect karo. Virtual site visit book karo — sab free.</p>
+            </div>
+            <!-- Step 3 -->
+            <div class="text-center relative">
+                <div class="w-16 h-16 bg-orange rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange/30">
+                    <i class="ph-fill ph-house text-white text-3xl"></i>
+                </div>
+                <div class="absolute top-4 right-4 md:right-0 w-7 h-7 bg-navy rounded-full flex items-center justify-center text-white text-xs font-bold">3</div>
+                <h3 class="font-outfit text-xl font-700 text-navy mb-2">Ghar Le Lo!</h3>
+                <p class="text-muted text-sm leading-relaxed">Deal finalize karo, documents verify karo, aur apna sapna pura karo. Mubaarak ho! 🎉</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ TESTIMONIALS ═══════════════ -->
+<section class="py-20 bg-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Real Stories</div>
+            <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Unke Sapne, Hamaari Khushi</h2>
+            <p class="text-muted">10 Lakh+ families ne PropSurat ke through apna ghar dhunda</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card rounded-2xl p-6 shadow-md border border-orange/10">
+                <div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">"PropSurat ne hamara flat dhundne ka kaam bahut aasaan kar diya. Surat mein 2 BHK ki talaash thi — 3 din mein deal ho gayi! Broker bhi bahut helpful tha."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-orange/20 flex items-center justify-center font-outfit font-bold text-orange">RG</div>
+                    <div>
+                        <div class="font-semibold text-navy text-sm">Ramesh Gupta</div>
+                        <div class="text-xs text-muted">Bought 2 BHK · Vesu, Surat</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card rounded-2xl p-6 shadow-md border border-orange/10">
+                <div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">"Mumbai mein 3 BHK rent dhundna mushkil tha. PropSurat pe 2 din mein 10 options mil gaye. Verified broker tha toh koi tension nahi. Highly recommend!"</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy">PS</div>
+                    <div>
+                        <div class="font-semibold text-navy text-sm">Priyanka Singh</div>
+                        <div class="text-xs text-muted">Rented 3 BHK · Bandra, Mumbai</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card rounded-2xl p-6 shadow-md border border-orange/10">
+                <div class="flex text-amber-400 text-sm mb-3">★★★★☆</div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">"As a broker, PropSurat ne meri lead generation 3x kar di. Interface simple hai, clients directly contact karte hain. Best platform for brokers in India!"</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-green/10 flex items-center justify-center font-outfit font-bold text-green">AK</div>
+                    <div>
+                        <div class="font-semibold text-navy text-sm">Arjun Kapoor</div>
+                        <div class="text-xs text-muted">Verified Broker · Bangalore</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ TOP BUILDERS ═══════════════ -->
+<section class="py-16 bg-white border-y border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Trusted Developers</div>
+            <h2 class="font-outfit text-2xl md:text-3xl font-800 text-navy">India Ke Top Builders</h2>
+        </div>
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-navy/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-buildings text-navy text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">DLF Group</span>
+            </div>
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-building-office text-orange text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">Godrej Properties</span>
+            </div>
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-green/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-buildings text-green text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">Prestige Group</span>
+            </div>
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-navy/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-building-office text-navy text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">Brigade Group</span>
+            </div>
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-orange/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-buildings text-orange text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">Adani Realty</span>
+            </div>
+            <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
+                <div class="w-12 h-12 bg-green/10 rounded-xl flex items-center justify-center mb-2">
+                    <i class="ph-fill ph-building-office text-green text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-navy text-center">Tata Housing</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ BLOG / NEWS ═══════════════ -->
+<section class="py-20 bg-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Real Estate Gyaan</div>
+                <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy">Latest News & Tips</h2>
+            </div>
+            <a href="{{ url('blog') }}" class="hidden md:inline-flex items-center gap-2 text-orange font-semibold hover:gap-3 transition-all text-sm">Sabhi Padho <i class="ph ph-arrow-right"></i></a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="{{ url('blog_detail', pk=1) }}" class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100 block">
+                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" class="w-full h-44 object-cover" alt="Blog">
+                <div class="p-5">
+                    <span class="text-xs font-bold text-orange uppercase tracking-wider">RERA Guide</span>
+                    <h3 class="font-outfit text-lg font-700 text-navy mt-1 mb-2 hover:text-orange transition-colors">RERA क्या है? Ghar kharidne se pehle yeh zaroor padhein</h3>
+                    <p class="text-muted text-sm line-clamp-2">RERA India mein property buyers ke liye sabse important kanoon hai. Jaaniye kaise yeh aapko protect karta hai...</p>
+                    <div class="flex items-center gap-2 mt-4 text-xs text-muted">
+                        <i class="ph ph-calendar"></i> 20 May 2026 &nbsp;•&nbsp; 5 min read
+                    </div>
+                </div>
+            </a>
+            <a href="{{ url('blog_detail', pk=1) }}" class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100 block">
+                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=80" class="w-full h-44 object-cover" alt="Blog">
+                <div class="p-5">
+                    <span class="text-xs font-bold text-orange uppercase tracking-wider">Home Loan</span>
+                    <h3 class="font-outfit text-lg font-700 text-navy mt-1 mb-2 hover:text-orange transition-colors">2026 mein Home Loan Interest Rates — Kaun si Bank Best hai?</h3>
+                    <p class="text-muted text-sm line-clamp-2">SBI, HDFC, ICICI — sabke rates compare kiye. Aapke liye kaunsa deal sabse accha hai, jaaniye...</p>
+                    <div class="flex items-center gap-2 mt-4 text-xs text-muted">
+                        <i class="ph ph-calendar"></i> 15 May 2026 &nbsp;•&nbsp; 7 min read
+                    </div>
+                </div>
+            </a>
+            <a href="{{ url('blog_detail', pk=1) }}" class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-100 block">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" class="w-full h-44 object-cover" alt="Blog">
+                <div class="p-5">
+                    <span class="text-xs font-bold text-orange uppercase tracking-wider">Investment</span>
+                    <h3 class="font-outfit text-lg font-700 text-navy mt-1 mb-2 hover:text-orange transition-colors">2026 mein Property Invest Karna Chahiye? Expert Opinion</h3>
+                    <p class="text-muted text-sm line-clamp-2">Real estate vs stocks vs gold — market experts ki raay kya hai? Surat, Pune, Ahmedabad mein growth...</p>
+                    <div class="flex items-center gap-2 mt-4 text-xs text-muted">
+                        <i class="ph ph-calendar"></i> 10 May 2026 &nbsp;•&nbsp; 6 min read
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ APP DOWNLOAD ═══════════════ -->
+<section class="py-16 bg-navy relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-orange rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-orange rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="text-center md:text-left">
+                <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Mobile App</div>
+                <h2 class="font-outfit text-3xl md:text-4xl font-800 text-white mb-3">Ghar Ka Ghar — Phone Mein!</h2>
+                <p class="text-white/60 text-lg mb-6">PropSurat app download karo aur 50,000+ properties apni jeb mein rakh lo.</p>
+                <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                    <a href="#" class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3 rounded-xl transition-colors">
+                        <i class="ph-fill ph-apple-logo text-white text-2xl"></i>
+                        <div class="text-left">
+                            <div class="text-white/60 text-xs">Download on</div>
+                            <div class="text-white font-bold text-sm">App Store</div>
+                        </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3 rounded-xl transition-colors">
+                        <i class="ph-fill ph-google-play-logo text-white text-2xl"></i>
+                        <div class="text-left">
+                            <div class="text-white/60 text-xs">Get it on</div>
+                            <div class="text-white font-bold text-sm">Google Play</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                <div class="bg-white/10 rounded-2xl p-4 sm:p-5 text-center border border-white/10 min-w-[90px]">
+                    <div class="font-outfit text-2xl sm:text-3xl font-800 text-orange">4.8★</div>
+                    <div class="text-white/60 text-xs mt-1">App Store Rating</div>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4 sm:p-5 text-center border border-white/10 min-w-[90px]">
+                    <div class="font-outfit text-2xl sm:text-3xl font-800 text-orange">5L+</div>
+                    <div class="text-white/60 text-xs mt-1">Downloads</div>
+                </div>
+                <div class="bg-white/10 rounded-2xl p-4 sm:p-5 text-center border border-white/10 min-w-[90px]">
+                    <div class="font-outfit text-2xl sm:text-3xl font-800 text-orange">Free</div>
+                    <div class="text-white/60 text-xs mt-1">Forever</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

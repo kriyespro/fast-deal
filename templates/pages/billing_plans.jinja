@@ -1,0 +1,183 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+{% block title %}Billing & Plans | PropSurat{% endblock %}
+
+{% block body_attrs %}x-data="{ sidebarOpen: false }"{% endblock %}
+
+{% block body %}
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="{{ url('home') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-orange flex items-center justify-center font-outfit font-bold text-white text-lg">
+                {{ request.user.full_name[0] | upper }}
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">{{ request.user.full_name }}</div>
+                <div class="text-white/40 text-xs">{{ request.user.get_role_display() }}</div>
+            </div>
+        </div>
+    </div>
+    <nav class="px-3 py-4 space-y-0.5">
+        {% if request.user.role == 'broker' %}
+        <a href="{{ url('dashboard_broker') }}" class="sidebar-link"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+        {% elif request.user.role == 'builder' %}
+        <a href="{{ url('dashboard_builder') }}" class="sidebar-link"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+        {% endif %}
+        <a href="{{ url('billing_plans') }}" class="sidebar-link active"><i class="ph-bold ph-credit-card"></i> Billing & Plans</a>
+        <a href="{{ url('billing_invoices') }}" class="sidebar-link"><i class="ph-bold ph-receipt"></i> Invoices</a>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <form method="post" action="{{ url('logout') }}">
+                {{ csrf_input }}
+                <button type="submit" class="sidebar-link w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                    <i class="ph-bold ph-sign-out"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg">Billing & Plans</h1>
+                <p class="text-muted text-xs hidden sm:block">PropSurat subscription management</p>
+            </div>
+        </div>
+        <a href="{{ url('billing_invoices') }}" class="btn btn-outline text-sm">
+            <i class="ph-bold ph-receipt"></i> View Invoices
+        </a>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        <!-- Current Plan Banner -->
+        {% if current_sub and current_sub.is_active %}
+        <div class="mb-8 bg-gradient-to-r from-navy to-navy-mid rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <i class="ph-fill ph-seal-check text-orange text-xl"></i>
+                    <span class="text-white font-outfit font-bold text-lg">{{ active_plan.display_name }} Plan — Active</span>
+                </div>
+                <p class="text-white/60 text-sm">
+                    {{ current_sub.days_remaining }} days remaining ·
+                    Expires {{ current_sub.expires_at.strftime('%d %b %Y') if current_sub.expires_at else 'Never' }}
+                </p>
+            </div>
+            <div class="text-right">
+                <div class="font-outfit font-bold text-orange text-2xl">{{ active_plan.price_display }}</div>
+                <div class="text-white/40 text-xs mt-0.5">{{ active_plan.listing_limit or '∞' }} listings · {{ active_plan.project_limit or '∞' }} projects</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-4">
+            <i class="ph-fill ph-warning text-amber-500 text-2xl flex-shrink-0 mt-0.5"></i>
+            <div>
+                <div class="font-semibold text-amber-800">Free Plan Active</div>
+                <p class="text-amber-700 text-sm mt-0.5">Aap abhi Free plan pe hain — limited listings. Upgrade karke zyada leads paao!</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Plan Cards -->
+        <h2 class="font-outfit font-bold text-navy text-xl mb-6">Choose Your Plan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {% for plan in plans %}
+            {% set is_current = active_plan and active_plan.pk == plan.pk and current_sub and current_sub.is_active %}
+            <div class="bg-white rounded-2xl border-2 {% if plan.name == 'pro' %}border-orange{% else %}border-slate-200{% endif %} overflow-hidden relative flex flex-col">
+                {% if plan.name == 'pro' %}
+                <div class="bg-orange text-white text-center text-xs font-bold py-2 tracking-wide uppercase">Most Popular</div>
+                {% endif %}
+                <div class="p-6 flex-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="font-outfit font-bold text-navy text-xl">{{ plan.display_name }}</div>
+                            <div class="text-muted text-sm mt-0.5">
+                                {% if plan.name == 'free' %}Perfect to get started
+                                {% elif plan.name == 'basic' %}For growing brokers
+                                {% else %}For top professionals{% endif %}
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center
+                            {% if plan.name == 'free' %}bg-slate-100
+                            {% elif plan.name == 'basic' %}bg-blue-50
+                            {% else %}bg-orange/10{% endif %}">
+                            <i class="ph-fill text-2xl
+                                {% if plan.name == 'free' %}ph-sparkle text-slate-500
+                                {% elif plan.name == 'basic' %}ph-rocket text-blue-600
+                                {% else %}ph-crown text-orange{% endif %}"></i>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <span class="font-outfit font-bold text-4xl text-navy">
+                            {% if plan.price == 0 %}₹0{% else %}₹{{ plan.price | int }}{% endif %}
+                        </span>
+                        {% if plan.price > 0 %}
+                        <span class="text-muted text-sm">/month</span>
+                        {% else %}
+                        <span class="text-muted text-sm">forever</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-2.5 mb-6">
+                        {% for feature in plan.features_list %}
+                        <div class="flex items-center gap-2.5 text-sm text-slate-700">
+                            <i class="ph-fill ph-check-circle text-green-500 flex-shrink-0"></i>
+                            {{ feature }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="p-6 pt-0">
+                    {% if is_current %}
+                    <div class="w-full py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-semibold text-center">
+                        <i class="ph-fill ph-check-circle"></i> Current Plan
+                    </div>
+                    {% elif plan.price == 0 %}
+                    <form method="post" action="{{ url('billing_subscribe', plan_id=plan.pk) }}">
+                        {{ csrf_input }}
+                        <button type="submit" class="w-full py-3 rounded-xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:border-slate-300 transition-colors">
+                            Switch to Free
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{{ url('billing_subscribe', plan_id=plan.pk) }}">
+                        {{ csrf_input }}
+                        <button type="submit" class="w-full py-3 rounded-xl text-sm font-bold transition-colors
+                            {% if plan.name == 'pro' %}bg-orange text-white hover:bg-orange-600{% else %}bg-navy text-white hover:bg-navy-mid{% endif %}">
+                            {% if active_plan and active_plan.price < plan.price %}Upgrade to {{ plan.display_name }}
+                            {% elif active_plan and active_plan.price > plan.price %}Downgrade to {{ plan.display_name }}
+                            {% else %}Get {{ plan.display_name }}{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Feature comparison note -->
+        <div class="bg-navy/5 border border-navy/10 rounded-2xl p-6 text-center">
+            <i class="ph-fill ph-lock-key text-navy text-2xl mb-3 block"></i>
+            <h3 class="font-outfit font-bold text-navy mb-1">Demo Payment Mode</h3>
+            <p class="text-muted text-sm max-w-md mx-auto">
+                Yeh ek demo billing system hai. Koi real payment nahi hogi — subscribe karo aur
+                instantly premium features unlock ho jayenge!
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

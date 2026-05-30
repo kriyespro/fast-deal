@@ -1,0 +1,44 @@
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="mc-stat-dark">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                <i class="ph-fill ph-users text-white text-base"></i>
+            </div>
+            {% if stats.signups_today > 0 %}
+            <span class="text-xs text-green-400 font-semibold">+{{ stats.signups_today }} today</span>
+            {% endif %}
+        </div>
+        <div class="font-outfit text-3xl font-bold text-white">{{ stats.total_users }}</div>
+        <div class="text-white/50 text-sm mt-1">Total Users</div>
+    </div>
+    <div class="mc-stat-dark">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                <i class="ph-fill ph-handshake text-white text-base"></i>
+            </div>
+        </div>
+        <div class="font-outfit text-3xl font-bold text-white">{{ stats.total_brokers }}</div>
+        <div class="text-white/50 text-sm mt-1">Active Brokers</div>
+    </div>
+    <div class="mc-stat-dark">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                <i class="ph-fill ph-buildings text-white text-base"></i>
+            </div>
+            {% if stats.pending_properties > 0 %}
+            <span class="text-xs text-amber-400 font-semibold">{{ stats.pending_properties }} pending</span>
+            {% endif %}
+        </div>
+        <div class="font-outfit text-3xl font-bold text-white">{{ stats.active_properties }}</div>
+        <div class="text-white/50 text-sm mt-1">Active Listings</div>
+    </div>
+    <div class="mc-stat-dark">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                <i class="ph-fill ph-user-minus text-white text-base"></i>
+            </div>
+        </div>
+        <div class="font-outfit text-3xl font-bold text-white">{{ stats.banned_users }}</div>
+        <div class="text-white/50 text-sm mt-1">Banned Users</div>
+    </div>
+</div>

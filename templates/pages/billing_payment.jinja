@@ -1,0 +1,165 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+{% block title %}Payment | PropSurat{% endblock %}
+
+{% block extra_styles %}
+.card-input { background: #1e293b; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 18px; color: white; font-size: 15px; font-family: 'Inter', monospace; width: 100%; outline: none; transition: border-color 0.2s; }
+.card-input:focus { border-color: #E8621A; }
+.card-input::placeholder { color: rgba(255,255,255,0.3); }
+.card-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px; }
+.demo-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.1em; }
+{% endblock %}
+
+{% block body_attrs %}x-data="{ submitting: false, cardNum: '4242 4242 4242 4242', expiry: '12/29', cvv: '123', name: '' }"{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-5xl">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="{{ url('home') }}" class="flex items-center justify-center gap-2 mb-4">
+                <div class="w-9 h-9 bg-orange rounded-xl flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <h1 class="font-outfit font-bold text-2xl text-navy">Secure Checkout</h1>
+            <p class="text-muted text-sm mt-1">{{ subscription.plan.display_name }} Plan — ₹{{ subscription.plan.price | int }}/month</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+            <!-- Payment Form -->
+            <div class="lg:col-span-3">
+                <div class="bg-[#0C1E35] rounded-2xl overflow-hidden">
+                    <!-- Demo banner -->
+                    <div class="bg-amber-500/20 border-b border-amber-500/30 px-6 py-3 flex items-center gap-3">
+                        <span class="demo-badge">Demo Mode</span>
+                        <p class="text-amber-300 text-xs">Test cards pre-filled. No real payment will be charged.</p>
+                    </div>
+
+                    <div class="p-6">
+                        <form method="post" @submit="submitting=true">
+                            {{ csrf_input }}
+                            <!-- Card number -->
+                            <div class="mb-5">
+                                <label class="card-label">Card Number</label>
+                                <div class="relative">
+                                    <input class="card-input pr-12" type="text" x-model="cardNum" maxlength="19" placeholder="0000 0000 0000 0000" required>
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
+                                        <div class="w-6 h-4 bg-yellow-400 rounded-sm opacity-80"></div>
+                                        <div class="w-6 h-4 bg-red-500 rounded-sm opacity-80 -ml-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-5">
+                                <div>
+                                    <label class="card-label">Expiry</label>
+                                    <input class="card-input" type="text" x-model="expiry" maxlength="5" placeholder="MM/YY" required>
+                                </div>
+                                <div>
+                                    <label class="card-label">CVV</label>
+                                    <input class="card-input" type="text" x-model="cvv" maxlength="3" placeholder="•••" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="card-label">Cardholder Name</label>
+                                <input class="card-input" type="text" x-model="name" placeholder="Name on card" required>
+                            </div>
+
+                            <!-- UPI option visual -->
+                            <div class="border border-white/10 rounded-xl p-4 mb-6 flex items-center gap-3 opacity-50 cursor-not-allowed">
+                                <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="ph-fill ph-lightning text-purple-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white text-sm font-semibold">UPI / Net Banking</div>
+                                    <div class="text-white/40 text-xs">Demo mode — use card above</div>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                    :disabled="submitting"
+                                    class="w-full py-4 bg-orange hover:bg-orange-600 text-white font-bold text-base rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-70">
+                                <span x-show="!submitting" class="flex items-center gap-2">
+                                    <i class="ph-fill ph-lock-key"></i>
+                                    Pay ₹{{ subscription.plan.price | int }}.00
+                                </span>
+                                <span x-show="submitting" class="flex items-center gap-2">
+                                    <i class="ph-bold ph-circle-notch animate-spin"></i>
+                                    Processing...
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Trust badges -->
+                <div class="flex items-center justify-center gap-6 mt-4 text-xs text-muted">
+                    <span class="flex items-center gap-1"><i class="ph-fill ph-lock-key text-green-500"></i> SSL Secured</span>
+                    <span class="flex items-center gap-1"><i class="ph-fill ph-shield-check text-blue-500"></i> PCI DSS Compliant</span>
+                    <span class="flex items-center gap-1"><i class="ph-fill ph-arrows-clockwise text-orange"></i> Cancel Anytime</span>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 sticky top-6">
+                    <h2 class="font-outfit font-bold text-navy text-lg mb-5">Order Summary</h2>
+
+                    <div class="flex items-center gap-3 mb-5 pb-5 border-b border-slate-100">
+                        <div class="w-12 h-12 rounded-xl {% if subscription.plan.name == 'pro' %}bg-orange/10{% else %}bg-blue-50{% endif %} flex items-center justify-center">
+                            <i class="ph-fill {% if subscription.plan.name == 'pro' %}ph-crown text-orange{% else %}ph-rocket text-blue-600{% endif %} text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-outfit font-bold text-navy">{{ subscription.plan.display_name }} Plan</div>
+                            <div class="text-muted text-xs">{{ subscription.plan.duration_days }}-day subscription</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-5">
+                        {% for feature in subscription.plan.features_list %}
+                        <div class="flex items-center gap-2 text-sm text-slate-600">
+                            <i class="ph-fill ph-check-circle text-green-500 flex-shrink-0 text-base"></i>
+                            {{ feature }}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="text-navy">₹{{ subscription.plan.price | int }}.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">GST (18%)</span>
+                            <span class="text-muted text-xs italic">Included</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-base mt-3 pt-3 border-t border-slate-100">
+                            <span class="text-navy">Total</span>
+                            <span class="text-orange font-outfit text-xl">₹{{ subscription.plan.price | int }}.00</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-5 border-t border-slate-100">
+                        <div class="flex items-center gap-2 text-xs text-muted">
+                            <i class="ph-fill ph-calendar text-slate-400"></i>
+                            Next billing: {{ (subscription.plan.duration_days)|string }} days from activation
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-muted mt-2">
+                            <i class="ph-fill ph-arrows-clockwise text-slate-400"></i>
+                            Cancel anytime before renewal
+                        </div>
+                    </div>
+
+                    <a href="{{ url('billing_plans') }}" class="block text-center text-xs text-muted hover:text-orange mt-4 transition-colors">
+                        ← Change plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

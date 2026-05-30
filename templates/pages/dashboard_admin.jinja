@@ -1,0 +1,520 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+
+{% block title %}Admin Dashboard | PropSurat{% endblock %}
+
+{% block body_attrs %}x-data="{ activeTab: 'overview', adminRole: '{{ admin_role }}', sidebarOpen: false }"{% endblock %}
+
+{% block body %}
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="{{ url('home') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+
+    <div class="px-4 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-orange flex items-center justify-center font-outfit font-bold text-white text-sm flex-shrink-0">
+                {{ request.user.full_name[0] }}
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">{{ request.user.full_name }}</div>
+                <div class="text-white/40 text-xs">
+                    {% if admin_role == 'city' %}
+                    City Admin{% if city %} · {{ city.name }}{% endif %}
+                    {% else %}
+                    Global Admin
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="px-3 py-3">
+        <div class="sidebar-section">Dashboard</div>
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''"
+             @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four ph"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='listings' ? 'active' : ''"
+             @click="activeTab='listings'; sidebarOpen=false">
+            <i class="ph-bold ph-seal-check ph"></i> Listings
+            {% if city_stats and city_stats.pending_listings > 0 %}
+            <span class="ml-auto bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                {{ city_stats.pending_listings }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="sidebar-link" :class="activeTab==='brokers' ? 'active' : ''"
+             @click="activeTab='brokers'; sidebarOpen=false">
+            <i class="ph-bold ph-handshake ph"></i> Brokers
+            {% if city_stats and city_stats.pending_brokers > 0 %}
+            <span class="ml-auto bg-amber-500/20 text-amber-400 text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                {{ city_stats.pending_brokers }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="sidebar-section">Analytics</div>
+        <div class="sidebar-link" :class="activeTab==='reports' ? 'active' : ''"
+             @click="activeTab='reports'; sidebarOpen=false">
+            <i class="ph-bold ph-chart-bar ph"></i> Reports
+        </div>
+        <div class="sidebar-section">Account</div>
+        <div class="sidebar-link" :class="activeTab==='settings' ? 'active' : ''"
+             @click="activeTab='settings'; sidebarOpen=false">
+            <i class="ph-bold ph-gear ph"></i> Settings
+        </div>
+        <div class="mt-3 pt-3 border-t border-white/10">
+            <form method="post" action="{{ url('logout') }}">
+                {{ csrf_input }}
+                <button type="submit" class="sidebar-link w-full text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                    <i class="ph-bold ph-sign-out ph"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100"
+                    @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg">
+                    <span x-text="
+                        activeTab==='overview' ? 'Overview' :
+                        activeTab==='listings' ? 'Listing Management' :
+                        activeTab==='brokers' ? 'Broker Management' :
+                        activeTab==='reports' ? 'Reports' : 'Settings'">
+                    </span>
+                </h1>
+                <p class="text-muted text-xs hidden sm:block">PropSurat Admin Panel
+                    {% if city %} · {{ city.name }}{% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-bell text-slate-600 text-lg"></i>
+                {% if city_stats and (city_stats.pending_listings + city_stats.pending_brokers) > 0 %}
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                {% endif %}
+            </button>
+            <div class="hidden sm:flex items-center gap-2 bg-orange/10 border border-orange/20 rounded-xl px-3 py-1.5">
+                <i class="ph-bold ph-shield-check text-orange text-sm"></i>
+                <span class="text-orange text-xs font-semibold">
+                    {% if admin_role == 'city' %}City Admin{% else %}Global Admin{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        {% if no_city %}
+        <!-- No city assigned -->
+        <div class="max-w-md mx-auto mt-16 text-center">
+            <div class="w-16 h-16 bg-orange/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="ph-bold ph-city text-orange text-3xl"></i>
+            </div>
+            <h2 class="font-outfit font-bold text-navy text-xl mb-2">No City Assigned</h2>
+            <p class="text-muted text-sm">Your account doesn't have an assigned city yet. Contact a Global Admin to get access.</p>
+        </div>
+
+        {% else %}
+
+        <!-- OVERVIEW TAB -->
+        <div x-show="activeTab==='overview'" x-transition>
+
+            {% if admin_role == 'city' and city_stats %}
+            <!-- CityAdmin stat cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-handshake text-blue-600 text-base"></i>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ city_stats.broker_count }}</div>
+                    <div class="text-muted text-sm mt-1">Brokers in {{ city.name }}</div>
+                    {% if city_stats.pending_brokers > 0 %}
+                    <div class="text-xs text-orange font-medium mt-1">{{ city_stats.pending_brokers }} pending approval</div>
+                    {% endif %}
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-orange/10 rounded-xl flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-buildings text-orange text-base"></i>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ city_stats.active_listings }}</div>
+                    <div class="text-muted text-sm mt-1">Active Listings</div>
+                    <div class="text-xs text-navy font-medium mt-1">{{ city_stats.total_listings }} total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-clock text-amber-500 text-base"></i>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ city_stats.pending_listings }}</div>
+                    <div class="text-muted text-sm mt-1">Pending Review</div>
+                    {% if city_stats.pending_listings > 0 %}
+                    <div class="text-xs text-amber-600 font-medium mt-1">Needs your action</div>
+                    {% else %}
+                    <div class="text-xs text-green font-medium mt-1">All clear</div>
+                    {% endif %}
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-user-minus text-red-500 text-base"></i>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ city_stats.suspended_brokers }}</div>
+                    <div class="text-muted text-sm mt-1">Suspended Brokers</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Pending listings quick view -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h2 class="font-outfit font-semibold text-navy">Pending Listings</h2>
+                        <button @click="activeTab='listings'" class="text-orange text-sm font-medium hover:underline">
+                            View all →
+                        </button>
+                    </div>
+                    {% if pending_properties %}
+                    <div>
+                        {% for prop in pending_properties[:4] %}
+                        <div class="approval-row flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <i class="ph-bold ph-buildings text-blue-600 text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-navy text-sm truncate">{{ prop.title }}</div>
+                                <div class="text-xs text-muted">
+                                    {{ prop.broker.full_name if prop.broker else 'Unknown' }} ·
+                                    {{ prop.created_at.strftime('%d %b %Y') }}
+                                </div>
+                            </div>
+                            <span class="badge bg-amber-100 text-amber-700">Pending</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="px-5 py-10 text-center text-muted">
+                        <i class="ph-fill ph-check-circle text-green text-3xl mb-2 block"></i>
+                        No pending listings — all clear!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right column -->
+                <div class="space-y-4">
+                    <!-- Quick stats -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-4">Broker Health</h3>
+                        <div class="space-y-3">
+                            {% set total_b = city_stats.broker_count if city_stats.broker_count > 0 else 1 %}
+                            {% set verified_b = city_stats.broker_count - city_stats.pending_brokers - city_stats.suspended_brokers %}
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-600">Verified Brokers</span>
+                                    <span class="font-bold text-navy">{{ verified_b }}</span>
+                                </div>
+                                <div class="progress-bar h-1.5">
+                                    <div class="progress-fill bg-green-500"
+                                         style="width:{{ [((verified_b / total_b) * 100)|int, 100]|min }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-600">Pending Verification</span>
+                                    <span class="font-bold text-navy">{{ city_stats.pending_brokers }}</span>
+                                </div>
+                                <div class="progress-bar h-1.5">
+                                    <div class="progress-fill bg-amber-400"
+                                         style="width:{{ [((city_stats.pending_brokers / total_b) * 100)|int, 100]|min }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-600">Active Listings</span>
+                                    <span class="font-bold text-navy">{{ city_stats.active_listings }}</span>
+                                </div>
+                                <div class="progress-bar h-1.5">
+                                    {% set total_l = city_stats.total_listings if city_stats.total_listings > 0 else 1 %}
+                                    <div class="progress-fill bg-orange"
+                                         style="width:{{ [((city_stats.active_listings / total_l) * 100)|int, 100]|min }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Alerts</h3>
+                        <div class="space-y-2">
+                            {% if city_stats.pending_listings > 0 %}
+                            <div class="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+                                <i class="ph-bold ph-clock text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-amber-700">
+                                    {{ city_stats.pending_listings }} listing{{ 's' if city_stats.pending_listings > 1 else '' }}
+                                    waiting for approval
+                                </p>
+                            </div>
+                            {% endif %}
+                            {% if city_stats.pending_brokers > 0 %}
+                            <div class="flex items-start gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+                                <i class="ph-bold ph-info text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-blue-700">
+                                    {{ city_stats.pending_brokers }} broker{{ 's' if city_stats.pending_brokers > 1 else '' }}
+                                    pending verification
+                                </p>
+                            </div>
+                            {% endif %}
+                            {% if not city_stats.pending_listings and not city_stats.pending_brokers %}
+                            <div class="flex items-start gap-2 p-2.5 bg-green-50 border border-green-200 rounded-xl">
+                                <i class="ph-bold ph-check-circle text-green-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-green-700">No pending actions — city is up to date!</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
+
+        <!-- LISTINGS TAB -->
+        <div x-show="activeTab==='listings'" x-transition>
+            {% if admin_role == 'city' %}
+            <div class="flex gap-3 mb-5 flex-wrap" x-data="{ filter: 'pending' }">
+                <button @click="filter='pending'"
+                        :class="filter==='pending' ? 'bg-orange text-white' : 'btn-outline'"
+                        class="btn text-xs">
+                    Pending ({{ city_stats.pending_listings if city_stats else 0 }})
+                </button>
+                <button @click="filter='all'"
+                        :class="filter==='all' ? 'bg-orange text-white' : 'btn-outline'"
+                        class="btn text-xs">
+                    All Listings ({{ city_stats.total_listings if city_stats else 0 }})
+                </button>
+            </div>
+
+            <!-- Pending listings table -->
+            <div x-show="filter==='pending'">
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50">
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">ID</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Listing</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Broker</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                                <th class="px-5 py-3.5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100" id="pending-listings-table">
+                            {% if pending_properties %}
+                            {% for prop in pending_properties %}
+                            {% with property=prop %}
+                            {% include 'partials/_city_listing_row.jinja' %}
+                            {% endwith %}
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="px-5 py-12 text-center text-muted">
+                                    <i class="ph-fill ph-check-circle text-green text-3xl mb-2 block"></i>
+                                    No pending listings in {{ city.name }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- All listings table -->
+            <div x-show="filter==='all'">
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50">
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">ID</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Listing</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Broker</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                                <th class="px-5 py-3.5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% if all_listings %}
+                            {% for prop in all_listings %}
+                            {% with property=prop %}
+                            {% include 'partials/_city_listing_row.jinja' %}
+                            {% endwith %}
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="px-5 py-12 text-center text-muted">
+                                    No listings in {{ city.name }} yet.
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
+
+        <!-- BROKERS TAB -->
+        <div x-show="activeTab==='brokers'" x-transition>
+            {% if admin_role == 'city' %}
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex gap-2 flex-wrap" x-data="{ filter: 'all' }">
+                    <button @click="filter='all'"
+                            :class="filter==='all' ? 'bg-orange text-white' : 'btn-outline'"
+                            class="btn text-xs">
+                        All ({{ city_stats.broker_count if city_stats else 0 }})
+                    </button>
+                    <button @click="filter='pending'"
+                            :class="filter==='pending' ? 'bg-orange text-white' : 'btn-outline'"
+                            class="btn text-xs">
+                        Pending ({{ city_stats.pending_brokers if city_stats else 0 }})
+                    </button>
+                    <button @click="filter='suspended'"
+                            :class="filter==='suspended' ? 'bg-orange text-white' : 'btn-outline'"
+                            class="btn text-xs">
+                        Suspended ({{ city_stats.suspended_brokers if city_stats else 0 }})
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50">
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Broker</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">City</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">RERA</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden xl:table-cell">Listings</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                            <th class="px-5 py-3.5">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="city-brokers-table">
+                        {% if city_brokers %}
+                        {% for broker in city_brokers %}
+                        {% include 'partials/_city_broker_row.jinja' %}
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="px-5 py-12 text-center text-muted">
+                                No brokers found in {{ city.name }} yet.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% endif %}
+        </div>
+
+
+        <!-- REPORTS TAB -->
+        <div x-show="activeTab==='reports'" x-transition>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card lg:col-span-2">
+                    <h3 class="font-outfit font-semibold text-navy mb-5">Platform Growth (Listings)</h3>
+                    <div class="flex items-end gap-3 h-40" x-data="{}">
+                        <template x-for="(h,i) in [40,55,62,58,72,80,95,88,110,102,125,141]">
+                            <div class="flex-1 flex flex-col items-center gap-1">
+                                <span class="text-xs text-muted" x-text="h + 'K'"></span>
+                                <div class="w-full rounded-t-lg transition-all hover:opacity-80"
+                                     :style="'height:' + (h/141*130) + 'px; background: linear-gradient(to top, #E8621A, #F47B35)'"></div>
+                                <span class="text-xs text-muted"
+                                      x-text="['J','F','M','A','M','J','J','A','S','O','N','D'][i]"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                {% if admin_role == 'city' and city_stats %}
+                <div class="stat-card">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">{{ city.name }} Summary</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">Total Listings</span>
+                            <span class="font-bold text-navy">{{ city_stats.total_listings }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">Active Listings</span>
+                            <span class="font-bold text-green">{{ city_stats.active_listings }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">Pending Review</span>
+                            <span class="font-bold text-amber-600">{{ city_stats.pending_listings }}</span>
+                        </div>
+                        <div class="border-t border-slate-100 pt-3 flex justify-between text-sm">
+                            <span class="text-muted">Total Brokers</span>
+                            <span class="font-bold text-navy">{{ city_stats.broker_count }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted">Verified Brokers</span>
+                            <span class="font-bold text-green">
+                                {{ city_stats.broker_count - city_stats.pending_brokers - city_stats.suspended_brokers }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <!-- SETTINGS TAB -->
+        <div x-show="activeTab==='settings'" x-transition>
+            <div class="max-w-2xl">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Account Info</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-muted">Name</span>
+                            <span class="font-medium text-navy">{{ request.user.full_name }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-muted">Email</span>
+                            <span class="font-medium text-navy">{{ request.user.email }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-muted">Role</span>
+                            <span class="font-medium text-navy">
+                                {% if admin_role == 'city' %}City Admin{% else %}Global Admin{% endif %}
+                            </span>
+                        </div>
+                        {% if admin_role == 'city' and city %}
+                        <div class="flex justify-between py-2">
+                            <span class="text-muted">Assigned City</span>
+                            <span class="font-medium text-orange">{{ city.name }}, {{ city.state }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

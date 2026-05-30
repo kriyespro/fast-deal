@@ -1,0 +1,61 @@
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="{{ url('home') }}" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="{{ url('listings') }}" class="nav-link {% if request.resolver_match.url_name == 'listings' %}nav-link-active{% endif %}">Buy</a>
+                <a href="{{ url('agents') }}" class="nav-link {% if request.resolver_match.url_name == 'agents' %}nav-link-active{% endif %}">Brokers</a>
+                <a href="{{ url('neighborhoods') }}" class="nav-link {% if request.resolver_match.url_name == 'neighborhoods' %}nav-link-active{% endif %}">Localities</a>
+                <a href="{{ url('blog') }}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}nav-link-active{% endif %}">Blog</a>
+                <a href="{{ url('about') }}" class="nav-link {% if request.resolver_match.url_name == 'about' %}nav-link-active{% endif %}">About</a>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.role == 'broker' %}{% set dash_url = url('dashboard_broker') %}
+                    {% elif request.user.role == 'builder' %}{% set dash_url = url('dashboard_builder') %}
+                    {% elif request.user.role in ('city_admin', 'global_admin') %}{% set dash_url = url('dashboard_admin') %}
+                    {% else %}{% set dash_url = url('dashboard_client') %}{% endif %}
+                    <a href="{{ dash_url }}" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Dashboard</a>
+                    <form method="post" action="{{ url('logout') }}" class="inline">
+                        {{ csrf_input }}
+                        <button type="submit" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url('login') }}" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Login</a>
+                    <a href="{{ url('register') }}" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">List Property</a>
+                {% endif %}
+            </div>
+            <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="md:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-1">
+        <a href="{{ url('listings') }}" class="block py-2.5 text-slate-700 text-sm">Buy</a>
+        <a href="{{ url('agents') }}" class="block py-2.5 text-slate-700 text-sm">Brokers</a>
+        <a href="{{ url('neighborhoods') }}" class="block py-2.5 text-slate-700 text-sm">Localities</a>
+        <a href="{{ url('blog') }}" class="block py-2.5 text-slate-700 text-sm">Blog</a>
+        <a href="{{ url('about') }}" class="block py-2.5 text-slate-700 text-sm">About</a>
+        <div class="flex gap-2 pt-2">
+            {% if request.user.is_authenticated %}
+                {% if request.user.role == 'broker' %}{% set dash_url = url('dashboard_broker') %}
+                {% elif request.user.role == 'builder' %}{% set dash_url = url('dashboard_builder') %}
+                {% elif request.user.role in ('city_admin', 'global_admin') %}{% set dash_url = url('dashboard_admin') %}
+                {% else %}{% set dash_url = url('dashboard_client') %}{% endif %}
+                <a href="{{ dash_url }}" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Dashboard</a>
+                <form method="post" action="{{ url('logout') }}" class="flex-1">
+                    {{ csrf_input }}
+                    <button type="submit" class="w-full text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Logout</button>
+                </form>
+            {% else %}
+                <a href="{{ url('login') }}" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Login</a>
+                <a href="{{ url('register') }}" class="flex-1 text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

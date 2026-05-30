@@ -1,0 +1,430 @@
+{% extends 'layouts/dashboard_base.jinja' %}
+{% block title %}My Dashboard | PropSurat{% endblock %}
+
+{% block extra_styles %}
+.stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.prop-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.2s; }
+.prop-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.09); }
+.emi-card { background: #0C1E35; border-radius: 20px; padding: 28px; }
+.emi-slider { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); outline: none; }
+.emi-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #E8621A; cursor: pointer; box-shadow: 0 2px 6px rgba(232,98,26,0.4); }
+{% endblock %}
+
+{% block body_attrs %}x-data="clientDashData()"{% endblock %}
+
+{% block body %}
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''" @click.outside="sidebarOpen=false">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="{{ url('home') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-orange flex items-center justify-center font-outfit font-bold text-white text-lg">
+                {{ request.user.full_name[0] | upper }}
+            </div>
+            <div>
+                <div class="text-white text-sm font-semibold">{{ request.user.full_name }}</div>
+                <div class="text-white/40 text-xs">Client</div>
+            </div>
+        </div>
+    </div>
+    <nav class="px-3 py-4 space-y-0.5">
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''" @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='saved' ? 'active' : ''" @click="activeTab='saved'; sidebarOpen=false">
+            <i class="ph-bold ph-heart"></i> Saved Properties
+            {% if saved_properties %}
+            <span class="ml-auto bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full font-semibold">{{ saved_properties | length }}</span>
+            {% endif %}
+        </div>
+        <div class="sidebar-link" :class="activeTab==='inquiries' ? 'active' : ''" @click="activeTab='inquiries'; sidebarOpen=false">
+            <i class="ph-bold ph-chat-dots"></i> My Inquiries
+            {% if my_inquiries %}
+            <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">{{ my_inquiries | length }}</span>
+            {% endif %}
+        </div>
+        <div class="sidebar-link" :class="activeTab==='emi' ? 'active' : ''" @click="activeTab='emi'; sidebarOpen=false">
+            <i class="ph-bold ph-calculator"></i> EMI Calculator
+        </div>
+        <div class="sidebar-link" :class="activeTab==='profile' ? 'active' : ''" @click="activeTab='profile'; sidebarOpen=false">
+            <i class="ph-bold ph-user-circle"></i> My Profile
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <form method="post" action="{{ url('logout') }}">
+                {{ csrf_input }}
+                <button type="submit" class="sidebar-link w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                    <i class="ph-bold ph-sign-out"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg leading-tight">
+                    <span x-text="activeTab==='overview' ? 'Mera Dashboard' : activeTab==='saved' ? 'Saved Properties' : activeTab==='inquiries' ? 'My Inquiries' : activeTab==='emi' ? 'EMI Calculator' : 'My Profile'"></span>
+                </h1>
+                <p class="text-muted text-xs hidden sm:block">Namaste, {{ request.user.full_name.split(' ')[0] }}! Aaj kya dhundhein?</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ url('listings') }}" class="hidden sm:flex items-center gap-1.5 bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                <i class="ph-bold ph-magnifying-glass"></i> Search Properties
+            </a>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        <!-- OVERVIEW -->
+        <div x-show="activeTab==='overview'" x-transition>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card cursor-pointer" @click="activeTab='saved'">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-red-50"><i class="ph-fill ph-heart text-red-500 text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ saved_properties | length }}</div>
+                    <div class="text-muted text-sm mt-1">Saved Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-blue-50"><i class="ph-fill ph-chat-dots text-blue-500 text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">{{ my_inquiries | length }}</div>
+                    <div class="text-muted text-sm mt-1">Inquiries Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-orange/10"><i class="ph-fill ph-calculator text-orange text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">EMI</div>
+                    <div class="text-muted text-sm mt-1">Calculator Ready</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-green-50"><i class="ph-fill ph-buildings text-green-600 text-lg"></i></div>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">50+</div>
+                    <div class="text-muted text-sm mt-1">Cities Available</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-outfit font-semibold text-navy text-lg">Recent Inquiries</h2>
+                        <button @click="activeTab='inquiries'" class="text-orange text-sm font-medium hover:underline">Sab dekho →</button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                        {% for inq in my_inquiries[:3] %}
+                        <div class="lead-row gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-orange/10 flex items-center justify-center flex-shrink-0">
+                                <i class="ph-fill ph-buildings text-orange text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-navy text-sm">{{ inq.property.title | truncate(40, True) }}</div>
+                                <div class="text-xs text-muted">{{ inq.property.city.name if inq.property.city else '' }}</div>
+                            </div>
+                            <div class="text-xs text-muted hidden md:block">{{ inq.created_at.strftime('%d %b') }}</div>
+                            <a href="{{ url('property_detail', pk=inq.property.pk) }}" class="text-xs text-orange font-medium hover:underline flex-shrink-0">View →</a>
+                        </div>
+                        {% else %}
+                        <div class="px-5 py-12 text-center">
+                            <i class="ph-fill ph-chat-dots text-slate-300 text-4xl block mb-3"></i>
+                            <p class="text-muted text-sm mb-4">Abhi koi inquiry nahi hai</p>
+                            <a href="{{ url('listings') }}" class="btn btn-orange text-sm">Properties Dekho</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Quick EMI Estimate</h3>
+                        <div class="text-center p-4 bg-navy rounded-xl">
+                            <div class="text-white/60 text-xs mb-1">₹75L loan @ 8.5% × 20yr</div>
+                            <div class="font-outfit text-2xl font-bold text-orange">₹65,175</div>
+                            <div class="text-white/40 text-xs mt-1">per month EMI</div>
+                        </div>
+                        <button @click="activeTab='emi'" class="w-full mt-3 text-sm text-orange font-medium hover:underline">Calculate apna EMI →</button>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Browse Properties</h3>
+                        <div class="space-y-2">
+                            <a href="{{ url('listings') }}?listing_type=sale" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-orange/10 rounded-lg flex items-center justify-center"><i class="ph-bold ph-house text-orange"></i></div>
+                                Properties for Sale
+                            </a>
+                            <a href="{{ url('listings') }}?listing_type=rent" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 transition-colors">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center"><i class="ph-bold ph-key text-blue-600"></i></div>
+                                Properties for Rent
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAVED PROPERTIES -->
+        <div x-show="activeTab==='saved'" x-transition>
+            {% if saved_properties %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                {% for saved in saved_properties %}
+                {% set prop = saved.property %}
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all">
+                    <div class="relative">
+                        {% if prop.images.all() %}
+                        <img src="{{ prop.images.all()[0].image.url }}" class="w-full h-44 object-cover" alt="{{ prop.title }}">
+                        {% else %}
+                        <div class="w-full h-44 bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                            <i class="ph-fill ph-buildings text-slate-400 text-3xl"></i>
+                        </div>
+                        {% endif %}
+                        <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full
+                            {% if prop.listing_type == 'sale' %}bg-navy text-white
+                            {% elif prop.listing_type == 'rent' %}bg-green-600 text-white
+                            {% else %}bg-purple-600 text-white{% endif %}">
+                            {{ prop.get_listing_type_display() }}
+                        </span>
+                        <!-- Unsave button -->
+                        <div class="absolute top-3 right-3">
+                            {% with property_pk=prop.pk, is_saved=True %}
+                            {% include 'partials/_save_btn.jinja' %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-outfit font-semibold text-navy text-sm leading-snug">{{ prop.title | truncate(40, True) }}</h3>
+                        <p class="text-muted text-xs flex items-center gap-1 mt-0.5">
+                            <i class="ph-bold ph-map-pin"></i>
+                            {% if prop.locality %}{{ prop.locality.name }}, {% endif %}{{ prop.city.name if prop.city else '' }}
+                        </p>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                            <div class="font-outfit font-bold text-navy text-lg">{{ prop.price_display }}</div>
+                            <a href="{{ url('property_detail', pk=prop.pk) }}"
+                               class="text-xs bg-orange text-white px-3 py-1.5 rounded-lg font-medium hover:bg-orange-600 transition-colors">
+                                View →
+                            </a>
+                        </div>
+                        <p class="text-xs text-muted mt-2">Saved {{ saved.created_at.strftime('%d %b %Y') }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-20 bg-white rounded-2xl border border-slate-200">
+                <i class="ph-fill ph-heart text-slate-300 text-5xl block mb-4"></i>
+                <h3 class="font-outfit font-bold text-slate-700 text-xl mb-2">Koi saved property nahi</h3>
+                <p class="text-muted mb-5 max-w-sm mx-auto">Listings mein heart button dabao to save karein!</p>
+                <a href="{{ url('listings') }}" class="btn btn-orange"><i class="ph-bold ph-magnifying-glass"></i> Browse Properties</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- INQUIRIES -->
+        <div x-show="activeTab==='inquiries'" x-transition>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h2 class="font-outfit font-semibold text-navy">Meri Inquiries</h2>
+                    <p class="text-xs text-muted mt-0.5">{{ my_inquiries | length }} total</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50">
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Property</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Broker</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                                <th class="px-5 py-3.5"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for inq in my_inquiries %}
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-5 py-4">
+                                    <div class="font-medium text-navy text-sm">{{ inq.property.title | truncate(35, True) }}</div>
+                                    <div class="text-xs text-muted">{{ inq.property.city.name if inq.property.city else '' }}</div>
+                                </td>
+                                <td class="px-5 py-4 text-muted text-sm hidden md:table-cell">
+                                    {{ inq.property.broker.full_name if inq.property.broker else '—' }}
+                                </td>
+                                <td class="px-5 py-4 text-xs text-muted hidden lg:table-cell">{{ inq.created_at.strftime('%d %b %Y') }}</td>
+                                <td class="px-5 py-4">
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full {% if not inq.is_read %}bg-amber-100 text-amber-700{% else %}bg-green-100 text-green-700{% endif %}">
+                                        {% if not inq.is_read %}Pending{% else %}Seen{% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <a href="{{ url('property_detail', pk=inq.property.pk) }}" class="text-orange text-xs font-medium hover:underline">View →</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-5 py-16 text-center">
+                                    <i class="ph-fill ph-chat-dots text-slate-300 text-4xl block mb-3"></i>
+                                    <p class="text-muted mb-4">Koi inquiry nahi abhi</p>
+                                    <a href="{{ url('listings') }}" class="btn btn-orange text-sm">Properties Dekho</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMI CALCULATOR -->
+        <div x-show="activeTab==='emi'" x-transition>
+            <div class="max-w-3xl">
+                <div class="emi-card mb-6">
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <div class="flex-1 space-y-5">
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Property Value</label>
+                                <input type="range" x-model="emiPrice" min="1000000" max="50000000" step="100000" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">₹10 L</span>
+                                    <span class="text-white font-semibold text-sm" x-text="'₹' + (emiPrice/100000 >= 100 ? (emiPrice/10000000).toFixed(1) + ' Cr' : Math.round(emiPrice/100000) + ' L')"></span>
+                                    <span class="text-white/40 text-xs">₹5 Cr</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Down Payment: <span x-text="emiDown + '%'"></span></label>
+                                <input type="range" x-model="emiDown" min="10" max="50" step="5" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">10%</span>
+                                    <span class="text-white/40 text-xs">50%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Interest Rate: <span x-text="emiRate + '%'"></span></label>
+                                <input type="range" x-model="emiRate" min="6.5" max="12" step="0.25" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">6.5%</span>
+                                    <span class="text-white/40 text-xs">12%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Loan Tenure: <span x-text="emiYears + ' yrs'"></span></label>
+                                <input type="range" x-model="emiYears" min="5" max="30" step="5" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">5 yr</span>
+                                    <span class="text-white/40 text-xs">30 yr</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-56 flex flex-col justify-center">
+                            <div class="bg-white/10 border border-white/15 rounded-2xl p-6 text-center">
+                                <div class="text-white/60 text-xs mb-1">Monthly EMI</div>
+                                <div class="font-outfit text-3xl font-bold text-orange" x-text="'₹' + emiResult.toLocaleString('en-IN')"></div>
+                                <div class="border-t border-white/15 mt-4 pt-4 space-y-2 text-left">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Loan Amount</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round(loanAmt/100000) + 'L'"></span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Down Payment</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round(emiPrice*emiDown/100/100000) + 'L'"></span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Total Interest</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round((emiResult*emiYears*12 - loanAmt)/100000) + 'L'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-white/30 text-xs text-center mt-3">Estimate only. Contact bank for exact rates.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
+                    <i class="ph-bold ph-info text-amber-600 text-lg flex-shrink-0"></i>
+                    <p class="text-amber-800 text-sm">
+                        <strong>Home Loan Tips:</strong> SBI, HDFC, ICICI offer best rates for salaried professionals. Pre-approved loan letter se negotiation power badhti hai.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div x-show="activeTab==='profile'" x-transition>
+            <div class="max-w-2xl">
+                <div class="bg-white rounded-2xl border border-slate-200 p-8">
+                    <div class="flex items-center gap-5 mb-8">
+                        <div class="w-20 h-20 rounded-2xl bg-orange flex items-center justify-center font-outfit font-bold text-white text-4xl">
+                            {{ request.user.full_name[0] | upper }}
+                        </div>
+                        <div>
+                            <h2 class="font-outfit text-2xl font-bold text-navy">{{ request.user.full_name }}</h2>
+                            <p class="text-muted text-sm">Client · PropSurat</p>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span class="text-xs text-green-600 font-medium">Active Account</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Full Name</label>
+                            <input type="text" value="{{ request.user.full_name }}" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange" readonly>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Email</label>
+                            <input type="email" value="{{ request.user.email }}" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange" readonly>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
+                            <input type="tel" value="{{ request.user.phone or 'Not Added' }}" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange" readonly>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">City</label>
+                            <input type="text" value="{{ request.user.profile.city or 'Not Set' }}" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange" readonly>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <a href="#" class="btn btn-orange"><i class="ph-bold ph-pencil"></i> Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function clientDashData() {
+    return {
+        activeTab: 'overview',
+        sidebarOpen: false,
+        emiPrice: 7500000,
+        emiDown: 20,
+        emiRate: 8.5,
+        emiYears: 20,
+        get emiResult() {
+            let P = this.emiPrice * (1 - this.emiDown/100);
+            let r = this.emiRate/100/12;
+            let n = this.emiYears*12;
+            if(r===0) return Math.round(P/n);
+            return Math.round(P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1));
+        },
+        get loanAmt() { return Math.round(this.emiPrice * (1 - this.emiDown/100)); }
+    };
+}
+</script>
+{% endblock %}

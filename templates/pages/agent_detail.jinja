@@ -1,0 +1,363 @@
+{% extends 'base.jinja' %}
+
+{% block title %}Rajesh Patel — Verified Broker | PropSurat{% endblock %}
+{% block extra_head %}
+<style>
+}
+
+        .tab-active {
+            color: #0C1E35;
+            border-bottom: 2px solid #0C1E35;
+            background-color: rgba(26, 32, 53, 0.08);
+        }
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Agent Profile Header -->
+    <div class="bg-white border-b border-slate-200 py-12 relative overflow-hidden">
+        <div
+            class="absolute top-0 right-0 w-96 h-96 bg-navy/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <a href="{{ url('agents') }}"
+                class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors text-sm mb-8">
+                <i class="ph ph-arrow-left"></i> Back to Brokers
+            </a>
+
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <!-- Agent Photo -->
+                <div class="w-full md:w-1/3 lg:w-1/4">
+                    <div class="rounded-2xl overflow-hidden border-4 border-slate-200 shadow-2xl relative">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                            alt="Rajesh Patel" class="w-full h-auto object-cover">
+                        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10">
+                            <span
+                                class="bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 border border-slate-200">
+                                <i class="ph-fill ph-medal text-orange text-sm"></i> Top Broker '25
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Info -->
+                <div class="w-full md:w-2/3 lg:w-3/4 flex flex-col justify-center h-full pt-2">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+                        <div>
+                            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 font-outfit mb-2">Rajesh Patel</h1>
+                            <p class="text-xl text-orange font-medium">Senior Property Consultant</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <a href="#"
+                                class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-gray-400 hover:text-white hover:bg-navy hover:border-orange transition-all shadow-lg hover:shadow-orange/30">
+                                <i class="ph-fill ph-linkedin-logo text-lg"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-gray-400 hover:text-white hover:bg-navy hover:border-orange transition-all shadow-lg hover:shadow-orange/30">
+                                <i class="ph-fill ph-instagram-logo text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <p class="text-slate-500 text-lg max-w-2xl mb-8 leading-relaxed">
+                        With over 15 years of experience in Indian real estate, Rajesh has facilitated over ₹500 Crore in transactions. Specializing in Mumbai and Surat markets, he is known for his deep RERA knowledge, transparency, and strong negotiation skills.
+                    </p>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 py-6 border-y border-slate-200 max-w-3xl">
+                        <div>
+                            <div class="text-sm text-slate-400 mb-1">License</div>
+                            <div class="text-slate-900 font-medium">RERA #GJ/2019/045678</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-slate-400 mb-1">Experience</div>
+                            <div class="text-slate-900 font-medium">15+ Years</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-slate-400 mb-1">Languages</div>
+                            <div class="text-slate-900 font-medium">English, Hindi, Gujarati</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-slate-400 mb-1">Rating</div>
+                            <div class="flex items-center text-slate-900 font-medium gap-1">
+                                4.9 <i class="ph-fill ph-star text-orange"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-8">
+                        <button
+                            class="bg-orange hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-bold transition-colors shadow-lg shadow-orange/20 flex items-center gap-2">
+                            <i class="ph-bold ph-envelope-simple"></i> Contact Rajesh
+                        </button>
+                        <button
+                            class="bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 px-8 py-3 rounded-lg font-bold transition-colors flex items-center gap-2">
+                            <i class="ph-bold ph-phone"></i> Show Number
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Content -->
+    <section class="py-16 flex-grow bg-slate-50" x-data="{ activeTab: 'listings' }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Main Content -->
+                <div class="lg:col-span-2">
+
+                    <!-- Tabs -->
+                    <div class="flex border-b border-slate-200 mb-8 overflow-x-auto hide-scrollbar">
+                        <button @click="activeTab = 'listings'"
+                            :class="activeTab === 'listings' ? 'text-navy border-orange font-semibold' : 'text-slate-500 border-transparent hover:text-navy hover:bg-slate-50'"
+                            class="px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap">
+                            Active Listings (24)
+                        </button>
+                        <button @click="activeTab = 'sold'"
+                            :class="activeTab === 'sold' ? 'text-navy border-orange font-semibold' : 'text-slate-500 border-transparent hover:text-navy hover:bg-slate-50'"
+                            class="px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap">
+                            Past Sales
+                        </button>
+                        <button @click="activeTab = 'reviews'"
+                            :class="activeTab === 'reviews' ? 'text-navy border-orange font-semibold' : 'text-slate-500 border-transparent hover:text-navy hover:bg-slate-50'"
+                            class="px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap">
+                            Client Reviews (48)
+                        </button>
+                    </div>
+
+                    <!-- Tab Content: Listings -->
+                    <div x-show="activeTab === 'listings'" class="space-y-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-slate-900 font-outfit">Michael's Active Listings</h2>
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="text-slate-500">Sort:</span>
+                                <select
+                                    class="bg-white border border-slate-200 text-slate-900 rounded px-2 py-1 focus:outline-none focus:border-orange">
+                                    <option>Most Recent</option>
+                                    <option>Highest Price</option>
+                                    <option>Lowest Price</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Listing Item -->
+                        <div
+                            class="flex flex-col sm:flex-row bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-200 transition-colors shadow-lg group">
+                            <div class="sm:w-2/5 relative h-48 sm:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Property"
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                <div
+                                    class="absolute top-3 left-3 bg-orange/90 backdrop-blur-md text-white px-2 py-1 rounded text-xs font-bold border border-slate-200">
+                                    FOR SALE</div>
+                            </div>
+                            <div class="sm:w-3/5 p-6 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-2xl font-bold text-orange mb-1">₹1.85 Crore</div>
+                                    <h3
+                                        class="text-xl font-bold text-slate-900 font-outfit mb-2 hover:text-orange transition-colors">
+                                        <a href="{{ url('property_detail', pk=1) }}">3 BHK Luxury Flat — Koramangala</a></h3>
+                                    <p class="text-slate-500 text-sm flex items-center gap-1 mb-4">
+                                        <i class="ph ph-map-pin text-slate-400"></i> 123 Mumbai, Maharashtra 90210
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-6 pt-4 border-t border-slate-200 text-slate-600 text-sm">
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-bed text-slate-500 text-lg"></i> 4 Beds</span>
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-bathtub text-slate-500 text-lg"></i> 3.5 Baths</span>
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-square text-slate-500 text-lg"></i> 4,200 sqft</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Listing Item -->
+                        <div
+                            class="flex flex-col sm:flex-row bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-200 transition-colors shadow-lg group">
+                            <div class="sm:w-2/5 relative h-48 sm:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Property"
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                <div
+                                    class="absolute top-3 left-3 bg-orange/90 backdrop-blur-md text-white px-2 py-1 rounded text-xs font-bold border border-slate-200">
+                                    FOR SALE</div>
+                            </div>
+                            <div class="sm:w-3/5 p-6 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-2xl font-bold text-orange mb-1">$8,900,000</div>
+                                    <h3
+                                        class="text-xl font-bold text-slate-900 font-outfit mb-2 hover:text-orange transition-colors">
+                                        <a href="{{ url('property_detail', pk=1) }}">Luxury Waterfront Estate</a></h3>
+                                    <p class="text-slate-500 text-sm flex items-center gap-1 mb-4">
+                                        <i class="ph ph-map-pin text-slate-400"></i> Whitefield, Bangalore, Bangalore, Karnataka
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-6 pt-4 border-t border-slate-200 text-slate-600 text-sm">
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-bed text-slate-500 text-lg"></i> 6 Beds</span>
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-bathtub text-slate-500 text-lg"></i> 7 Baths</span>
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-square text-slate-500 text-lg"></i> 8,500 sqft</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center pt-6 border-t border-slate-200">
+                            <button
+                                class="bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-900 px-6 py-2.5 rounded-lg transition-colors text-sm font-medium">
+                                Load More Listings
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Sold -->
+                    <div x-show="activeTab === 'sold'" class="space-y-6" style="display: none;">
+                        <h2 class="text-2xl font-bold text-slate-900 font-outfit mb-6">Recent Past Sales</h2>
+                        <!-- Sold Listing Item -->
+                        <div
+                            class="flex flex-col sm:flex-row bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-200 transition-colors shadow-lg group opacity-80">
+                            <div class="sm:w-2/5 relative h-48 sm:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1628624747186-a941c476b7ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Property"
+                                    class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0">
+                                <div
+                                    class="absolute top-3 left-3 bg-orange/90 backdrop-blur-md text-white px-2 py-1 rounded text-xs font-bold border border-slate-200">
+                                    SOLD</div>
+                            </div>
+                            <div class="sm:w-3/5 p-6 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xl font-bold text-slate-600 line-through mb-1 text-sm">Listed:
+                                        $2,150,000</div>
+                                    <div class="text-2xl font-bold text-orange mb-2">Sold: $2,300,000</div>
+                                    <h3 class="text-xl font-bold text-slate-900 font-outfit mb-2">Skyline Penthouse Suite
+                                    </h3>
+                                    <p class="text-slate-500 text-sm flex items-center gap-1 mb-4">
+                                        <i class="ph ph-map-pin text-slate-400"></i> Central Park West, NY
+                                    </p>
+                                </div>
+                                <div
+                                    class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-4 border-t border-slate-200 text-slate-500 text-sm">
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-calendar-check text-slate-400 text-lg"></i> Sold March
+                                        2025</span>
+                                    <span class="flex items-center gap-1.5"><i
+                                            class="ph ph-timer text-slate-400 text-lg"></i> 14 DOM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Reviews -->
+                    <div x-show="activeTab === 'reviews'" class="space-y-6" style="display: none;">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-2xl font-bold text-slate-900 font-outfit">Client Reviews</h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-3xl font-bold text-slate-900">4.9</span>
+                                <div class="flex flex-col">
+                                    <div class="flex text-orange text-sm">
+                                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                            class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                            class="ph-fill ph-star"></i>
+                                    </div>
+                                    <span class="text-slate-500 text-xs text-right">48 Reviews</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Item -->
+                        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-lg">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center text-orange font-bold border border-orange/30">
+                                        JD
+                                    </div>
+                                    <div>
+                                        <h4 class="text-slate-900 font-medium">James & Sarah Dunn</h4>
+                                        <span class="text-slate-400 text-xs">Bought a Villa in Koramangala, Bangalore</span>
+                                    </div>
+                                </div>
+                                <div class="flex text-orange text-sm">
+                                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                        class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                        class="ph-fill ph-star"></i>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                "Michael is the epitome of a luxury real estate professional. He understood our highly
+                                specific needs and didn't waste our time showing us properties that didn't fit. His
+                                negotiation skills saved us over $200k on the final asking price. We cannot recommend
+                                him highly enough."
+                            </p>
+                            <div class="mt-4 text-xs text-slate-400">October 2025</div>
+                        </div>
+
+                        <!-- Review Item -->
+                        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-lg">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-orange/20 flex items-center justify-center text-orange font-bold border border-orange/30">
+                                        RW
+                                    </div>
+                                    <div>
+                                        <h4 class="text-slate-900 font-medium">Robert Wright</h4>
+                                        <span class="text-slate-400 text-xs">Sold a Penthouse in NY</span>
+                                    </div>
+                                </div>
+                                <div class="flex text-orange text-sm">
+                                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                        class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i
+                                        class="ph-fill ph-star"></i>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                "From staging consultation to the final closing, Michael and his team handled everything
+                                flawlessly. He leveraged his extensive network to bring in qualified buyers quickly,
+                                resulting in a sale that was 10% over our asking price within two weeks on the market."
+                            </p>
+                            <div class="mt-4 text-xs text-slate-400">August 2025</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Sidebar -> Direct Contact -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-24 bg-white rounded-2xl p-6 border border-slate-200 shadow-2xl">
+                        <h3 class="text-xl font-bold text-slate-900 font-outfit mb-6">Contact Michael</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <input type="text" placeholder="Your Name"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <input type="email" placeholder="Your Email"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <input type="tel" placeholder="Your Phone"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors">
+                            </div>
+                            <div>
+                                <textarea rows="4" placeholder="How can I help you?"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-orange transition-colors resize-none"></textarea>
+                            </div>
+                            <button type="button"
+                                class="w-full bg-orange hover:bg-orange-700 text-white font-bold rounded-lg px-4 py-4 transition-colors shadow-lg shadow-orange/20 flex justify-center items-center gap-2 mt-2">
+                                Send Message <i class="ph-bold ph-paper-plane-tilt"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

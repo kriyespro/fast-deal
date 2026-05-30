@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | PropSurat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+    .sidebar { background: #0C1E35; width: 260px; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 11px 20px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; transition: all 0.18s; cursor: pointer; margin: 1px 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .sidebar-link.active { background: #E8621A; color: white; }
+    .sidebar-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.12em; padding: 16px 20px 6px; }
+    .main { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+    .topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; }
+    .progress-bar { background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; border: none; }
+    .btn-orange { background: #E8621A; color: white; }
+    .btn-orange:hover { background: #c95516; }
+    .btn-green { background: #1B7A42; color: white; }
+    .btn-green:hover { background: #155a31; }
+    .btn-red { background: #dc2626; color: white; }
+    .btn-red:hover { background: #b91c1c; }
+    .btn-outline { background: white; color: #374151; border: 1.5px solid #e2e8f0; }
+    .btn-outline:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .city-chip { display: inline-flex; align-items: center; gap: 6px; background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; }
+    .city-chip.active, .city-chip:hover { border-color: #E8621A; background: #fff8f5; color: #E8621A; }
+    .approval-row { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+    .approval-row:hover { background: #f8fafc; }
+    .global-stat { background: linear-gradient(135deg, #0C1E35, #1B3A5C); border-radius: 16px; padding: 20px 24px; color: white; }
+    .mobile-menu-btn { display: none; }
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        .main { margin-left: 0; }
+        .mobile-menu-btn { display: flex; }
+    }
+</style>
+</head>
+<body class="bg-slate-100" x-data="{
+    activeTab: 'overview',
+    adminRole: 'global',
+    sidebarOpen: false,
+    selectedCity: 'All',
+    cities: ['All','Mumbai','Delhi NCR','Bangalore','Hyderabad','Pune','Surat','Ahmedabad','Chennai'],
+    approvals: [
+        {id:'LST-2401', type:'listing', title:'3 BHK Flat, Vesu Surat', by:'Ramesh Patel (Broker)', date:'Today 10:15 AM', status:'pending'},
+        {id:'BRK-0892', type:'broker', title:'New Broker: Suresh Mehta, Mumbai', by:'Self-registration', date:'Today 9:30 AM', status:'pending'},
+        {id:'PRJ-0034', type:'project', title:'Sunrise Towers Ph.1 — Surat Infra', by:'Surat Infra Dev.', date:'Yesterday 4:00 PM', status:'pending'},
+        {id:'LST-2399', type:'listing', title:'2 BHK, Koramangala Bangalore', by:'Ankit Kumar (Broker)', date:'Yesterday 11:00 AM', status:'pending'},
+        {id:'BLD-0021', type:'builder', title:'New Builder: Prestige South, Chennai', by:'Self-registration', date:'22 May', status:'pending'},
+        {id:'LST-2395', type:'listing', title:'Commercial Shop, Ring Road Surat', by:'Ramesh Patel (Broker)', date:'21 May', status:'approved'},
+        {id:'LST-2388', type:'listing', title:'4 BHK Penthouse, Juhu Mumbai', by:'Priya Shah (Broker)', date:'20 May', status:'rejected'},
+    ],
+    cityData: [
+        {city:'Mumbai', brokers:1820, listings:28400, clients:45200, revenue:'₹2.1 Cr', growth:'+12%'},
+        {city:'Delhi NCR', brokers:2100, listings:35600, clients:58000, revenue:'₹2.8 Cr', growth:'+18%'},
+        {city:'Bangalore', brokers:1650, listings:24800, clients:39000, revenue:'₹1.9 Cr', growth:'+22%'},
+        {city:'Hyderabad', brokers:980, listings:16200, clients:27000, revenue:'₹1.2 Cr', growth:'+15%'},
+        {city:'Pune', brokers:740, listings:12400, clients:21000, revenue:'₹0.9 Cr', growth:'+9%'},
+        {city:'Surat', brokers:420, listings:7800, clients:13500, revenue:'₹0.6 Cr', growth:'+31%'},
+        {city:'Ahmedabad', brokers:380, listings:6900, clients:11200, revenue:'₹0.5 Cr', growth:'+27%'},
+        {city:'Chennai', brokers:520, listings:9200, clients:15800, revenue:'₹0.7 Cr', growth:'+11%'},
+    ]
+}">
+
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''">
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+
+    <!-- Admin role toggle -->
+    <div class="px-4 py-3 border-b border-white/10">
+        <div class="bg-white/8 rounded-xl p-1 flex">
+            <button @click="adminRole='city'"
+                :class="adminRole==='city' ? 'bg-orange text-white' : 'text-white/60'"
+                class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all">City Admin</button>
+            <button @click="adminRole='global'"
+                :class="adminRole==='global' ? 'bg-orange text-white' : 'text-white/60'"
+                class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all">Global Admin</button>
+        </div>
+        <div class="mt-2 flex items-center gap-2">
+            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=30&h=30&fit=crop&crop=face" class="w-7 h-7 rounded-full" alt="">
+            <div>
+                <div class="text-white text-xs font-semibold" x-text="adminRole==='global' ? 'Vikram Singh' : 'Anand Patel'"></div>
+                <div class="text-white/35 text-xs" x-text="adminRole==='global' ? 'Global Admin' : 'City Admin · Surat'"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="px-3 py-3">
+        <div class="sidebar-section">Platform</div>
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''" @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four ph"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='approvals' ? 'active' : ''" @click="activeTab='approvals'; sidebarOpen=false">
+            <i class="ph-bold ph-seal-check ph"></i> Approvals
+            <span class="ml-auto bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full font-semibold">5</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='brokers' ? 'active' : ''" @click="activeTab='brokers'; sidebarOpen=false">
+            <i class="ph-bold ph-handshake ph"></i> Brokers
+        </div>
+        <div class="sidebar-link" :class="activeTab==='builders' ? 'active' : ''" @click="activeTab='builders'; sidebarOpen=false">
+            <i class="ph-bold ph-crane-tower ph"></i> Builders
+        </div>
+        <div class="sidebar-link" :class="activeTab==='listings' ? 'active' : ''" @click="activeTab='listings'; sidebarOpen=false">
+            <i class="ph-bold ph-buildings ph"></i> Listings
+        </div>
+        <div class="sidebar-section">Analytics</div>
+        <div class="sidebar-link" :class="activeTab==='reports' ? 'active' : ''" @click="activeTab='reports'; sidebarOpen=false">
+            <i class="ph-bold ph-chart-bar ph"></i> Reports
+        </div>
+        <div x-show="adminRole==='global'" class="sidebar-link" :class="activeTab==='cities' ? 'active' : ''" @click="activeTab='cities'; sidebarOpen=false">
+            <i class="ph-bold ph-city ph"></i> City Management
+        </div>
+        <div class="sidebar-section">Settings</div>
+        <div class="sidebar-link" :class="activeTab==='settings' ? 'active' : ''" @click="activeTab='settings'; sidebarOpen=false">
+            <i class="ph-bold ph-gear ph"></i> Platform Settings
+        </div>
+        <div class="mt-3 pt-3 border-t border-white/10">
+            <a href="login.html" class="sidebar-link text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                <i class="ph-bold ph-sign-out ph"></i> Logout
+            </a>
+        </div>
+    </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg">
+                    <span x-text="
+                        activeTab==='overview' ? (adminRole==='global' ? 'Global Overview' : 'City Overview · Surat') :
+                        activeTab==='approvals' ? 'Pending Approvals' :
+                        activeTab==='brokers' ? 'Broker Management' :
+                        activeTab==='builders' ? 'Builder Management' :
+                        activeTab==='listings' ? 'Listing Management' :
+                        activeTab==='reports' ? 'Platform Reports' :
+                        activeTab==='cities' ? 'City Management' : 'Platform Settings'">
+                    </span>
+                </h1>
+                <p class="text-muted text-xs hidden sm:block">PropSurat Admin Panel · May 2026</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-bell text-slate-600 text-lg"></i>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="hidden sm:flex items-center gap-2 bg-orange/10 border border-orange/20 rounded-xl px-3 py-1.5">
+                <i class="ph-bold ph-shield-check text-orange text-sm"></i>
+                <span class="text-orange text-xs font-semibold" x-text="adminRole==='global' ? 'Global Admin' : 'City Admin'"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8">
+
+        <!-- OVERVIEW -->
+        <div x-show="activeTab==='overview'" x-transition>
+
+            <!-- Global stats (shown for global admin) -->
+            <div x-show="adminRole==='global'" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="global-stat">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-city text-white text-base"></i></div>
+                        <span class="text-xs text-green-400 font-semibold">+2 this yr</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-white">52</div>
+                    <div class="text-white/50 text-sm mt-1">Cities Active</div>
+                </div>
+                <div class="global-stat">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-handshake text-white text-base"></i></div>
+                        <span class="text-xs text-green-400 font-semibold">↑23% MoM</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-white">8,420</div>
+                    <div class="text-white/50 text-sm mt-1">Total Brokers</div>
+                </div>
+                <div class="global-stat">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-buildings text-white text-base"></i></div>
+                        <span class="text-xs text-green-400 font-semibold">↑31% MoM</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-white">1.41L</div>
+                    <div class="text-white/50 text-sm mt-1">Active Listings</div>
+                </div>
+                <div class="global-stat">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"><i class="ph-fill ph-currency-inr text-white text-base"></i></div>
+                        <span class="text-xs text-green-400 font-semibold">↑18% YoY</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-white">₹10.8 Cr</div>
+                    <div class="text-white/50 text-sm mt-1">Platform Revenue</div>
+                </div>
+            </div>
+
+            <!-- City admin stats -->
+            <div x-show="adminRole==='city'" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center mb-3"><i class="ph-fill ph-handshake text-blue-600 text-base"></i></div>
+                    <div class="font-outfit text-3xl font-bold text-navy">420</div>
+                    <div class="text-muted text-sm mt-1">Brokers in Surat</div>
+                    <div class="text-xs text-orange font-medium mt-1">8 pending approval</div>
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-orange/10 rounded-xl flex items-center justify-center mb-3"><i class="ph-fill ph-buildings text-orange text-base"></i></div>
+                    <div class="font-outfit text-3xl font-bold text-navy">7,800</div>
+                    <div class="text-muted text-sm mt-1">Listings in Surat</div>
+                    <div class="text-xs text-orange font-medium mt-1">23 pending review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center mb-3"><i class="ph-fill ph-users text-green-600 text-base"></i></div>
+                    <div class="font-outfit text-3xl font-bold text-navy">13,500</div>
+                    <div class="text-muted text-sm mt-1">Clients in Surat</div>
+                    <div class="text-xs text-green font-medium mt-1">↑31% this month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="w-9 h-9 bg-gold/10 rounded-xl flex items-center justify-center mb-3"><i class="ph-fill ph-currency-inr text-gold text-base"></i></div>
+                    <div class="font-outfit text-3xl font-bold text-navy">₹0.6 Cr</div>
+                    <div class="text-muted text-sm mt-1">Surat Revenue</div>
+                    <div class="text-xs text-green font-medium mt-1">↑31% MoM</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Recent approvals -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h2 class="font-outfit font-semibold text-navy">Pending Approvals</h2>
+                        <button @click="activeTab='approvals'" class="text-orange text-sm font-medium hover:underline">View all →</button>
+                    </div>
+                    <div>
+                        <template x-for="a in approvals.filter(x => x.status==='pending').slice(0,4)">
+                            <div class="approval-row flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                    :class="{
+                                        'bg-blue-100': a.type==='listing',
+                                        'bg-orange/10': a.type==='broker',
+                                        'bg-purple-100': a.type==='project',
+                                        'bg-green-100': a.type==='builder'
+                                    }">
+                                    <i class="ph-bold text-sm"
+                                        :class="{
+                                            'ph-buildings text-blue-600': a.type==='listing',
+                                            'ph-handshake text-orange': a.type==='broker',
+                                            'ph-crane-tower text-purple-600': a.type==='project',
+                                            'ph-building-office text-green-600': a.type==='builder'
+                                        }">
+                                    </i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-navy text-sm truncate" x-text="a.title"></div>
+                                    <div class="text-xs text-muted" x-text="a.by + ' · ' + a.date"></div>
+                                </div>
+                                <div class="flex gap-1.5">
+                                    <button class="btn btn-green text-xs py-1.5 px-3">Approve</button>
+                                    <button class="btn btn-red text-xs py-1.5 px-3">Reject</button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Right column -->
+                <div class="space-y-4">
+                    <!-- Platform health -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-4">Platform Health</h3>
+                        <div class="space-y-3">
+                            <template x-for="m in [
+                                {label:'Listing Approval Rate', val:94, color:'bg-green-500'},
+                                {label:'Broker Verification', val:87, color:'bg-blue-500'},
+                                {label:'RERA Compliance', val:91, color:'bg-orange'},
+                                {label:'Response Rate', val:78, color:'bg-purple-500'}
+                            ]">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-600" x-text="m.label"></span>
+                                        <span class="font-bold text-navy" x-text="m.val + '%'"></span>
+                                    </div>
+                                    <div class="progress-bar h-1.5">
+                                        <div class="progress-fill" :class="m.color" :style="'width:' + m.val + '%'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Alerts</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-start gap-2 p-2.5 bg-red-50 border border-red-200 rounded-xl">
+                                <i class="ph-bold ph-warning text-red-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-red-700">3 listings reported as fraudulent — review needed</p>
+                            </div>
+                            <div class="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+                                <i class="ph-bold ph-clock text-amber-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-amber-700">5 broker RERA renewals expiring in 30 days</p>
+                            </div>
+                            <div class="flex items-start gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-xl">
+                                <i class="ph-bold ph-info text-blue-600 text-sm flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-blue-700">New RERA Gujarat guidelines — review required</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPROVALS -->
+        <div x-show="activeTab==='approvals'" x-transition>
+            <div class="flex gap-3 mb-5 flex-wrap">
+                <button class="btn bg-orange text-white text-xs">All (7)</button>
+                <button class="btn btn-outline text-xs">Listings (3)</button>
+                <button class="btn btn-outline text-xs">Brokers (2)</button>
+                <button class="btn btn-outline text-xs">Builders (1)</button>
+                <button class="btn btn-outline text-xs">Projects (1)</button>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50">
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">ID</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Request</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Submitted By</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                            <th class="px-5 py-3.5 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <template x-for="a in approvals">
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-5 py-4 font-mono text-xs text-muted" x-text="a.id"></td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md"
+                                            :class="{
+                                                'bg-blue-100 text-blue-700': a.type==='listing',
+                                                'bg-orange/10 text-orange': a.type==='broker',
+                                                'bg-purple-100 text-purple-700': a.type==='project',
+                                                'bg-green-100 text-green-700': a.type==='builder'
+                                            }"
+                                            x-text="a.type.charAt(0).toUpperCase() + a.type.slice(1)">
+                                        </span>
+                                        <span class="font-medium text-navy text-sm truncate max-w-xs" x-text="a.title"></span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-xs text-muted hidden md:table-cell" x-text="a.by"></td>
+                                <td class="px-5 py-4 text-xs text-muted hidden lg:table-cell" x-text="a.date"></td>
+                                <td class="px-5 py-4">
+                                    <span class="badge"
+                                        :class="{
+                                            'bg-amber-100 text-amber-700': a.status==='pending',
+                                            'bg-green-100 text-green-700': a.status==='approved',
+                                            'bg-red-100 text-red-600': a.status==='rejected'
+                                        }"
+                                        x-text="a.status.charAt(0).toUpperCase() + a.status.slice(1)">
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div x-show="a.status==='pending'" class="flex gap-1.5 justify-end">
+                                        <button @click="a.status='approved'" class="btn btn-green text-xs py-1.5 px-3">
+                                            <i class="ph-bold ph-check"></i> Approve
+                                        </button>
+                                        <button @click="a.status='rejected'" class="btn btn-red text-xs py-1.5 px-3">
+                                            <i class="ph-bold ph-x"></i> Reject
+                                        </button>
+                                        <button class="btn btn-outline text-xs py-1.5 px-3">
+                                            <i class="ph-bold ph-eye"></i>
+                                        </button>
+                                    </div>
+                                    <span x-show="a.status!=='pending'" class="text-xs text-muted">Action taken</span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BROKERS -->
+        <div x-show="activeTab==='brokers'" x-transition>
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex gap-2">
+                    <button class="btn bg-orange text-white text-xs">All (8,420)</button>
+                    <button class="btn btn-outline text-xs">Active</button>
+                    <button class="btn btn-outline text-xs">Pending RERA</button>
+                    <button class="btn btn-outline text-xs">Suspended</button>
+                </div>
+                <div class="relative hidden md:block">
+                    <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm"></i>
+                    <input type="search" placeholder="Search brokers..." class="pl-8 pr-4 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-orange bg-white">
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50">
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Broker</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">City</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">RERA</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden xl:table-cell">Listings</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                            <th class="px-5 py-3.5">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <template x-for="b in [
+                            {name:'Ramesh Patel', city:'Surat', rera:'RERA/GJ/A/2023/001234', listings:6, status:'active', rating:4.9},
+                            {name:'Priya Shah', city:'Mumbai', rera:'RERA/MH/A/2022/098765', listings:12, status:'active', rating:4.7},
+                            {name:'Ankit Kumar', city:'Bangalore', rera:'RERA/KA/A/2023/054321', listings:8, status:'active', rating:4.5},
+                            {name:'Suresh Mehta', city:'Mumbai', rera:'Pending verification', listings:0, status:'pending', rating:0},
+                            {name:'Kavita Singh', city:'Delhi NCR', rera:'RERA/DL/A/2021/112233', listings:15, status:'active', rating:4.8},
+                            {name:'Ravi Nair', city:'Hyderabad', rera:'RERA/TS/A/2022/445566', listings:9, status:'active', rating:4.3},
+                            {name:'Deepak Joshi', city:'Pune', rera:'RERA/MH/A/2023/778899', listings:4, status:'suspended', rating:3.1},
+                        ]">
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy text-sm flex-shrink-0" x-text="b.name.charAt(0)"></div>
+                                        <div>
+                                            <div class="font-medium text-navy" x-text="b.name"></div>
+                                            <div x-show="b.rating > 0" class="flex items-center gap-1">
+                                                <i class="ph-fill ph-star text-gold text-xs"></i>
+                                                <span class="text-xs text-muted" x-text="b.rating"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-muted text-sm hidden md:table-cell" x-text="b.city"></td>
+                                <td class="px-5 py-4 hidden lg:table-cell">
+                                    <span class="text-xs font-mono" :class="b.rera.startsWith('Pending') ? 'text-amber-600' : 'text-slate-600'" x-text="b.rera.startsWith('Pending') ? 'Pending' : b.rera.split('/').slice(0,3).join('/')+'...'"></span>
+                                </td>
+                                <td class="px-5 py-4 text-center text-navy font-medium hidden xl:table-cell" x-text="b.listings"></td>
+                                <td class="px-5 py-4">
+                                    <span class="badge"
+                                        :class="{
+                                            'bg-green-100 text-green-700': b.status==='active',
+                                            'bg-amber-100 text-amber-700': b.status==='pending',
+                                            'bg-red-100 text-red-600': b.status==='suspended'
+                                        }"
+                                        x-text="b.status.charAt(0).toUpperCase() + b.status.slice(1)">
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex gap-1.5">
+                                        <button x-show="b.status==='pending'" @click="b.status='active'" class="btn btn-green text-xs py-1 px-2">Approve</button>
+                                        <button x-show="b.status==='active'" @click="b.status='suspended'" class="btn btn-red text-xs py-1 px-2">Suspend</button>
+                                        <button x-show="b.status==='suspended'" @click="b.status='active'" class="btn btn-outline text-xs py-1 px-2">Reinstate</button>
+                                        <button class="btn btn-outline text-xs py-1 px-2"><i class="ph-bold ph-eye text-xs"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- LISTINGS MANAGEMENT -->
+        <div x-show="activeTab==='listings'" x-transition>
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex gap-2 flex-wrap">
+                    <button class="btn bg-orange text-white text-xs">All (1.41L)</button>
+                    <button class="btn btn-outline text-xs">Live (1.38L)</button>
+                    <button class="btn btn-outline text-xs">Pending (23)</button>
+                    <button class="btn btn-outline text-xs">Flagged (3)</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 bg-amber-50 flex items-center gap-3">
+                    <i class="ph-bold ph-warning text-amber-600"></i>
+                    <p class="text-sm text-amber-800 font-medium">3 listings have been flagged by users as potentially fraudulent. <button class="underline hover:text-amber-900">Review now →</button></p>
+                </div>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50">
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Listing</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden md:table-cell">Broker</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">City</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
+                            <th class="px-5 py-3.5">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <template x-for="l in [
+                            {title:'3 BHK, Vesu Surat', broker:'Ramesh Patel', city:'Surat', status:'live', flag:false},
+                            {title:'2 BHK, Koramangala', broker:'Ankit Kumar', city:'Bangalore', status:'pending', flag:false},
+                            {title:'4 BHK, Juhu Mumbai', broker:'Priya Shah', city:'Mumbai', status:'flagged', flag:true},
+                            {title:'Studio, DLF Gurgaon', broker:'Kavita Singh', city:'Delhi NCR', status:'live', flag:false},
+                            {title:'1 BHK, Baner Pune', broker:'Ravi Nair', city:'Pune', status:'flagged', flag:true},
+                            {title:'3 BHK, Whitefield', broker:'Ankit Kumar', city:'Bangalore', status:'live', flag:false},
+                            {title:'Commercial, Ring Road', broker:'Ramesh Patel', city:'Surat', status:'flagged', flag:true},
+                            {title:'2 BHK, HITEC City', broker:'Suresh Nair', city:'Hyderabad', status:'pending', flag:false},
+                        ]">
+                            <tr class="hover:bg-slate-50" :class="l.flag ? 'bg-red-50/50' : ''">
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <span x-show="l.flag" class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
+                                        <span class="font-medium text-navy" x-text="l.title"></span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-muted text-xs hidden md:table-cell" x-text="l.broker"></td>
+                                <td class="px-5 py-4 text-muted text-xs hidden lg:table-cell" x-text="l.city"></td>
+                                <td class="px-5 py-4">
+                                    <span class="badge"
+                                        :class="{
+                                            'bg-green-100 text-green-700': l.status==='live',
+                                            'bg-amber-100 text-amber-700': l.status==='pending',
+                                            'bg-red-100 text-red-600': l.status==='flagged'
+                                        }"
+                                        x-text="l.status.charAt(0).toUpperCase() + l.status.slice(1)">
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex gap-1.5">
+                                        <button x-show="l.status==='pending'" class="btn btn-green text-xs py-1 px-2">Approve</button>
+                                        <button x-show="l.status==='flagged'" class="btn btn-red text-xs py-1 px-2">Remove</button>
+                                        <button class="btn btn-outline text-xs py-1 px-2"><i class="ph-bold ph-eye text-xs"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div x-show="activeTab==='reports'" x-transition>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card lg:col-span-2">
+                    <h3 class="font-outfit font-semibold text-navy mb-5">Platform Growth (Listings)</h3>
+                    <div class="flex items-end gap-3 h-40">
+                        <template x-for="(h,i) in [40,55,62,58,72,80,95,88,110,102,125,141]">
+                            <div class="flex-1 flex flex-col items-center gap-1">
+                                <span class="text-xs text-muted" x-text="h + 'K'"></span>
+                                <div class="w-full rounded-t-lg transition-all hover:opacity-80"
+                                    :style="'height:' + (h/141*130) + 'px; background: linear-gradient(to top, #E8621A, #F47B35)'"></div>
+                                <span class="text-xs text-muted" x-text="['J','F','M','A','M','J','J','A','S','O','N','D'][i]"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Top Cities by Listings</h3>
+                    <div class="space-y-3">
+                        <template x-for="c in cityData.slice(0,6)">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-600 w-24" x-text="c.city"></span>
+                                <div class="flex-1 progress-bar h-2">
+                                    <div class="progress-fill bg-orange" :style="'width:' + (c.listings/35600*100) + '%'"></div>
+                                </div>
+                                <span class="text-xs font-bold text-navy w-14 text-right" x-text="(c.listings/1000).toFixed(1) + 'K'"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Revenue by City</h3>
+                    <div class="space-y-3">
+                        <template x-for="c in cityData.slice(0,6)">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-600 w-24" x-text="c.city"></span>
+                                <div class="flex-1 progress-bar h-2">
+                                    <div class="progress-fill bg-gold" :style="'width:' + (parseFloat(c.revenue)/2.8*100) + '%'"></div>
+                                </div>
+                                <span class="text-xs font-bold text-navy w-16 text-right" x-text="c.revenue"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CITY MANAGEMENT (Global Admin only) -->
+        <div x-show="activeTab==='cities' && adminRole==='global'" x-transition>
+            <div class="flex gap-3 flex-wrap mb-5">
+                <template x-for="c in cities">
+                    <button class="city-chip" :class="selectedCity===c ? 'active' : ''" @click="selectedCity=c" x-text="c"></button>
+                </template>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <template x-for="c in cityData">
+                    <div class="stat-card hover:shadow-md transition-shadow cursor-pointer" @click="selectedCity=c.city">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="font-outfit font-bold text-navy text-lg" x-text="c.city"></div>
+                            <span class="text-xs font-bold text-green px-2 py-0.5 bg-green-50 rounded-full" x-text="c.growth"></span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-muted">
+                            <div class="flex justify-between">
+                                <span>Brokers</span>
+                                <span class="font-semibold text-navy" x-text="c.brokers.toLocaleString('en-IN')"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Listings</span>
+                                <span class="font-semibold text-navy" x-text="c.listings.toLocaleString('en-IN')"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Clients</span>
+                                <span class="font-semibold text-navy" x-text="c.clients.toLocaleString('en-IN')"></span>
+                            </div>
+                            <div class="flex justify-between pt-1.5 border-t border-slate-100">
+                                <span class="font-medium">Revenue</span>
+                                <span class="font-bold text-orange" x-text="c.revenue"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div x-show="activeTab==='settings'" x-transition>
+            <div class="max-w-2xl space-y-5">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Platform Settings</h3>
+                    <div class="space-y-4">
+                        <template x-for="s in [
+                            {label:'Auto-approve verified broker listings', desc:'RERA-verified brokers ki listings auto-approve hongi', enabled:true},
+                            {label:'New broker RERA verification required', desc:'Naye brokers ko RERA number dena hoga register karne ke liye', enabled:true},
+                            {label:'Client photo ID verification', desc:'Clients ko Aadhaar/PAN verify karna hoga', enabled:false},
+                            {label:'Send WhatsApp lead notifications', desc:'Brokers ko WhatsApp pe lead alerts milenge', enabled:true},
+                            {label:'Public listing views (without login)', desc:'Non-logged users bhi listings dekh sakenge', enabled:true},
+                        ]">
+                            <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100 last:border-0">
+                                <div>
+                                    <div class="text-sm font-medium text-navy" x-text="s.label"></div>
+                                    <div class="text-xs text-muted mt-0.5" x-text="s.desc"></div>
+                                </div>
+                                <button @click="s.enabled=!s.enabled"
+                                    class="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
+                                    :class="s.enabled ? 'bg-orange' : 'bg-slate-300'">
+                                    <span class="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all"
+                                        :class="s.enabled ? 'left-6' : 'left-1'"></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="flex gap-3 mt-5 pt-4 border-t border-slate-100">
+                        <button class="bg-orange text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-orange-600">Save Settings</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                    <h3 class="font-outfit font-semibold text-navy mb-4">Commission Structure</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Platform Fee (Sale)</label>
+                            <div class="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3">
+                                <input type="number" value="1.5" step="0.1" class="flex-1 text-sm outline-none text-navy font-semibold">
+                                <span class="text-muted text-sm">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Platform Fee (Rent)</label>
+                            <div class="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3">
+                                <input type="number" value="0.5" step="0.1" class="flex-1 text-sm outline-none text-navy font-semibold">
+                                <span class="text-muted text-sm">months</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Featured Listing Price</label>
+                            <div class="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3">
+                                <span class="text-muted text-sm">₹</span>
+                                <input type="number" value="2999" class="flex-1 text-sm outline-none text-navy font-semibold">
+                                <span class="text-muted text-sm">/mo</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Premium Broker Plan</label>
+                            <div class="flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-3">
+                                <span class="text-muted text-sm">₹</span>
+                                <input type="number" value="4999" class="flex-1 text-sm outline-none text-navy font-semibold">
+                                <span class="text-muted text-sm">/mo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="mt-4 bg-navy text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-navy-mid">Update Pricing</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+{% extends 'base.jinja' %}
+
+{% block title %}Register | PropSurat{% endblock %}
+{% block meta_description %}PropSurat par register karein — Broker, Builder ya Client ke roop mein.{% endblock %}
+
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex">
+    <!-- Left panel -->
+    <div class="hidden lg:flex lg:w-1/2 bg-navy flex-col justify-between p-12 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-96 h-96 bg-orange rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-64 h-64 bg-orange rounded-full blur-2xl"></div>
+        </div>
+        <a href="{{ url('home') }}" class="flex items-center gap-2.5 relative z-10">
+            <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-xl"></i>
+            </div>
+            <span class="font-outfit text-2xl font-bold text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+        <div class="relative z-10 space-y-6">
+            <h2 class="text-4xl font-bold text-white font-outfit leading-tight">
+                Aaj Se Baniye<br><span class="text-orange">PropSurat</span><br>Ka Hissa
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="ph-fill ph-check text-orange"></i>
+                    </div>
+                    <div>
+                        <div class="text-white font-semibold text-sm">Free Listing</div>
+                        <div class="text-white/50 text-sm">Pehli 5 properties bilkul free mein list karein</div>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="ph-fill ph-check text-orange"></i>
+                    </div>
+                    <div>
+                        <div class="text-white font-semibold text-sm">Verified Badge</div>
+                        <div class="text-white/50 text-sm">RERA verified broker ya builder badge paayen</div>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="ph-fill ph-check text-orange"></i>
+                    </div>
+                    <div>
+                        <div class="text-white font-semibold text-sm">Direct Leads</div>
+                        <div class="text-white/50 text-sm">Buyers seedha aapse connect honge</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-white/30 text-sm relative z-10">© 2026 PropSurat. RERA Compliant Platform.</div>
+    </div>
+
+    <!-- Right panel — form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
+        <div class="w-full max-w-md py-8">
+            <a href="{{ url('home') }}" class="flex items-center gap-2 mb-8 lg:hidden">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+
+            <h1 class="text-3xl font-bold text-slate-900 font-outfit mb-2">Create Account</h1>
+            <p class="text-slate-500 mb-8">Apna role chunein aur shuru karein</p>
+
+            {% for message in get_messages(request) %}
+                <div class="mb-4 px-4 py-3 rounded-xl text-sm bg-green-50 text-green-700 border border-green-200">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <form method="post" action="{{ url('register') }}" class="space-y-5">
+                {{ csrf_input }}
+
+                <!-- Role selection -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-3">Aap kya hain? *</label>
+                    <div class="space-y-2">
+                        {% for choice in form.role %}
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:border-orange hover:bg-orange/5 transition-all has-[:checked]:border-orange has-[:checked]:bg-orange/5">
+                                {{ choice.tag() }}
+                                <div>
+                                    <div class="font-semibold text-sm text-slate-800">
+                                        {% if choice.data.value == 'client' %}Client
+                                        {% elif choice.data.value == 'broker' %}Broker
+                                        {% else %}Builder{% endif %}
+                                    </div>
+                                    <div class="text-xs text-slate-500">
+                                        {% if choice.data.value == 'client' %}Property khareedna ya rent lena hai
+                                        {% elif choice.data.value == 'broker' %}Properties list karke leads lena hai
+                                        {% else %}Apne projects list karne hain{% endif %}
+                                    </div>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if form.role.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.role.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Poora Naam *</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.full_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Email *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+                    {{ form.phone }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Password *</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Confirm *</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if form.non_field_errors() %}
+                    <div class="px-4 py-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-sm">
+                        {{ form.non_field_errors().0 }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="w-full btn-primary py-3.5 rounded-xl font-bold text-sm tracking-wide">
+                    Account Banayein
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-slate-500 mt-6">
+                Pehle se account hai?
+                <a href="{{ url('login') }}" class="text-orange font-semibold hover:underline">Login Karein</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

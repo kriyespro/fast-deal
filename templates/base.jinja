@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PropSurat — India's Property Portal{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}India ka sabse trusted multi-broker property portal. Buy, Sell, Rent verified properties across 50+ cities.{% endblock %}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        :root {
+            --navy: #0C1E35;
+            --navy-mid: #1B3A5C;
+            --orange: #E8621A;
+            --orange-light: #F47B35;
+            --cream: #F6F1EA;
+            --text: #1C2333;
+            --muted: #64748B;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1C2333; }
+        h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        .nav-link { color: #374151; font-size: 14px; font-weight: 500; transition: color 0.2s; padding: 4px 0; }
+        .nav-link:hover { color: #E8621A; }
+        .nav-link-active { color: #E8621A; border-bottom: 2px solid #E8621A; }
+        .text-gradient { background: linear-gradient(135deg, #E8621A 0%, #F4A340 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-primary { background: #E8621A; color: #fff; transition: background 0.2s; }
+        .btn-primary:hover { background: #d4531a; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+                orange: '#E8621A', 'orange-light': '#F47B35',
+                gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+            }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased overflow-x-hidden min-h-screen flex flex-col" {% block body_attrs %}x-data="{ mobileMenu: false }"{% endblock %}>
+
+{% block nav %}{% include 'components/nav.jinja' %}{% endblock %}
+
+{% if request.session.get('impersonator_id') %}
+<div class="bg-purple-700 text-white text-sm flex items-center justify-center gap-4 py-2 px-4">
+    <i class="ph-bold ph-user-switch"></i>
+    Impersonating: <strong>{{ request.user.full_name }}</strong> ({{ request.user.email }})
+    <form method="post" action="{{ url('control:stop_impersonate') }}" class="inline">
+        {{ csrf_input }}
+        <button type="submit" class="bg-white text-purple-700 text-xs font-bold px-3 py-1 rounded-full hover:bg-purple-50 ml-2">
+            Stop Impersonating
+        </button>
+    </form>
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}{% include 'components/footer.jinja' %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

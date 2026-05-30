@@ -1,0 +1,13 @@
+plans/
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+staticfiles/
+media/
+*.log
+.DS_Store
+*.py.orig
+fix_*.py
+migrate_*.py
+apply_*.py

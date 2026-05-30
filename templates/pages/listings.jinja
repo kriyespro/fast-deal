@@ -1,0 +1,115 @@
+{% extends 'base.jinja' %}
+{% block title %}Properties | PropSurat — India's Trusted Property Portal{% endblock %}
+{% block extra_head %}
+<style>
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .tag-sale { background: rgba(232,98,26,.1); color: #C4500F; }
+    .tag-rent { background: rgba(27,122,66,.1); color: #1B7A42; }
+    .tag-new { background: rgba(37,99,235,.1); color: #1D4ED8; }
+    .tag-rera { background: rgba(27,122,66,.1); color: #1B7A42; border: 1px solid rgba(27,122,66,.2); }
+    .filter-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+    .filter-chip:hover, .filter-chip.active { border-color: #E8621A; background: #fff8f5; color: #E8621A; }
+    .prop-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .prop-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.09); transform: translateY(-3px); }
+    .prop-card-list { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.18s; display: flex; }
+    .prop-card-list:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
+    .form-select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 9px 14px; font-size: 13px; outline: none; appearance: none; cursor: pointer; background: white; }
+    .form-select:focus { border-color: #E8621A; }
+    .sidebar-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 10px; }
+    .range-input { width: 100%; accent-color: #E8621A; }
+    .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; font-size: 13px; color: #374151; }
+    .checkbox-label input { accent-color: #E8621A; width: 16px; height: 16px; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<!-- Filter Bar -->
+<div class="bg-navy py-5 sticky top-16 z-40">
+    <form id="filter-form"
+          hx-get="{{ url('listings') }}"
+          hx-target="#property-grid"
+          hx-swap="innerHTML"
+          hx-trigger="change, submit"
+          hx-indicator="#search-indicator"
+          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl p-3 flex flex-col sm:flex-row gap-2">
+            <div class="flex-1 relative">
+                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="search" name="q" value="{{ request.GET.get('q','') }}"
+                       placeholder="Locality, city ya keyword..."
+                       hx-get="{{ url('listings') }}" hx-target="#property-grid" hx-trigger="keyup changed delay:400ms" hx-include="#filter-form"
+                       class="w-full pl-10 pr-4 py-2.5 text-sm outline-none text-slate-700 rounded-xl">
+            </div>
+            <select name="listing_type" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
+                <option value="">Buy / Rent</option>
+                <option value="sale" {% if request.GET.get('listing_type')=='sale' %}selected{% endif %}>For Sale</option>
+                <option value="rent" {% if request.GET.get('listing_type')=='rent' %}selected{% endif %}>For Rent</option>
+                <option value="pg" {% if request.GET.get('listing_type')=='pg' %}selected{% endif %}>PG / Co-living</option>
+            </select>
+            <select name="city" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
+                <option value="">All Cities</option>
+                {% for c in cities %}
+                <option value="{{ c.name }}" {% if request.GET.get('city')==c.name %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="property_type" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
+                <option value="">All Types</option>
+                <option value="apartment">Apartment</option>
+                <option value="house">House/Villa</option>
+                <option value="plot">Plot</option>
+                <option value="commercial_office">Office</option>
+                <option value="commercial_shop">Shop</option>
+            </select>
+            <select name="bedrooms" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
+                <option value="">Any BHK</option>
+                <option value="1">1 BHK</option>
+                <option value="2">2 BHK</option>
+                <option value="3">3 BHK</option>
+                <option value="4">4+ BHK</option>
+            </select>
+            <button type="submit" class="bg-orange text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-orange-600 transition-colors whitespace-nowrap">
+                <span id="search-indicator" class="htmx-indicator">⏳</span>
+                <i class="ph-bold ph-magnifying-glass mr-1"></i> Search
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Main -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Count + breadcrumb -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+            <a href="{{ url('home') }}" class="hover:text-orange transition-colors">Home</a>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+            <span class="text-navy font-semibold">Properties</span>
+        </div>
+        <p class="text-sm text-slate-500">
+            <span class="font-bold text-navy">{{ total_count }}</span> properties mile
+        </p>
+    </div>
+
+    <!-- Property Grid -->
+    <div id="property-grid"
+         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% include 'partials/_property_cards.jinja' %}
+    </div>
+
+    {% if not properties %}
+    <!-- Empty state only if no DB data yet — shows static placeholder cards -->
+    <div class="text-center py-20">
+        <div class="w-20 h-20 bg-orange/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <i class="ph-fill ph-buildings text-orange text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-800 font-outfit mb-3">Properties Coming Soon</h3>
+        <p class="text-slate-500 mb-6 max-w-md mx-auto">Abhi koi listing nahi hai. Broker ya Builder ban ke pehli property list karo!</p>
+        <a href="{{ url('register') }}" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold">
+            <i class="ph-bold ph-plus"></i> Property List Karo
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

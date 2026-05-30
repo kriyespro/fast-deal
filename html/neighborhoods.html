@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropSurat — Localities</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+                :root {
+            --navy: #0C1E35;
+            --navy-mid: #1B3A5C;
+            --orange: #E8621A;
+            --orange-light: #F47B35;
+            --cream: #F6F1EA;
+            --text: #1C2333;
+            --muted: #64748B;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1C2333; }
+        h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        .nav-link { color: #374151; font-size: 14px; font-weight: 500; transition: color 0.2s; padding: 4px 0; }
+        .nav-link:hover { color: #E8621A; }
+        .text-gradient { background: linear-gradient(135deg, #E8621A 0%, #F4A340 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+            background: linear-gradient(135deg, #E8621A 0%, #F4A340 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B', green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+    </script>
+</head>
+
+<body class="antialiased overflow-x-hidden min-h-screen flex flex-col" x-data="{ mobileMenu: false }">
+
+    
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-buildings text-white text-base"></i>
+                </div>
+                <span class="font-outfit font-bold text-xl text-navy">Prop<span class="text-orange">Surat</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="listings.html" class="nav-link">Buy</a>
+                <a href="agents.html" class="nav-link">Brokers</a>
+                <a href="neighborhoods.html" class="nav-link text-orange border-b-2 border-orange">Localities</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="login.html" class="text-sm font-semibold text-slate-700 hover:text-orange transition-colors">Login</a>
+                <a href="register.html" class="bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">List Property</a>
+            </div>
+            <button @click="mobileMenu=!mobileMenu" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div x-show="mobileMenu" x-transition class="md:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-1">
+        <a href="listings.html" class="block py-2.5 text-slate-700 text-sm">Buy</a>
+        <a href="agents.html" class="block py-2.5 text-slate-700 text-sm">Brokers</a>
+        <a href="neighborhoods.html" class="block py-2.5 text-orange font-semibold text-sm">Localities</a>
+        <a href="blog.html" class="block py-2.5 text-slate-700 text-sm">Blog</a>
+        <a href="about.html" class="block py-2.5 text-slate-700 text-sm">About</a>
+        <div class="flex gap-2 pt-2">
+            <a href="login.html" class="flex-1 text-center py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">Login</a>
+            <a href="register.html" class="flex-1 text-center py-2 bg-orange rounded-lg text-sm font-semibold text-white">Register</a>
+        </div>
+    </div>
+</nav>
+
+    <!-- Hero Section -->
+    <div class="relative pt-16 pb-16 md:pt-24 md:pb-20 flex items-center bg-slate-50">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+                alt="Localities" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-white/90 bg-gradient-to-t from-slate-50 to-transparent"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
+            <h1 class="text-5xl md:text-7xl font-bold text-slate-900 leading-tight mb-6">
+                India Ke Top <br /><span class="text-gradient">Localities</span>
+            </h1>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10">
+                Mumbai se Bangalore, Delhi se Hyderabad — India ke sabse premium localities explore karo. Apna ideal ghar dhundho.
+            </p>
+
+            <div class="max-w-2xl mx-auto flex gap-2">
+                <div class="flex-1 relative">
+                    <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" placeholder="City ya locality khojein... (e.g. Bandra, Vesu)"
+                        class="w-full bg-slate-100 backdrop-blur-md border border-slate-300 rounded-full py-4 pl-12 pr-4 text-slate-900 focus:outline-none focus:border-orange placeholder-gray-400">
+                </div>
+                <button class="bg-orange hover:bg-orange-700 text-white px-8 rounded-full font-bold transition-colors">
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Map Placeholder -->
+    <section class="py-12 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div
+                class="h-[500px] w-full rounded-3xl overflow-hidden border border-slate-200 relative bg-white shadow-2xl">
+                <!-- Map UI Overlay -->
+                <div class="absolute z-20 top-6 left-6 right-6 flex justify-between items-start pointer-events-none">
+                    <div
+                        class="bg-white/90 backdrop-blur-md border border-slate-200 px-6 py-3 rounded-full pointer-events-auto shadow-xl flex gap-6 text-sm">
+                        <button class="text-orange font-medium">All India</button>
+                        <button class="text-slate-600 hover:text-slate-900 transition-colors">West India</button>
+                        <button class="text-slate-600 hover:text-slate-900 transition-colors">North India</button>
+                        <button class="text-slate-600 hover:text-slate-900 transition-colors">South India</button>
+                    </div>
+                    <div class="flex flex-col gap-2 pointer-events-auto">
+                        <button
+                            class="w-10 h-10 bg-white/90 backdrop-blur-md border border-slate-200 rounded-full flex items-center justify-center text-slate-700 hover:bg-navy hover:text-white transition-colors"
+                            <i class="ph ph-plus"></i>
+                        </button>
+                        <button
+                            class="w-10 h-10 bg-white/90 backdrop-blur-md border border-slate-200 rounded-full flex items-center justify-center text-slate-700 hover:bg-navy hover:text-white transition-colors"
+                            <i class="ph ph-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80"
+                    alt="Map" class="w-full h-full object-cover opacity-50">
+
+                <!-- Map Pins -->
+                <div
+                    class="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-navy border-2 border-white shadow-lg shadow-orange/30 cursor-pointer hover:scale-150 transition-transform z-10 group">
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max bg-slate-50 px-3 py-1 rounded text-xs text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200">
+                        Mumbai</div>
+                </div>
+                <div
+                    class="absolute top-1/2 right-1/4 w-4 h-4 rounded-full bg-navy border-2 border-white shadow-lg shadow-orange/30 cursor-pointer hover:scale-150 transition-transform z-10 group">
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max bg-slate-50 px-3 py-1 rounded text-xs text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200">
+                        Delhi NCR</div>
+                </div>
+                <div
+                    class="absolute bottom-1/4 right-1/3 w-4 h-4 rounded-full bg-navy border-2 border-white shadow-lg shadow-orange/30 cursor-pointer hover:scale-150 transition-transform z-10 group">
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max bg-slate-50 px-3 py-1 rounded text-xs text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200">
+                        Bangalore</div>
+                </div>
+                <div
+                    class="absolute top-1/3 left-1/2 w-4 h-4 rounded-full bg-navy border-2 border-white shadow-lg shadow-orange/30 cursor-pointer hover:scale-150 transition-transform z-10 group">
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max bg-slate-50 px-3 py-1 rounded text-xs text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200">
+                        Surat</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Neighborhood Guides -->
+    <section class="py-20 bg-slate-50 w-full flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-12 font-outfit">Top Localities By City</h2>
+
+            <div class="space-y-16">
+                <!-- Region 1 -->
+                <div>
+                    <div class="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+                        <h3 class="text-2xl font-bold text-orange">Mumbai Premium</h3>
+                        <a href="listings.html"
+                            class="text-slate-500 hover:text-slate-900 flex items-center gap-2 transition-colors text-sm">View All Mumbai <i class="ph ph-arrow-right"></i></a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Bandra West, Mumbai"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Bandra West</h4>
+                                    <p class="text-slate-600 text-sm">Mumbai, Maharashtra</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    124 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">Mumbai ka sabse premium residential area. Sea-facing apartments, upscale restaurants, Bollywood lifestyle.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹3.5 Cr+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-star text-orange"></i> Elite</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Juhu, Mumbai"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Juhu</h4>
+                                    <p class="text-slate-600 text-sm">Mumbai, Maharashtra</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    86 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">Beachfront bungalows aur luxury villas. Celebrities ka favourite neighbourhood — Juhu Beach pe zindagi.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹5 Cr+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-lock-key text-orange"></i> Private</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Powai, Mumbai"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Powai</h4>
+                                    <p class="text-slate-600 text-sm">Mumbai, Maharashtra</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    92 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">IT hub + lakeside living. IIT Bombay ke paas, Hiranandani township — young professionals ki first choice.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹1.8 Cr+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-waves text-orange"></i> Coastal</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Region 2 -->
+                <div>
+                    <div class="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+                        <h3 class="text-2xl font-bold text-orange">Bangalore Tech Hubs</h3>
+                        <a href="listings.html"
+                            class="text-slate-500 hover:text-slate-900 flex items-center gap-2 transition-colors text-sm">View All Bangalore <i class="ph ph-arrow-right"></i></a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Koramangala, Bangalore"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Koramangala</h4>
+                                    <p class="text-slate-600 text-sm">Bangalore, Karnataka</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    58 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">Startups ka hub, premium cafes, gated communities. Bangalore ke sabse sought-after residential area.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹1.5 Cr+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-buildings text-orange"></i> Urban</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1522083165195-3424ed129620?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Whitefield, Bangalore"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Whitefield</h4>
+                                    <p class="text-slate-600 text-sm">Bangalore, Karnataka</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    110 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">IT MNCs aur malls ke kareeb. Brigade, Prestige projects ki bhar maar — perfect for IT professionals.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹85 Lakh+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-bank text-orange"></i> Heritage</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood Card -->
+                        <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 relative">
+                            <a href="listings.html" class="block relative h-64 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1505843513577-22bb7abd5eb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Indiranagar, Bangalore"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <div
+                                    class="absolute inset-0 image-overlay opacity-80 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="absolute bottom-6 left-6 right-6 z-20">
+                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Indiranagar</h4>
+                                    <p class="text-slate-600 text-sm">Bangalore, Karnataka</p>
+                                </div>
+                                <div
+                                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+                                    45 Properties
+                                </div>
+                            </a>
+                            <div class="p-6">
+                                <p class="text-slate-500 text-sm mb-4 line-clamp-2">100 Feet Road, craft breweries, premium restaurants. Bangalore ka coolest neighbourhood — vibrant urban lifestyle.</p>
+                                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Avg Price</div>
+                                        <div class="text-slate-900 font-medium">₹1.2 Cr+</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-400 uppercase">Lifestyle</div>
+                                        <div class="text-slate-900 font-medium text-sm flex items-center gap-1"><i
+                                                class="ph-fill ph-sun text-orange"></i> Retreat</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="bg-[#08111F] pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+            <!-- Brand -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-orange flex items-center justify-center">
+                        <i class="ph-fill ph-house-line text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-outfit text-xl font-800 text-white">Prop<span class="text-orange">Surat</span></span>
+                        <div class="text-[9px] font-semibold tracking-[.15em] uppercase text-white/40">India's Property Portal</div>
+                    </div>
+                </div>
+                <p class="text-white/50 text-sm leading-relaxed mb-5">India ka sabse trusted multi-broker property portal — 5 roles, 50 cities, 1 goal: Aapka Apna Ghar.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-facebook-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-instagram-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-twitter-logo"></i></a>
+                    <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-orange transition-all"><i class="ph-fill ph-youtube-logo"></i></a>
+                </div>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Buy Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">Rent Property</a></li>
+                    <li><a href="listings.html" class="text-white/50 hover:text-orange transition-colors">New Projects</a></li>
+                    <li><a href="agents.html" class="text-white/50 hover:text-orange transition-colors">Find Brokers</a></li>
+                    <li><a href="about.html" class="text-white/50 hover:text-orange transition-colors">About Us</a></li>
+                    <li><a href="contact.html" class="text-white/50 hover:text-orange transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            <!-- Cities -->
+            <div>
+                <h4 class="text-white font-bold mb-4">Top Cities</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Mumbai</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Delhi NCR</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Bangalore</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Hyderabad</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Surat</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Pune</a></li>
+                </ul>
+            </div>
+            <!-- For Partners -->
+            <div>
+                <h4 class="text-white font-bold mb-4">For Partners</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Broker</a></li>
+                    <li><a href="register.html" class="text-white/50 hover:text-orange transition-colors">Register as Builder</a></li>
+                    <li><a href="dashboard-broker.html" class="text-white/50 hover:text-orange transition-colors">Broker Dashboard</a></li>
+                    <li><a href="dashboard-builder.html" class="text-white/50 hover:text-orange transition-colors">Builder Dashboard</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Advertise With Us</a></li>
+                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">API Access</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Newsletter -->
+        <div class="border-t border-white/10 pt-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="text-white font-bold mb-1">📧 Newsletter Subscribe Karo</h4>
+                    <p class="text-white/40 text-sm">New properties, market news, exclusive deals — inbox mein.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="email" placeholder="aapka@email.com" class="flex-1 md:w-64 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none focus:border-orange">
+                    <button class="btn-primary px-5 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom -->
+        <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/30">
+            <span>© 2026 PropSurat. All rights reserved. RERA Compliant Platform.</span>
+            <div class="flex gap-5">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                <a href="#" class="hover:text-white transition-colors">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+{% for user in users %}
+<tr id="user-row-{{ user.pk }}" class="hover:bg-slate-50 transition-colors">
+    <td class="px-5 py-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy text-sm flex-shrink-0">
+                {{ user.full_name[0] }}
+            </div>
+            <div>
+                <div class="font-medium text-navy text-sm">{{ user.full_name }}</div>
+                <div class="text-xs text-muted">{{ user.email }}</div>
+            </div>
+        </div>
+    </td>
+    <td class="px-5 py-4 hidden md:table-cell">
+        <span class="badge
+            {% if user.role == 'broker' %}bg-blue-100 text-blue-700
+            {% elif user.role == 'builder' %}bg-purple-100 text-purple-700
+            {% elif user.role == 'city_admin' %}bg-orange/10 text-orange
+            {% elif user.role == 'global_admin' %}bg-red-100 text-red-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ user.get_role_display() }}
+        </span>
+    </td>
+    <td class="px-5 py-4 text-xs text-muted hidden lg:table-cell">
+        {{ user.date_joined.strftime('%d %b %Y') }}
+    </td>
+    <td class="px-5 py-4 text-xs text-muted hidden xl:table-cell">
+        {{ user.phone if user.phone else '—' }}
+    </td>
+    <td class="px-5 py-4">
+        {% if not user.is_active %}
+        <span class="badge bg-red-100 text-red-600">Banned</span>
+        {% elif user.is_superuser %}
+        <span class="badge bg-amber-100 text-amber-700">Superuser</span>
+        {% else %}
+        <span class="badge bg-green-100 text-green-700">Active</span>
+        {% endif %}
+    </td>
+    <td class="px-5 py-4">
+        <div class="flex gap-1.5">
+            {% if not user.is_superuser %}
+            <button hx-post="{{ url('control:ban_user', pk=user.pk) }}"
+                    hx-target="#user-row-{{ user.pk }}"
+                    hx-swap="outerHTML"
+                    class="btn text-xs py-1 px-2 {% if user.is_active %}btn-red{% else %}btn-green{% endif %}">
+                {{ 'Ban' if user.is_active else 'Unban' }}
+            </button>
+            {% if request.user.is_staff and user.is_active %}
+            <form method="post" action="{{ url('control:impersonate', pk=user.pk) }}" class="inline">
+                {{ csrf_input }}
+                <button type="submit" class="btn btn-purple text-xs py-1 px-2">
+                    <i class="ph-bold ph-user-switch"></i>
+                </button>
+            </form>
+            {% endif %}
+            {% endif %}
+        </div>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard | PropSurat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: { extend: { colors: {
+        navy: '#0C1E35', 'navy-mid': '#1B3A5C',
+        orange: '#E8621A', 'orange-light': '#F47B35',
+        gold: '#D4922A', cream: '#F6F1EA', muted: '#64748B',
+        green: '#1B7A42',
+    }, fontFamily: { outfit: ['Outfit','sans-serif'] } } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+    * { font-family: 'Inter', sans-serif; }
+    h1,h2,h3,.font-outfit { font-family: 'Outfit', sans-serif; }
+
+    .sidebar { background: #0C1E35; width: 260px; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s ease; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 11px 20px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; transition: all 0.18s; cursor: pointer; margin: 1px 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .sidebar-link.active { background: #E8621A; color: white; }
+    .sidebar-link .ph { font-size: 18px; }
+
+    .main { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+    .topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+
+    .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; }
+    .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+
+    .prop-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .prop-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+    .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .tag-sale { background: rgba(232,98,26,0.1); color: #C4500F; }
+    .tag-rent { background: rgba(27,122,66,0.1); color: #1B7A42; }
+    .tag-saved { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+    .emi-card { background: linear-gradient(135deg, #0C1E35, #1B3A5C); border-radius: 20px; padding: 28px; color: white; }
+    .emi-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; color: white; font-size: 14px; width: 100%; outline: none; }
+    .emi-input::placeholder { color: rgba(255,255,255,0.4); }
+    .emi-slider { width: 100%; accent-color: #E8621A; }
+
+    .visit-row { display: flex; align-items: center; gap-y: 12px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+
+    .mobile-menu-btn { display: none; }
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        .main { margin-left: 0; }
+        .mobile-menu-btn { display: flex; }
+    }
+</style>
+</head>
+<body class="bg-slate-100" x-data="{
+    activeTab: 'overview',
+    sidebarOpen: false,
+    emiPrice: 7500000,
+    emiDown: 20,
+    emiRate: 8.5,
+    emiYears: 20,
+    get emiResult() {
+        let P = this.emiPrice * (1 - this.emiDown/100);
+        let r = this.emiRate/100/12;
+        let n = this.emiYears*12;
+        if(r===0) return Math.round(P/n);
+        return Math.round(P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1));
+    },
+    get loanAmt() {
+        return Math.round(this.emiPrice * (1 - this.emiDown/100));
+    }
+}">
+
+<!-- Sidebar -->
+<div class="sidebar" :class="sidebarOpen ? 'open' : ''" @click.outside="sidebarOpen=false">
+    <!-- Logo -->
+    <div class="px-5 py-5 border-b border-white/10">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-buildings text-white text-base"></i>
+            </div>
+            <span class="font-outfit font-bold text-xl text-white">Prop<span class="text-orange">Surat</span></span>
+        </a>
+    </div>
+
+    <!-- User -->
+    <div class="px-5 py-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" class="w-10 h-10 rounded-full object-cover border-2 border-orange/30" alt="">
+            <div>
+                <div class="text-white text-sm font-semibold">Rahul Sharma</div>
+                <div class="text-white/40 text-xs">Client</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="px-3 py-4 space-y-0.5">
+        <div class="sidebar-link" :class="activeTab==='overview' ? 'active' : ''" @click="activeTab='overview'; sidebarOpen=false">
+            <i class="ph-bold ph-squares-four ph"></i> Overview
+        </div>
+        <div class="sidebar-link" :class="activeTab==='saved' ? 'active' : ''" @click="activeTab='saved'; sidebarOpen=false">
+            <i class="ph-bold ph-heart ph"></i> Saved Properties
+            <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">6</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='inquiries' ? 'active' : ''" @click="activeTab='inquiries'; sidebarOpen=false">
+            <i class="ph-bold ph-chat-dots ph"></i> My Inquiries
+            <span class="ml-auto bg-orange/20 text-orange text-xs px-1.5 py-0.5 rounded-full font-semibold">3</span>
+        </div>
+        <div class="sidebar-link" :class="activeTab==='visits' ? 'active' : ''" @click="activeTab='visits'; sidebarOpen=false">
+            <i class="ph-bold ph-calendar-check ph"></i> Site Visits
+        </div>
+        <div class="sidebar-link" :class="activeTab==='emi' ? 'active' : ''" @click="activeTab='emi'; sidebarOpen=false">
+            <i class="ph-bold ph-calculator ph"></i> EMI Calculator
+        </div>
+        <div class="sidebar-link" :class="activeTab==='profile' ? 'active' : ''" @click="activeTab='profile'; sidebarOpen=false">
+            <i class="ph-bold ph-user-circle ph"></i> My Profile
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <a href="login.html" class="sidebar-link text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                <i class="ph-bold ph-sign-out ph"></i> Logout
+            </a>
+        </div>
+    </nav>
+</div>
+
+<!-- Main content -->
+<div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="flex items-center gap-4">
+            <button class="mobile-menu-btn items-center justify-center w-9 h-9 rounded-lg hover:bg-slate-100" @click="sidebarOpen=!sidebarOpen">
+                <i class="ph-bold ph-list text-slate-700 text-xl"></i>
+            </button>
+            <div>
+                <h1 class="font-outfit font-bold text-navy text-lg leading-tight">
+                    <span x-text="activeTab==='overview' ? 'Mera Dashboard' :
+                        activeTab==='saved' ? 'Saved Properties' :
+                        activeTab==='inquiries' ? 'My Inquiries' :
+                        activeTab==='visits' ? 'Site Visits' :
+                        activeTab==='emi' ? 'EMI Calculator' : 'My Profile'">
+                    </span>
+                </h1>
+                <p class="text-muted text-xs hidden sm:block">Namaste, Rahul! 👋 Aaj kya dhundhein?</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <i class="ph-bold ph-bell text-slate-600 text-lg"></i>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-orange rounded-full"></span>
+            </button>
+            <a href="listings.html" class="hidden sm:flex items-center gap-1.5 bg-orange text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                <i class="ph-bold ph-magnifying-glass"></i> Search Properties
+            </a>
+        </div>
+    </div>
+
+    <!-- Page content -->
+    <div class="p-6 md:p-8">
+
+        <!-- OVERVIEW -->
+        <div x-show="activeTab==='overview'" x-transition>
+            <!-- Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-red-50"><i class="ph-fill ph-heart text-red-500 text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">+2 this week</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">6</div>
+                    <div class="text-muted text-sm mt-1">Saved Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-blue-50"><i class="ph-fill ph-chat-dots text-blue-500 text-lg"></i></div>
+                        <span class="text-xs text-orange font-semibold">2 pending</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">8</div>
+                    <div class="text-muted text-sm mt-1">Inquiries Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-green-50"><i class="ph-fill ph-calendar-check text-green-600 text-lg"></i></div>
+                        <span class="text-xs text-green font-semibold">1 upcoming</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">3</div>
+                    <div class="text-muted text-sm mt-1">Site Visits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="stat-icon bg-orange/10"><i class="ph-fill ph-eye text-orange text-lg"></i></div>
+                        <span class="text-xs text-muted">this month</span>
+                    </div>
+                    <div class="font-outfit text-3xl font-bold text-navy">142</div>
+                    <div class="text-muted text-sm mt-1">Properties Viewed</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Recently Saved -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-outfit font-semibold text-navy text-lg">Recently Saved</h2>
+                        <button @click="activeTab='saved'" class="text-orange text-sm font-medium hover:underline">Sab dekho →</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="prop-card flex gap-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=120&h=100&fit=crop" class="w-28 h-auto object-cover flex-shrink-0" alt="">
+                            <div class="p-4 flex-1">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <span class="tag tag-sale">For Sale</span>
+                                        <h3 class="font-outfit font-semibold text-navy text-sm mt-1">3 BHK Flat, Vesu</h3>
+                                        <p class="text-muted text-xs flex items-center gap-1 mt-0.5"><i class="ph-bold ph-map-pin"></i> Surat, Gujarat</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-outfit font-bold text-navy text-base">₹85 L</div>
+                                        <div class="text-muted text-xs">1,250 sq.ft</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 mt-3">
+                                    <a href="property-detail.html" class="text-xs text-orange font-medium hover:underline">View Details</a>
+                                    <button class="text-xs text-red-500 hover:underline"><i class="ph-bold ph-heart-break mr-0.5"></i>Unsave</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="prop-card flex gap-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=100&fit=crop" class="w-28 h-auto object-cover flex-shrink-0" alt="">
+                            <div class="p-4 flex-1">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <span class="tag tag-rent">For Rent</span>
+                                        <h3 class="font-outfit font-semibold text-navy text-sm mt-1">2 BHK Apartment, Koramangala</h3>
+                                        <p class="text-muted text-xs flex items-center gap-1 mt-0.5"><i class="ph-bold ph-map-pin"></i> Bangalore</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-outfit font-bold text-navy text-base">₹28K/mo</div>
+                                        <div class="text-muted text-xs">980 sq.ft</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 mt-3">
+                                    <a href="property-detail.html" class="text-xs text-orange font-medium hover:underline">View Details</a>
+                                    <button class="text-xs text-red-500 hover:underline"><i class="ph-bold ph-heart-break mr-0.5"></i>Unsave</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column -->
+                <div class="space-y-5">
+                    <!-- Upcoming visit -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Next Site Visit</h3>
+                        <div class="flex items-center gap-3 p-3 bg-orange/5 border border-orange/20 rounded-xl">
+                            <div class="w-12 h-12 bg-orange rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
+                                <span class="text-xs font-medium leading-none">MAY</span>
+                                <span class="font-outfit font-bold text-lg leading-none">28</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-navy">3 BHK, Vesu</div>
+                                <div class="text-xs text-muted">11:00 AM · With Ramesh Broker</div>
+                            </div>
+                        </div>
+                        <button @click="activeTab='visits'" class="w-full mt-3 text-sm text-orange font-medium hover:underline">Sab visits dekho →</button>
+                    </div>
+
+                    <!-- Quick EMI -->
+                    <div class="stat-card">
+                        <h3 class="font-outfit font-semibold text-navy mb-3">Quick EMI Estimate</h3>
+                        <div class="text-center p-4 bg-navy rounded-xl">
+                            <div class="text-white/60 text-xs mb-1">₹75L loan @ 8.5% × 20yr</div>
+                            <div class="font-outfit text-2xl font-bold text-orange">₹65,175</div>
+                            <div class="text-white/40 text-xs mt-1">per month EMI</div>
+                        </div>
+                        <button @click="activeTab='emi'" class="w-full mt-3 text-sm text-orange font-medium hover:underline">Calculate apna EMI →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAVED PROPERTIES -->
+        <div x-show="activeTab==='saved'" x-transition>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <!-- Property cards -->
+                <template x-for="p in [
+                    {img:'photo-1545324418-cc1a3fa10c00',title:'3 BHK Flat, Vesu',city:'Surat',price:'₹85 L',type:'sale',sqft:'1,250'},
+                    {img:'photo-1558618666-fcd25c85cd64',title:'2 BHK, Koramangala',city:'Bangalore',price:'₹28K/mo',type:'rent',sqft:'980'},
+                    {img:'photo-1512917774080-9991f1c4c750',title:'4 BHK Villa, Juhu',city:'Mumbai',price:'₹3.8 Cr',type:'sale',sqft:'2,800'},
+                    {img:'photo-1600585154340-be6161a56a0c',title:'2 BHK, DLF Phase 4',city:'Gurgaon',price:'₹1.2 Cr',type:'sale',sqft:'1,100'},
+                    {img:'photo-1580587771525-78b9dba3b914',title:'Studio, Baner',city:'Pune',price:'₹14K/mo',type:'rent',sqft:'450'},
+                    {img:'photo-1504615755583-2916b52192a3',title:'3 BHK, Whitefield',city:'Bangalore',price:'₹72 L',type:'sale',sqft:'1,400'}
+                ]">
+                    <div class="prop-card">
+                        <div class="relative">
+                            <img :src="'https://images.unsplash.com/' + p.img + '?w=400&h=220&fit=crop'" class="w-full h-44 object-cover" :alt="p.title">
+                            <button class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow">
+                                <i class="ph-fill ph-heart text-red-500"></i>
+                            </button>
+                            <span class="absolute top-3 left-3 tag" :class="p.type==='rent' ? 'tag-rent' : 'tag-sale'" x-text="p.type==='rent' ? 'For Rent' : 'For Sale'"></span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-outfit font-semibold text-navy" x-text="p.title"></h3>
+                            <p class="text-muted text-xs flex items-center gap-1 mt-1"><i class="ph-bold ph-map-pin"></i> <span x-text="p.city"></span></p>
+                            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                                <div>
+                                    <div class="font-outfit font-bold text-navy" x-text="p.price"></div>
+                                    <div class="text-muted text-xs" x-text="p.sqft + ' sq.ft'"></div>
+                                </div>
+                                <a href="property-detail.html" class="text-xs bg-orange text-white px-3 py-1.5 rounded-lg font-medium hover:bg-orange-600 transition-colors">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- INQUIRIES -->
+        <div x-show="activeTab==='inquiries'" x-transition>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50">
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wide">Property</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wide hidden md:table-cell">Broker</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
+                            <th class="text-left px-5 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wide">Status</th>
+                            <th class="px-5 py-3.5"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <template x-for="i in [
+                            {prop:'3 BHK, Vesu Surat',broker:'Ramesh Patel',date:'May 20',status:'Replied',color:'green'},
+                            {prop:'2 BHK, Koramangala',broker:'Suresh Kumar',date:'May 18',status:'Pending',color:'amber'},
+                            {prop:'4 BHK Villa, Juhu',broker:'Amit Shah',date:'May 15',status:'Replied',color:'green'},
+                            {prop:'Studio, Baner Pune',broker:'Priya Singh',date:'May 12',status:'Pending',color:'amber'},
+                            {prop:'2 BHK, Whitefield',broker:'Ravi Nair',date:'May 10',status:'Closed',color:'slate'},
+                            {prop:'3 BHK, DLF Phase 4',broker:'Ankit Gupta',date:'May 8',status:'Replied',color:'green'},
+                            {prop:'1 BHK, Bandra West',broker:'Neha Mehta',date:'May 5',status:'Closed',color:'slate'},
+                            {prop:'3 BHK, HITEC City',broker:'Kiran Reddy',date:'May 2',status:'Replied',color:'green'}
+                        ]">
+                            <tr>
+                                <td class="px-5 py-4">
+                                    <div class="font-medium text-navy text-sm" x-text="i.prop"></div>
+                                </td>
+                                <td class="px-5 py-4 text-muted hidden md:table-cell" x-text="i.broker"></td>
+                                <td class="px-5 py-4 text-muted hidden lg:table-cell" x-text="i.date"></td>
+                                <td class="px-5 py-4">
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                        :class="{
+                                            'bg-green-100 text-green-700': i.color==='green',
+                                            'bg-amber-100 text-amber-700': i.color==='amber',
+                                            'bg-slate-100 text-slate-500': i.color==='slate'
+                                        }" x-text="i.status">
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <a href="property-detail.html" class="text-orange text-xs font-medium hover:underline">View →</a>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SITE VISITS -->
+        <div x-show="activeTab==='visits'" x-transition>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <template x-for="v in [
+                    {date:'28 May', day:'Wed', time:'11:00 AM', prop:'3 BHK Flat, Vesu', city:'Surat', broker:'Ramesh Patel', phone:'98765 43210', status:'upcoming'},
+                    {date:'22 May', day:'Thu', time:'3:00 PM', prop:'2 BHK, Koramangala', city:'Bangalore', broker:'Suresh Kumar', phone:'87654 32109', status:'completed'},
+                    {date:'15 May', day:'Thu', time:'11:00 AM', prop:'4 BHK Villa, Juhu', city:'Mumbai', broker:'Amit Shah', phone:'76543 21098', status:'completed'}
+                ]">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0"
+                                :class="v.status==='upcoming' ? 'bg-orange text-white' : 'bg-slate-100 text-slate-600'">
+                                <span class="text-xs font-medium leading-none" x-text="v.day"></span>
+                                <span class="font-outfit font-bold text-xl leading-none" x-text="v.date.split(' ')[0]"></span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <h3 class="font-outfit font-semibold text-navy" x-text="v.prop"></h3>
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                        :class="v.status==='upcoming' ? 'bg-orange/10 text-orange' : 'bg-green-100 text-green-700'"
+                                        x-text="v.status==='upcoming' ? 'Upcoming' : 'Completed'">
+                                    </span>
+                                </div>
+                                <p class="text-muted text-sm mt-1"><i class="ph-bold ph-map-pin mr-1"></i><span x-text="v.city"></span></p>
+                                <p class="text-muted text-sm"><i class="ph-bold ph-clock mr-1"></i><span x-text="v.time"></span></p>
+                                <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100">
+                                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=30&h=30&fit=crop&crop=face" class="w-7 h-7 rounded-full object-cover" alt="">
+                                    <div>
+                                        <div class="text-xs font-medium text-navy" x-text="v.broker"></div>
+                                        <div class="text-xs text-muted" x-text="v.phone"></div>
+                                    </div>
+                                    <a :href="'tel:+91' + v.phone" class="ml-auto w-7 h-7 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="ph-bold ph-phone text-green-700 text-xs"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <template x-if="v.status==='upcoming'">
+                            <div class="flex gap-2 mt-4">
+                                <button class="flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50">Reschedule</button>
+                                <button class="flex-1 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50">Cancel</button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- EMI CALCULATOR -->
+        <div x-show="activeTab==='emi'" x-transition>
+            <div class="max-w-3xl">
+                <div class="emi-card mb-6">
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <div class="flex-1 space-y-5">
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Property Value</label>
+                                <input type="range" x-model="emiPrice" min="1000000" max="50000000" step="100000" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">₹10 L</span>
+                                    <span class="text-white font-semibold text-sm" x-text="'₹' + (emiPrice/100000 >= 100 ? (emiPrice/10000000).toFixed(1) + ' Cr' : Math.round(emiPrice/100000) + ' L')"></span>
+                                    <span class="text-white/40 text-xs">₹5 Cr</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Down Payment: <span x-text="emiDown + '%'"></span></label>
+                                <input type="range" x-model="emiDown" min="10" max="50" step="5" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">10%</span>
+                                    <span class="text-white/40 text-xs">50%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Interest Rate: <span x-text="emiRate + '%'"></span></label>
+                                <input type="range" x-model="emiRate" min="6.5" max="12" step="0.25" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">6.5%</span>
+                                    <span class="text-white/40 text-xs">12%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-white/70 text-xs font-medium block mb-2">Loan Tenure: <span x-text="emiYears + ' yrs'"></span></label>
+                                <input type="range" x-model="emiYears" min="5" max="30" step="5" class="emi-slider w-full">
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-white/40 text-xs">5 yr</span>
+                                    <span class="text-white/40 text-xs">30 yr</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:w-56 flex flex-col justify-center">
+                            <div class="bg-white/8 border border-white/15 rounded-2xl p-6 text-center">
+                                <div class="text-white/60 text-xs mb-1">Monthly EMI</div>
+                                <div class="font-outfit text-3xl font-bold text-orange" x-text="'₹' + emiResult.toLocaleString('en-IN')"></div>
+                                <div class="border-t border-white/15 mt-4 pt-4 space-y-2 text-left">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Loan Amount</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round(loanAmt/100000) + 'L'"></span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Down Payment</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round(emiPrice*emiDown/100/100000) + 'L'"></span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white/50">Total Interest</span>
+                                        <span class="text-white font-medium" x-text="'₹' + Math.round((emiResult*emiYears*12 - loanAmt)/100000) + 'L'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-white/30 text-xs text-center mt-3">Estimate only. Contact bank for exact rates.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
+                    <i class="ph-bold ph-info text-amber-600 text-lg flex-shrink-0"></i>
+                    <p class="text-amber-800 text-sm">
+                        <strong>Home Loan Tips:</strong> SBI, HDFC, ICICI offer best rates for salaried professionals. Pre-approved loan letter se negotiation power badhti hai.
+                        <a href="#" class="text-orange font-medium hover:underline ml-1">Bank compare karein →</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div x-show="activeTab==='profile'" x-transition>
+            <div class="max-w-2xl">
+                <div class="bg-white rounded-2xl border border-slate-200 p-8">
+                    <div class="flex items-center gap-5 mb-8">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" class="w-20 h-20 rounded-2xl object-cover" alt="">
+                            <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-orange rounded-full flex items-center justify-center shadow">
+                                <i class="ph-bold ph-pencil text-white text-xs"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit text-2xl font-bold text-navy">Rahul Sharma</h2>
+                            <p class="text-muted text-sm">Client · Surat, Gujarat</p>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span class="text-xs text-green-600 font-medium">Verified Account</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Full Name</label>
+                            <input type="text" value="Rahul Sharma" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/10">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Email</label>
+                            <input type="email" value="rahul.sharma@gmail.com" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/10">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
+                            <input type="tel" value="+91 98765 43210" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/10">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">City</label>
+                            <select class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-orange appearance-none">
+                                <option selected>Surat</option><option>Mumbai</option><option>Bangalore</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Looking For</label>
+                            <div class="flex gap-2 flex-wrap">
+                                <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:border-orange transition-colors">
+                                    <input type="checkbox" checked class="accent-orange"> <span class="text-sm">Buy</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:border-orange transition-colors">
+                                    <input type="checkbox" class="accent-orange"> <span class="text-sm">Rent</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:border-orange transition-colors">
+                                    <input type="checkbox" class="accent-orange"> <span class="text-sm">PG / Co-living</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:border-orange transition-colors">
+                                    <input type="checkbox" class="accent-orange"> <span class="text-sm">New Projects</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-6 pt-6 border-t border-slate-100">
+                        <button class="bg-orange text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-orange-600 transition-colors">Save Changes</button>
+                        <button class="border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-medium text-sm hover:bg-slate-50 transition-colors">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

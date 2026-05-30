@@ -1,0 +1,13 @@
+# Test User Credentials for FastDeal CI4
+
+## Admin Dashboard (/admin)
+Email: admin@test.com
+Password: admin123
+
+## Agent
+Email: agent@test.com
+Password: agent123
+
+## Customer
+Email: user@test.com
+Password: user123

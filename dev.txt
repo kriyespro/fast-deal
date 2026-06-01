@@ -228,6 +228,18 @@ Changes per migrated page:
     - India Network section: dark navy bg with city tags pill grid
     - New CTA section added at bottom
 
+[DONE] Production Docker Deploy Setup (2026-06-01):
+  - Dockerfile: python:3.12-slim, gunicorn entrypoint
+  - entrypoint.sh: waits for postgres, migrate, collectstatic, gunicorn --workers 3
+  - docker-compose.yml: web + nginx + postgres:16 + redis:7 + certbot (auto-renew)
+  - nginx/nginx.conf: HTTP→HTTPS redirect, Let's Encrypt SSL, static/media serve, proxy_pass
+  - .env.production: SECRET_KEY generated, DEBUG=False, ALLOWED_HOSTS=propsurat.com, PostgreSQL + Redis config
+  - settings.py: PostgreSQL via env, Redis cache + sessions, prod security headers (HSTS, secure cookies)
+  - requirements.txt: +gunicorn, psycopg2-binary, redis, django-redis
+  - deploy.sh: git pull + docker compose build + restart
+  - SERVER_SETUP.md: step-by-step first-deploy + SSL cert instructions
+  - Django system check: 0 issues ✓
+
 [DONE] Image Upload Fix + Gallery Improvements (2026-05-28):
   - FIXED: PropertyImage._compress() path bug — new_abs used dirname(dirname(path)) which
     put compressed file in media/properties/2026/compressed/ but DB stored properties/compressed/

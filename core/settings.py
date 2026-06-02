@@ -139,11 +139,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Production Security Headers ---
-HTTPS_ENABLED = config('HTTPS_ENABLED', default=False, cast=bool)
-
-if not DEBUG and HTTPS_ENABLED:
+# SECURE_SSL_REDIRECT intentionally omitted — NPM handles HTTP→HTTPS redirect.
+# SECURE_PROXY_SSL_HEADER always set so Django trusts X-Forwarded-Proto: https
+# from nginx for secure cookie enforcement.
+if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000

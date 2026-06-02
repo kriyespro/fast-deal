@@ -17,6 +17,10 @@ class PageView(View):
 class HomeView(PageView):
     template_name = 'pages/index.jinja'
 
+    def get_context(self, request, **kwargs):
+        from properties.services import get_featured_properties
+        return {'featured_properties': get_featured_properties(limit=5)}
+
 
 class ListingsView(PageView):
     template_name = 'pages/listings.jinja'

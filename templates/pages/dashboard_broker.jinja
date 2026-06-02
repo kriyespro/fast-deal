@@ -238,9 +238,15 @@
                             {{ prop.get_status_display() }}
                         </span>
                         <div class="absolute top-3 right-3 flex gap-1.5">
-                            <a href="{{ url('property_detail', pk=prop.pk) }}" class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow hover:bg-blue-500 hover:text-white transition-colors" title="View">
+                            {% if prop.status == 'active' %}
+                            <a href="{{ url('property_detail', pk=prop.pk) }}" class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow hover:bg-blue-500 hover:text-white transition-colors" title="View Live">
                                 <i class="ph-bold ph-eye text-xs"></i>
                             </a>
+                            {% else %}
+                            <span class="w-7 h-7 bg-white/60 rounded-full flex items-center justify-center shadow cursor-not-allowed" title="Not live yet">
+                                <i class="ph-bold ph-eye text-xs text-slate-300"></i>
+                            </span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="p-4">

@@ -44,23 +44,22 @@ class ListingsView(View):
 
 
 class PropertyDetailView(View):
-    def get(self, request, pk):
+    def get(self, request, slug):
         from django.http import Http404
         try:
-            prop = get_property_detail(pk)
+            prop = get_property_detail(slug)
         except Property.DoesNotExist:
-            # Allow broker/builder to preview their own pending property
             try:
                 prop = Property.objects.select_related(
                     'city', 'locality', 'broker', 'broker__profile'
-                ).prefetch_related('images').get(pk=pk)
+                ).prefetch_related('images').get(slug=slug)
                 if not (request.user.is_authenticated and prop.broker_id == request.user.pk):
                     raise Http404
             except Property.DoesNotExist:
                 raise Http404
-        increment_views(pk)
+        increment_views(prop.pk)
         form = InquiryForm()
-        similar = get_active_properties({'city': prop.city.name if prop.city else None}).exclude(pk=pk)[:4]
+        similar = get_active_properties({'city': prop.city.name if prop.city else None}).exclude(pk=prop.pk)[:4]
         is_saved = False
         if request.user.is_authenticated:
             is_saved = SavedProperty.objects.filter(user=request.user, property=prop).exists()
@@ -74,8 +73,8 @@ class PropertyDetailView(View):
             'images_json': images_json,
         })
 
-    def post(self, request, pk):
-        prop = get_object_or_404(Property, pk=pk, status=PropertyStatus.ACTIVE)
+    def post(self, request, slug):
+        prop = get_object_or_404(Property, slug=slug, status=PropertyStatus.ACTIVE)
         form = InquiryForm(request.POST)
         if form.is_valid():
             create_inquiry(prop, form.cleaned_data, user=request.user)
@@ -85,7 +84,7 @@ class PropertyDetailView(View):
                     '✓ Aapki inquiry send ho gayi! Broker jald hi contact karega.</div>'
                 )
             from django.shortcuts import redirect
-            return redirect('property_detail', pk=pk)
+            return redirect('property_detail', slug=slug)
 
         if request.htmx:
             return render(request, 'partials/_inquiry_form.jinja', {'form': form, 'property': prop})

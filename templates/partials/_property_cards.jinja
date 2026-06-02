@@ -3,7 +3,7 @@
     <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
         <!-- Image -->
         <div class="relative h-52 overflow-hidden bg-slate-100">
-            <a href="{{ url('property_detail', pk=prop.pk) }}" class="block w-full h-full">
+            <a href="{{ url('property_detail', slug=prop.slug) }}" class="block w-full h-full">
             {% set first_img = prop.images.first() %}
             {% if first_img %}
                 <img src="{{ first_img.image.url }}"
@@ -46,7 +46,7 @@
         <!-- Content -->
         <div class="p-5">
             <div class="flex items-start justify-between gap-2 mb-2">
-                <a href="{{ url('property_detail', pk=prop.pk) }}"
+                <a href="{{ url('property_detail', slug=prop.slug) }}"
                    class="font-outfit font-bold text-navy text-base leading-snug line-clamp-2 hover:text-orange transition-colors">{{ prop.title }}</a>
             </div>
             <p class="text-slate-500 text-sm flex items-center gap-1 mb-3">
@@ -75,7 +75,7 @@
                     <div class="text-xs text-slate-400">₹{{ prop.price_per_sqft|int }}/sqft</div>
                     {% endif %}
                 </div>
-                <a href="{{ url('property_detail', pk=prop.pk) }}"
+                <a href="{{ url('property_detail', slug=prop.slug) }}"
                    class="btn-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5">
                     Details <i class="ph-bold ph-arrow-right text-xs"></i>
                 </a>

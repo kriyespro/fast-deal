@@ -43,10 +43,10 @@ def get_featured_properties(limit=6):
     ).select_related('city', 'locality').prefetch_related('images')[:limit]
 
 
-def get_property_detail(pk):
+def get_property_detail(slug):
     return Property.objects.select_related(
         'city', 'locality', 'broker', 'broker__profile'
-    ).prefetch_related('images').get(pk=pk, status=PropertyStatus.ACTIVE)
+    ).prefetch_related('images').get(slug=slug, status=PropertyStatus.ACTIVE)
 
 
 def increment_views(property_id):

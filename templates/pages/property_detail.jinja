@@ -3,6 +3,14 @@
 {% block meta_description %}{{ property.title }} in {{ property.city.name if property.city else 'India' }}. {{ property.price_display }}. {{ property.bedrooms }}BHK, {{ property.area_sqft }} sqft.{% endblock %}
 
 {% block extra_head %}
+<link rel="canonical" href="https://propsurat.com{{ url('property_detail', slug=property.slug) }}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ property.title }} | PropSurat">
+<meta property="og:description" content="{{ property.title }} in {{ property.city.name if property.city else 'India' }}. {{ property.price_display }}. {{ property.bedrooms }}BHK, {{ property.area_sqft }} sqft. Find properties on PropSurat.">
+{% set og_img = property.images.first() %}
+{% if og_img %}<meta property="og:image" content="{{ og_img.image.url }}">{% endif %}
+<meta property="og:url" content="https://propsurat.com{{ url('property_detail', slug=property.slug) }}">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 .gallery-grid { display: grid; grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(2,250px); gap: 12px; }
 .gallery-main { grid-column: span 2; grid-row: span 2; }
@@ -375,7 +383,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for prop in similar %}
             <div class="group rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg">
-                <a href="{{ url('property_detail', pk=prop.pk) }}" class="block relative h-52 overflow-hidden">
+                <a href="{{ url('property_detail', slug=prop.slug) }}" class="block relative h-52 overflow-hidden">
                     {% set sim_img = prop.images.first() %}
                     <img src="{{ sim_img.image.url if sim_img else 'https://picsum.photos/seed/prop' ~ prop.pk ~ '/800/520' }}"
                          alt="{{ prop.title }}"
@@ -387,7 +395,7 @@
                     </div>
                 </a>
                 <div class="p-5">
-                    <a href="{{ url('property_detail', pk=prop.pk) }}" class="block text-base font-bold text-slate-900 hover:text-orange transition-colors mb-1 truncate font-outfit">
+                    <a href="{{ url('property_detail', slug=prop.slug) }}" class="block text-base font-bold text-slate-900 hover:text-orange transition-colors mb-1 truncate font-outfit">
                         {{ prop.title }}
                     </a>
                     <p class="text-slate-500 text-sm flex items-center gap-1 mb-3 truncate">

@@ -140,7 +140,7 @@
                                 <div class="text-xs text-muted">{{ inq.property.city.name if inq.property.city else '' }}</div>
                             </div>
                             <div class="text-xs text-muted hidden md:block">{{ inq.created_at.strftime('%d %b') }}</div>
-                            <a href="{{ url('property_detail', pk=inq.property.pk) }}" class="text-xs text-orange font-medium hover:underline flex-shrink-0">View →</a>
+                            <a href="{{ url('property_detail', slug=inq.property.slug) }}" class="text-xs text-orange font-medium hover:underline flex-shrink-0">View →</a>
                         </div>
                         {% else %}
                         <div class="px-5 py-12 text-center">
@@ -215,7 +215,7 @@
                         </p>
                         <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                             <div class="font-outfit font-bold text-navy text-lg">{{ prop.price_display }}</div>
-                            <a href="{{ url('property_detail', pk=prop.pk) }}"
+                            <a href="{{ url('property_detail', slug=prop.slug) }}"
                                class="text-xs bg-orange text-white px-3 py-1.5 rounded-lg font-medium hover:bg-orange-600 transition-colors">
                                 View →
                             </a>
@@ -270,7 +270,7 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <a href="{{ url('property_detail', pk=inq.property.pk) }}" class="text-orange text-xs font-medium hover:underline">View →</a>
+                                    <a href="{{ url('property_detail', slug=inq.property.slug) }}" class="text-orange text-xs font-medium hover:underline">View →</a>
                                 </td>
                             </tr>
                             {% else %}

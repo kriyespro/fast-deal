@@ -1,4 +1,4 @@
-<form hx-post="{{ url('property_detail', pk=property.pk) }}"
+<form hx-post="{{ url('property_detail', slug=property.slug) }}"
       hx-target="#inquiry-result"
       hx-swap="innerHTML"
       class="space-y-4">

@@ -306,3 +306,10 @@ Changes per migrated page:
   - Local verify: active demos show 3–4 images each
   - Live: git pull && bash deploy.sh
 
+[DONE] Fix live media 404 (2026-07-14):
+  - ROOT CAUSE: DEBUG=False so django.conf.urls.static.static() was a no-op;
+    HTML pointed at /media/... but Gunicorn never served files → blank cards
+  - core/urls.py now always serves MEDIA via django.views.static.serve
+  - Listing cards show photo-count badge when >1 image
+  - Live already has seeded image rows — redeploy to serve files
+

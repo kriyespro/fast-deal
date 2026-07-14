@@ -4,7 +4,8 @@
         <!-- Image -->
         <div class="relative h-52 overflow-hidden bg-slate-100">
             <a href="{{ url('property_detail', slug=prop.slug) }}" class="block w-full h-full">
-            {% set first_img = (prop.prefetched_images[0] if prop.prefetched_images is defined and prop.prefetched_images else prop.images.first()) %}
+            {% set card_images = prop.prefetched_images if prop.prefetched_images is defined else (prop.images.all() | list) %}
+            {% set first_img = card_images[0] if card_images else none %}
             {% if first_img %}
                 <img src="{{ first_img.image.url }}"
                      alt="{{ prop.title }}"
@@ -20,6 +21,11 @@
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             {% endif %}
             </a>
+            {% if card_images and card_images | length > 1 %}
+            <div class="absolute bottom-3 right-3 bg-slate-900/75 text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 pointer-events-none">
+                <i class="ph ph-images"></i> {{ card_images | length }}
+            </div>
+            {% endif %}
             <!-- Badges -->
             <div class="absolute top-3 left-3 flex gap-2">
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full

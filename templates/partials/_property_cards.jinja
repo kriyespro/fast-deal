@@ -4,17 +4,19 @@
         <!-- Image -->
         <div class="relative h-52 overflow-hidden bg-slate-100">
             <a href="{{ url('property_detail', slug=prop.slug) }}" class="block w-full h-full">
-            {% set first_img = prop.images.first() %}
+            {% set first_img = (prop.prefetched_images[0] if prop.prefetched_images is defined and prop.prefetched_images else prop.images.first()) %}
             {% if first_img %}
                 <img src="{{ first_img.image.url }}"
                      alt="{{ prop.title }}"
                      loading="lazy"
+                     decoding="async"
                      onerror="this.onerror=null;this.src='https://picsum.photos/seed/prop{{ prop.pk }}/800/520'"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             {% else %}
                 <img src="https://picsum.photos/seed/prop{{ prop.pk }}/800/520"
                      alt="{{ prop.title }}"
                      loading="lazy"
+                     decoding="async"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             {% endif %}
             </a>

@@ -9,9 +9,12 @@ from .models import Property, PropertyStatus, City, SavedProperty, Project
 from .services import (
     get_active_properties, get_featured_properties, get_property_detail,
     create_inquiry, increment_views, toggle_saved_property,
-    get_builder_projects,
+    get_builder_projects, get_active_cities,
+    create_property_with_images, add_property_images,
 )
-from .forms import InquiryForm, PropertyFilterForm, ProjectForm, BuilderProfileForm
+from .forms import (
+    InquiryForm, PropertyFilterForm, ProjectForm, BuilderProfileForm, PropertyForm,
+)
 
 
 class ListingsView(View):
@@ -21,11 +24,11 @@ class ListingsView(View):
         if form.is_valid():
             filters = {k: v for k, v in form.cleaned_data.items() if v}
 
-        qs = get_active_properties(filters)
+        qs = get_active_properties(filters, list_view=True)
         paginator = Paginator(qs, 12)
         page = paginator.get_page(request.GET.get('page', 1))
 
-        cities = City.objects.filter(is_active=True)
+        cities = get_active_cities()
         saved_ids = set()
         if request.user.is_authenticated:
             saved_ids = set(SavedProperty.objects.filter(user=request.user).values_list('property_id', flat=True))
@@ -37,7 +40,6 @@ class ListingsView(View):
             'saved_ids': saved_ids,
         }
 
-        # HTMX request → return only the cards partial
         if request.htmx:
             return render(request, 'partials/_property_cards.jinja', context)
         return render(request, 'pages/listings.jinja', context)
@@ -117,6 +119,101 @@ class ToggleSaveView(View):
         return render(request, 'partials/_save_btn.jinja', {
             'property_pk': pk,
             'is_saved': saved,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class AddPropertyView(View):
+    """Broker: create listing + multi-image upload (HTMX modal)."""
+
+    def _deny(self):
+        from django.core.exceptions import PermissionDenied
+        from users.models import Role
+        raise PermissionDenied
+
+    def get(self, request):
+        from users.models import Role
+        from billing.services import can_add_listing
+        if request.user.role not in (Role.BROKER, Role.GLOBAL_ADMIN):
+            self._deny()
+        allowed, limit = can_add_listing(request.user)
+        if not allowed:
+            return HttpResponse(
+                f'<div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-center">'
+                f'<i class="ph-fill ph-lock text-2xl block mb-2 text-amber-500"></i>'
+                f'<strong>Listing limit reached ({limit} on your plan)</strong><br>'
+                f'<a href="/billing/" class="mt-3 inline-block bg-orange text-white text-sm font-bold px-5 py-2 rounded-xl">Upgrade Plan</a>'
+                f'</div>'
+            )
+        return render(request, 'partials/_property_form.jinja', {
+            'form': PropertyForm(),
+            'cities': get_active_cities(),
+        })
+
+    def post(self, request):
+        from users.models import Role
+        from billing.services import can_add_listing
+        if request.user.role not in (Role.BROKER, Role.GLOBAL_ADMIN):
+            self._deny()
+        allowed, limit = can_add_listing(request.user)
+        if not allowed:
+            return HttpResponse(
+                f'<div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-center">'
+                f'<strong>Listing limit reached ({limit}).</strong> '
+                f'<a href="/billing/" class="underline">Upgrade</a></div>'
+            )
+        form = PropertyForm(request.POST, request.FILES)
+        images = request.FILES.getlist('images')
+        if form.is_valid():
+            if not images:
+                form.add_error(None, 'Kam se kam 1 photo upload karein.')
+            else:
+                prop, n = create_property_with_images(
+                    request.user, form.cleaned_data, images[:12]
+                )
+                return HttpResponse(
+                    '<div class="p-5 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-medium text-center">'
+                    '<i class="ph-fill ph-check-circle text-2xl block mb-2"></i>'
+                    f'Listing <strong>{prop.title}</strong> submit ho gaya ({n} photos).<br>'
+                    '<span class="text-sm text-green-600">City Admin approval ke baad live hoga.</span>'
+                    '</div>'
+                    '<script>setTimeout(function(){ window.location.reload(); }, 900);</script>'
+                )
+        return render(request, 'partials/_property_form.jinja', {
+            'form': form,
+            'cities': get_active_cities(),
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class AddPropertyImagesView(View):
+    """Broker: list images (GET) + add more photos (POST)."""
+
+    def _get_prop(self, request, pk):
+        from users.models import Role
+        from django.core.exceptions import PermissionDenied
+        prop = get_object_or_404(Property, pk=pk)
+        if request.user.role == Role.GLOBAL_ADMIN:
+            return prop
+        if request.user.role != Role.BROKER or prop.broker_id != request.user.pk:
+            raise PermissionDenied
+        return prop
+
+    def get(self, request, pk):
+        prop = self._get_prop(request, pk)
+        return render(request, 'partials/_property_images.jinja', {
+            'property': prop,
+            'images': list(prop.images.all()),
+        })
+
+    def post(self, request, pk):
+        prop = self._get_prop(request, pk)
+        files = request.FILES.getlist('images')[:12]
+        n = add_property_images(prop, files)
+        return render(request, 'partials/_property_images.jinja', {
+            'property': prop,
+            'images': list(prop.images.all()),
+            'added': n,
         })
 
 

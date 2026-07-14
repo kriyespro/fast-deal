@@ -1,5 +1,5 @@
 from django import forms
-from .models import Inquiry, Project, City, Locality
+from .models import Inquiry, Project, City, Locality, Property
 
 INPUT_CLASS = 'w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-orange-500 text-sm'
 
@@ -20,6 +20,62 @@ class InquiryForm(forms.ModelForm):
         labels = {
             'name': 'Naam', 'phone': 'Phone', 'email': 'Email', 'message': 'Message',
         }
+
+
+class PropertyForm(forms.ModelForm):
+    """Broker listing form — multi-image upload via request.FILES.getlist('images')."""
+
+    class Meta:
+        model = Property
+        fields = [
+            'title', 'property_type', 'listing_type', 'city', 'locality',
+            'address', 'price', 'area_sqft', 'bedrooms', 'bathrooms',
+            'furnishing', 'rera_id', 'amenities', 'description',
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': 'e.g. 3 BHK Flat, Vesu'}),
+            'property_type': forms.Select(attrs={'class': INPUT_CLASS}),
+            'listing_type': forms.Select(attrs={'class': INPUT_CLASS}),
+            'city': forms.Select(attrs={'class': INPUT_CLASS}),
+            'locality': forms.Select(attrs={'class': INPUT_CLASS}),
+            'address': forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': 'Building, street, landmark'}),
+            'price': forms.NumberInput(attrs={'class': INPUT_CLASS, 'placeholder': '5500000'}),
+            'area_sqft': forms.NumberInput(attrs={'class': INPUT_CLASS, 'placeholder': '1200'}),
+            'bedrooms': forms.NumberInput(attrs={'class': INPUT_CLASS, 'placeholder': '3', 'min': 0}),
+            'bathrooms': forms.NumberInput(attrs={'class': INPUT_CLASS, 'placeholder': '2', 'min': 0}),
+            'furnishing': forms.Select(attrs={'class': INPUT_CLASS}),
+            'rera_id': forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': 'RERA/GJ/...'}),
+            'amenities': forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': 'Gym, Parking, Pool, Security'}),
+            'description': forms.Textarea(attrs={'class': INPUT_CLASS, 'rows': 3, 'placeholder': 'Property ke baare mein...'}),
+        }
+        labels = {
+            'title': 'Property Title',
+            'property_type': 'Type',
+            'listing_type': 'Sale / Rent',
+            'city': 'City',
+            'locality': 'Locality',
+            'address': 'Address',
+            'price': 'Price (₹)',
+            'area_sqft': 'Area (sqft)',
+            'bedrooms': 'BHK',
+            'bathrooms': 'Bathrooms',
+            'furnishing': 'Furnishing',
+            'rera_id': 'RERA Number',
+            'amenities': 'Amenities (comma separated)',
+            'description': 'Description',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['locality'].queryset = Locality.objects.filter(is_active=True).select_related('city')
+        self.fields['city'].queryset = City.objects.filter(is_active=True)
+        self.fields['locality'].required = False
+        self.fields['rera_id'].required = False
+        self.fields['amenities'].required = False
+        self.fields['description'].required = False
+        self.fields['bedrooms'].required = False
+        self.fields['bathrooms'].required = False
+        self.fields['area_sqft'].required = False
 
 
 class ProjectForm(forms.ModelForm):

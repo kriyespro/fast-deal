@@ -18,7 +18,7 @@ class LocalityAdmin(admin.ModelAdmin):
 
 class PropertyImageInline(admin.TabularInline):
     model = PropertyImage
-    extra = 1
+    extra = 4
     fields = ('preview', 'image', 'caption', 'is_primary', 'order')
     readonly_fields = ('preview',)
 

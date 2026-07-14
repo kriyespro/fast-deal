@@ -267,3 +267,35 @@ Changes per migrated page:
       hamburger + dashboards sidebar menu OK
   NOTE: local folder still named sd-html-fastdeal; GitHub remote still kriyespro/fast-deal
         — rename those separately if desired
+
+[DONE] Fix live property URLs (2026-07-14):
+  - Root cause: live homepage used old hardcoded /property/1/ links; prod DB had 0 cities + 0 active properties
+  - ADDED: /property/<pk>/ → 301 redirect to /property/<slug>/
+  - ADDED: manage.py seed_demo (cities + active featured properties)
+  - UPDATED: deploy.sh auto-runs seed_demo when active property count is 0
+  - Server: bash deploy.sh  then verify https://propsurat.com/listings/
+
+[DONE] Force live seed on every deploy (2026-07-14):
+  - Live still serving OLD hardcoded index (Godrej /property/1/) + empty DB
+  - deploy.sh now ALWAYS runs seed_demo after rebuild
+  - get_featured_properties falls back to any ACTIVE if none featured
+  - Added check_properties management command
+  - Pushed e042f23 — run on server: bash deploy.sh
+
+[DONE] Fix seed-not-showing on live (2026-07-14):
+  - ROOT CAUSE: host nginx → 127.0.0.1:8882 but compose published :8000
+    Seed wrote to compose DB; public traffic hit another/old process on 8882
+  - docker-compose.yml now maps 127.0.0.1:8882:8000
+  - deploy.sh: no compose nginx service; reloads host nginx; smokes :8882
+  - STATICFILES_DIRS only if static/ exists (kills W004 warning)
+  - Run: bash deploy.sh  then verify localhost:8882/listings/ has properties
+
+[DONE] Multi-image listings + performance (2026-07-14):
+  - Broker Add Listing modal: full PropertyForm + multi-file photos (max 12), HTMX
+  - URLs: /broker/property/add/, /broker/property/<pk>/images/
+  - Listing cards + home use prefetched cover image (no N+1)
+  - Featured IDs cached 5 min; cities cached 30 min; broker stats via aggregate
+  - Image compress quality 78 + delete original upload after compress
+  - base.jinja: dns-prefetch + deferred phosphor icons
+  - Admin PropertyImageInline extra=4
+

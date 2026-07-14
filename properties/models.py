@@ -167,6 +167,9 @@ class PropertyImage(models.Model):
         path = self.image.path
         if not os.path.exists(path):
             return
+        # Already compressed path — skip
+        if '/compressed/' in path.replace('\\', '/'):
+            return
         if path.lower().endswith(('.jpg', '.jpeg')) and os.path.getsize(path) < 400_000:
             return
         try:
@@ -175,7 +178,7 @@ class PropertyImage(models.Model):
                 img = img.convert('RGB')
             img.thumbnail((1200, 900), PilImage.LANCZOS)
             buf = io.BytesIO()
-            img.save(buf, format='JPEG', quality=82, optimize=True)
+            img.save(buf, format='JPEG', quality=78, optimize=True)
             buf.seek(0)
             old_name = os.path.splitext(os.path.basename(self.image.name))[0]
             new_rel = f'properties/compressed/{old_name}.jpg'
@@ -185,6 +188,12 @@ class PropertyImage(models.Model):
                 f.write(buf.getvalue())
             PropertyImage.objects.filter(pk=self.pk).update(image=new_rel)
             self.image.name = new_rel
+            # Delete original upload to save disk / bandwidth source
+            try:
+                if os.path.abspath(path) != os.path.abspath(new_abs) and os.path.exists(path):
+                    os.remove(path)
+            except OSError:
+                pass
         except Exception:
             pass
 

@@ -187,8 +187,9 @@
                 {% set prop = saved.property %}
                 <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all">
                     <div class="relative">
-                        {% if prop.images.all() %}
-                        <img src="{{ prop.images.all()[0].image.url }}" class="w-full h-44 object-cover" alt="{{ prop.title }}">
+                        {% set imgs = prop.prefetched_images if prop.prefetched_images is defined else [] %}
+                        {% if imgs %}
+                        <img src="{{ imgs[0].image.url }}" class="w-full h-44 object-cover" alt="{{ prop.title }}" loading="lazy" decoding="async">
                         {% else %}
                         <div class="w-full h-44 bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
                             <i class="ph-fill ph-buildings text-slate-400 text-3xl"></i>

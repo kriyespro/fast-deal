@@ -6,11 +6,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file: .env.production
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-propsurat_db}
+      POSTGRES_USER: ${DB_USER:-propsurat_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       retries: 5
 
@@ -25,8 +25,9 @@ services:
     build: .
     restart: always
     env_file: .env.production
+    # Host nginx (nginx/propsurat.conf) proxies to 127.0.0.1:8882
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8882:8000"
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles

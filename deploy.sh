@@ -1,37 +1,41 @@
 #!/bin/bash
 # PropSurat — Deploy / Update script
-# Run on server: bash deploy.sh
+# Run on server from ~/fast-deal (or /srv/propsurat): bash deploy.sh
 set -e
 
-echo "=== PropSurat Deploy ==="
+cd "$(dirname "$0")"
+ENV_FILE=".env.production"
 
-# 1. Pull latest code
+if [ ! -f "$ENV_FILE" ]; then
+  echo "ERROR: $ENV_FILE missing"
+  exit 1
+fi
+
+# So docker compose variable substitution works without --env-file every time
+ln -sfn .env.production .env
+
+echo "=== PropSurat Deploy ==="
 git pull origin main
 
-# 2. Build + start containers
-docker compose --env-file .env.production up -d --build web
+echo "=== Build + start (publishes 127.0.0.1:8882 → gunicorn) ==="
+docker compose --env-file "$ENV_FILE" up -d --build web db redis
 
-# Wait for web to be healthy
-echo "Waiting for web container..."
-sleep 5
+echo "Waiting for web..."
+sleep 8
 
-# 3. Restart nginx to pick up any config changes
-docker compose restart nginx 2>/dev/null || true
+echo "=== Seed demo properties ==="
+docker compose --env-file "$ENV_FILE" exec -T web python manage.py seed_demo
+docker compose --env-file "$ENV_FILE" exec -T web python manage.py check_properties
 
-# 4. ALWAYS seed demo data (idempotent — safe to re-run)
-echo "=== Seeding cities + active properties ==="
-docker compose exec -T web python manage.py seed_demo
+# Host nginx (not a compose service) — reload if present
+if command -v nginx >/dev/null 2>&1; then
+  echo "=== Reloading host nginx ==="
+  nginx -t && systemctl reload nginx || nginx -s reload || true
+fi
 
-# 5. Verify
-echo "=== Verify DB ==="
-docker compose exec -T web python manage.py shell -c "
-from properties.models import Property, City, PropertyStatus
-print('cities=', City.objects.count())
-print('properties=', Property.objects.count())
-print('active=', Property.objects.filter(status=PropertyStatus.ACTIVE).count())
-print('featured=', Property.objects.filter(status=PropertyStatus.ACTIVE, is_featured=True).count())
-for p in Property.objects.filter(status=PropertyStatus.ACTIVE)[:5]:
-    print(' -', p.pk, p.slug, p.title)
-"
+echo "=== Local smoke test (what nginx should hit) ==="
+curl -sS -o /dev/null -w "localhost:8882/listings/ → %{http_code}\n" http://127.0.0.1:8882/listings/ || true
+curl -sS http://127.0.0.1:8882/listings/ | grep -oE '[0-9]+ properties mile|Koi property' | head -3 || true
 
 echo "=== Done. Hard-refresh https://propsurat.com/listings/ ==="
+echo "If still empty, check: ss -tlnp | grep -E '8882|8000' && docker ps"

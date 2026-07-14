@@ -58,11 +58,23 @@ class BlogDetailView(PageView):
     template_name = 'pages/blog_detail.jinja'
 
 
+def _require_role(user, *roles):
+    from users.models import Role
+    from django.core.exceptions import PermissionDenied
+    allowed = set(roles)
+    if user.role not in allowed:
+        # Global admin may view any dashboard for support
+        if user.role != Role.GLOBAL_ADMIN:
+            raise PermissionDenied
+
+
 @method_decorator(login_required, name='dispatch')
 class DashboardClientView(View):
     template_name = 'pages/dashboard_client.jinja'
 
     def get(self, request):
+        from users.models import Role
+        _require_role(request.user, Role.CLIENT)
         from properties.models import Inquiry
         from properties.services import get_client_saved_properties
         my_inquiries = Inquiry.objects.filter(
@@ -80,6 +92,8 @@ class DashboardBrokerView(View):
     template_name = 'pages/dashboard_broker.jinja'
 
     def get(self, request):
+        from users.models import Role
+        _require_role(request.user, Role.BROKER)
         from properties.services import get_broker_properties, get_broker_stats
         from properties.models import Inquiry
         from billing.services import can_add_listing, get_user_active_plan
@@ -105,6 +119,8 @@ class DashboardBuilderView(View):
     template_name = 'pages/dashboard_builder.jinja'
 
     def get(self, request):
+        from users.models import Role
+        _require_role(request.user, Role.BUILDER)
         from properties.services import get_builder_projects, get_builder_project_stats
         projects = get_builder_projects(request.user)
         project_stats = get_builder_project_stats(request.user)

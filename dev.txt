@@ -252,3 +252,18 @@ Changes per migrated page:
     Alpine.js: keyboard left/right/ESC, click-outside-to-close, image counter.
   - ADDED: images_json context to PropertyDetailView — list of image URLs passed to template.
   - ADDED: [x-cloak] { display: none } to base.jinja to prevent lightbox flash on load.
+
+[DONE] Project rename + role flow QA + mobile check (2026-07-14):
+  - README.md + GOAL.MD rewritten for PropSurat (was "fast-deal")
+  - test_user.txt: full 5-role credentials (added client + cityadmin)
+  - Created users: client@propsurat.in, cityadmin@propsurat.in (assigned Surat)
+  - FIXED: dashboard role guards — client/broker/builder dashboards now raise 403 cross-role
+  - FIXED: ALLOWED_HOSTS includes testserver (for Django test client)
+  - FIXED: footer Quick Links / cities / partner dash links → real url() routes
+  - Role flow tests: 39/39 PASSED
+      login→dashboard: client, broker, builder, city_admin, global_admin(/admin/)
+      cross-role 403, city approve listing, client save+inquiry, billing, register
+  - Mobile (390×844): home/listings/client dashboard — no horizontal overflow;
+      hamburger + dashboards sidebar menu OK
+  NOTE: local folder still named sd-html-fastdeal; GitHub remote still kriyespro/fast-deal
+        — rename those separately if desired

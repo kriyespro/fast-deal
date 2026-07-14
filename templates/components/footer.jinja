@@ -23,23 +23,23 @@
             <div>
                 <h4 class="text-white font-bold mb-4">Quick Links</h4>
                 <ul class="space-y-2.5 text-sm">
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Buy Property</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Rent Property</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">New Projects</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Find Brokers</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">About Us</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Contact</a></li>
+                    <li><a href="{{ url('listings') }}" class="text-white/50 hover:text-orange transition-colors">Buy Property</a></li>
+                    <li><a href="{{ url('listings') }}?listing_type=rent" class="text-white/50 hover:text-orange transition-colors">Rent Property</a></li>
+                    <li><a href="{{ url('listings') }}?property_type=project" class="text-white/50 hover:text-orange transition-colors">New Projects</a></li>
+                    <li><a href="{{ url('agents') }}" class="text-white/50 hover:text-orange transition-colors">Find Brokers</a></li>
+                    <li><a href="{{ url('about') }}" class="text-white/50 hover:text-orange transition-colors">About Us</a></li>
+                    <li><a href="{{ url('contact') }}" class="text-white/50 hover:text-orange transition-colors">Contact</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="text-white font-bold mb-4">Top Cities</h4>
                 <ul class="space-y-2.5 text-sm">
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Mumbai</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Delhi NCR</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Bangalore</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Hyderabad</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Surat</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Pune</a></li>
+                    <li><a href="{{ url('listings') }}?city=Mumbai" class="text-white/50 hover:text-orange transition-colors">Mumbai</a></li>
+                    <li><a href="{{ url('listings') }}?city=Delhi+NCR" class="text-white/50 hover:text-orange transition-colors">Delhi NCR</a></li>
+                    <li><a href="{{ url('listings') }}?city=Bangalore" class="text-white/50 hover:text-orange transition-colors">Bangalore</a></li>
+                    <li><a href="{{ url('listings') }}?city=Hyderabad" class="text-white/50 hover:text-orange transition-colors">Hyderabad</a></li>
+                    <li><a href="{{ url('listings') }}?city=Surat" class="text-white/50 hover:text-orange transition-colors">Surat</a></li>
+                    <li><a href="{{ url('listings') }}?city=Pune" class="text-white/50 hover:text-orange transition-colors">Pune</a></li>
                 </ul>
             </div>
             <div>
@@ -47,10 +47,10 @@
                 <ul class="space-y-2.5 text-sm">
                     <li><a href="{{ url('register') }}" class="text-white/50 hover:text-orange transition-colors">Register as Broker</a></li>
                     <li><a href="{{ url('register') }}" class="text-white/50 hover:text-orange transition-colors">Register as Builder</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Broker Dashboard</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Builder Dashboard</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">Advertise With Us</a></li>
-                    <li><a href="#" class="text-white/50 hover:text-orange transition-colors">API Access</a></li>
+                    <li><a href="{{ url('dashboard_broker') }}" class="text-white/50 hover:text-orange transition-colors">Broker Dashboard</a></li>
+                    <li><a href="{{ url('dashboard_builder') }}" class="text-white/50 hover:text-orange transition-colors">Builder Dashboard</a></li>
+                    <li><a href="{{ url('contact') }}" class="text-white/50 hover:text-orange transition-colors">Advertise With Us</a></li>
+                    <li><a href="{{ url('contact') }}" class="text-white/50 hover:text-orange transition-colors">API Access</a></li>
                 </ul>
             </div>
         </div>

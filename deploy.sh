@@ -45,10 +45,15 @@ if command -v nginx >/dev/null 2>&1; then
 fi
 
 echo "=== Smoke test (nginx upstream) ==="
-curl -sS -o /dev/null -w "localhost:8882/ → %{http_code}\n" http://127.0.0.1:8882/ || true
-curl -sS http://127.0.0.1:8882/listings/ | grep -oE '[0-9]+ properties mile|Koi property|Koramangala' | head -5 || true
-curl -sS -o /dev/null -w "slug detail → %{http_code}\n" \
-  http://127.0.0.1:8882/property/3-bhk-luxury-apartment-koramangala-c76fc28a/ || true
+# Must send Host: propsurat.com — curl to 127.0.0.1 gets DisallowedHost 400 otherwise
+SMOKE_OPTS=(-sS -H "Host: propsurat.com" -H "X-Forwarded-Proto: https")
+curl "${SMOKE_OPTS[@]}" -o /dev/null -w "8882 home → %{http_code}\n" http://127.0.0.1:8882/ || true
+curl "${SMOKE_OPTS[@]}" http://127.0.0.1:8882/listings/ | grep -oE '[0-9]+ properties mile|Koi property|Koramangala' | head -5 || true
+SLUG=$(docker compose -p "$PROJECT" --env-file "$ENV_FILE" exec -T web python manage.py shell -c \
+  "from properties.models import Property, PropertyStatus; p=Property.objects.filter(status=PropertyStatus.ACTIVE).first(); print(p.slug if p else '')" | tr -d '\r')
+if [ -n "$SLUG" ]; then
+  curl "${SMOKE_OPTS[@]}" -o /dev/null -w "8882 detail → %{http_code}\n" "http://127.0.0.1:8882/property/${SLUG}/" || true
+fi
 
 echo "=== Done. Hard-refresh https://propsurat.com/listings/ ==="
 echo "Containers should include: propsurat-web-1 on 0.0.0.0:8882→8000"

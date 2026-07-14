@@ -171,3 +171,8 @@ class Command(BaseCommand):
         if active == 0:
             self.stderr.write(self.style.ERROR('WARNING: still 0 ACTIVE properties — check DB connection'))
             raise SystemExit(1)
+
+        # Attach multiple demo photos (uses fixtures/demo_images/)
+        from django.core.management import call_command
+        self.stdout.write('\n=== Seeding property images ===')
+        call_command('seed_images')

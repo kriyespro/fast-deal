@@ -299,3 +299,10 @@ Changes per migrated page:
   - base.jinja: dns-prefetch + deferred phosphor icons
   - Admin PropertyImageInline extra=4
 
+[DONE] Multiple demo images for seed properties (2026-07-14):
+  - fixtures/demo_images/ — 19 bundled JPGs (~1.8MB) copied into Docker image
+  - seed_images: 3–4 photos per property by locality; --force replaces; picsum fallback
+  - seed_demo calls seed_images at end; deploy.sh runs seed_images --force after seed
+  - Local verify: active demos show 3–4 images each
+  - Live: git pull && bash deploy.sh
+

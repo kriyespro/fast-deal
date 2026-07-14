@@ -37,6 +37,7 @@ sleep 10
 echo "=== Seed into LIVE DB (propsurat-db) ==="
 docker compose -p "$PROJECT" --env-file "$ENV_FILE" exec -T web python manage.py migrate --noinput
 docker compose -p "$PROJECT" --env-file "$ENV_FILE" exec -T web python manage.py seed_demo
+docker compose -p "$PROJECT" --env-file "$ENV_FILE" exec -T web python manage.py seed_images --force
 docker compose -p "$PROJECT" --env-file "$ENV_FILE" exec -T web python manage.py check_properties
 
 if command -v nginx >/dev/null 2>&1; then

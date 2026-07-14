@@ -1,5 +1,5 @@
 {% extends 'base.jinja' %}
-{% block title %}Properties | PropSurat — India's Trusted Property Portal{% endblock %}
+{% block title %}Properties in Surat | PropSurat{% endblock %}
 {% block extra_head %}
 <style>
 .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
@@ -37,7 +37,7 @@
             <div class="flex-1 relative">
                 <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="search" name="q" value="{{ request.GET.get('q','') }}"
-                       placeholder="Locality, city ya keyword..."
+                       placeholder="Surat locality ya keyword... (Vesu, Adajan)"
                        hx-get="{{ url('listings') }}" hx-target="#property-grid" hx-trigger="keyup changed delay:400ms" hx-include="#filter-form"
                        class="w-full pl-10 pr-4 py-2.5 text-sm outline-none text-slate-700 rounded-xl">
             </div>
@@ -47,10 +47,11 @@
                 <option value="rent" {% if request.GET.get('listing_type')=='rent' %}selected{% endif %}>For Rent</option>
                 <option value="pg" {% if request.GET.get('listing_type')=='pg' %}selected{% endif %}>PG / Co-living</option>
             </select>
-            <select name="city" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
-                <option value="">All Cities</option>
-                {% for c in cities %}
-                <option value="{{ c.name }}" {% if request.GET.get('city')==c.name %}selected{% endif %}>{{ c.name }}</option>
+            <input type="hidden" name="city" value="Surat">
+            <select name="locality" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">
+                <option value="">All Localities</option>
+                {% for loc in localities %}
+                <option value="{{ loc.name }}" {% if request.GET.get('locality')==loc.name %}selected{% endif %}>{{ loc.name }}</option>
                 {% endfor %}
             </select>
             <select name="property_type" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-orange">

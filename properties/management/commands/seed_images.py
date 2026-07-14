@@ -21,19 +21,19 @@ from properties.models import Property, PropertyImage
 # Each key matches title or locality; values = list of local fixture filenames
 # (files live in fixtures/demo_images/)
 PROPERTY_IMAGE_SETS = {
-    'Koramangala': [
+    'Vesu': [
         ('1_1560448204-e.jpg', 'Spacious living room'),
         ('1_152270832359.jpg', 'Master bedroom'),
         ('1_1556909114-f.jpg', 'Modern kitchen'),
         ('7_1560448204-e.jpg', 'Another living angle'),
     ],
-    'Bandra West': [
+    'Athwa': [
         ('2_152277173984.jpg', 'Furnished living area'),
         ('2_150200522976.jpg', 'Bedroom view'),
         ('2_148415421896.jpg', 'Kitchen'),
         ('4_152277173984.jpg', 'Dining space'),
     ],
-    'Jubilee Hills': [
+    'Piplod': [
         ('3_160058515434.jpg', 'Villa exterior'),
         ('3_160056675308.jpg', 'Villa interior'),
         ('7_1556909114-f.jpg', 'Kitchen'),
@@ -44,24 +44,24 @@ PROPERTY_IMAGE_SETS = {
         ('4_1556909114-f.jpg', 'Kitchen'),
         ('1_152270832359.jpg', 'Bedroom'),
     ],
-    'Whitefield': [
+    'Pal': [
         ('5_161349049357.jpg', 'Modern apartment'),
         ('5_152270832359.jpg', 'Bedroom'),
         ('7_152270832359.jpg', 'Living area'),
         ('2_150200522976.jpg', 'Balcony room'),
     ],
-    'Baner': [
+    'Althan': [
         ('6_150038201746.jpg', 'Plot overview'),
         ('6_148632521202.jpg', 'Plot boundary'),
         ('3_160058515434.jpg', 'Surroundings'),
     ],
-    'Powai': [
+    'City Light': [
         ('7_1560448204-e.jpg', 'Premium apartment view'),
         ('7_152270832359.jpg', 'Living area'),
         ('7_1556909114-f.jpg', 'Kitchen'),
         ('1_152270832359.jpg', 'Master bedroom'),
     ],
-    'Hitech City': [
+    'VIP Road': [
         ('8_149736621654.jpg', 'Office floor'),
         ('8_149736681135.jpg', 'Meeting room'),
         ('5_161349049357.jpg', 'Workstations look'),

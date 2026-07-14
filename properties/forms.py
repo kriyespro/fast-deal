@@ -121,8 +121,9 @@ class BuilderProfileForm(forms.Form):
 
 
 class PropertyFilterForm(forms.Form):
-    q = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'City, locality ya keyword...'}))
+    q = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Surat locality ya keyword...'}))
     city = forms.CharField(required=False)
+    locality = forms.CharField(required=False)
     listing_type = forms.ChoiceField(
         required=False,
         choices=[('', 'Buy / Rent'), ('sale', 'Buy'), ('rent', 'Rent'), ('pg', 'PG')]

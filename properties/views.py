@@ -9,7 +9,7 @@ from .models import Property, PropertyStatus, City, SavedProperty, Project
 from .services import (
     get_active_properties, get_featured_properties, get_property_detail,
     create_inquiry, increment_views, toggle_saved_property,
-    get_builder_projects, get_active_cities,
+    get_builder_projects, get_active_cities, get_surat_localities,
     create_property_with_images, add_property_images,
 )
 from .forms import (
@@ -29,6 +29,7 @@ class ListingsView(View):
         page = paginator.get_page(request.GET.get('page', 1))
 
         cities = get_active_cities()
+        localities = get_surat_localities()
         saved_ids = set()
         if request.user.is_authenticated:
             saved_ids = set(SavedProperty.objects.filter(user=request.user).values_list('property_id', flat=True))
@@ -36,6 +37,7 @@ class ListingsView(View):
             'properties': page,
             'form': form,
             'cities': cities,
+            'localities': localities,
             'total_count': paginator.count,
             'saved_ids': saved_ids,
         }

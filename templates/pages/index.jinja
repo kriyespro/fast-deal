@@ -2,7 +2,7 @@
 
 {% block body_attrs %}x-data="{ mobileMenu: false, scrolled: false, activeTab: 'buy' }" @scroll.window="scrolled = window.pageYOffset > 40"{% endblock %}
 
-{% block title %}PropSurat – Apna Ghar Dhundo | India's Property Portal{% endblock %}
+{% block title %}PropSurat – Apna Ghar Dhundo | Surat Property Portal{% endblock %}
 {% block extra_head %}
 <style>
 .card-hover { transition: all .3s cubic-bezier(.4,0,.2,1); }
@@ -35,7 +35,7 @@
                 </div>
                 <div>
                     <span class="font-outfit text-xl font-800 leading-none" :class="scrolled ? 'text-navy' : 'text-white'">Prop<span class="text-orange">Surat</span></span>
-                    <div class="text-[9px] font-semibold tracking-[.15em] uppercase" :class="scrolled ? 'text-muted' : 'text-white/70'">India's Property Portal</div>
+                    <div class="text-[9px] font-semibold tracking-[.15em] uppercase" :class="scrolled ? 'text-muted' : 'text-white/70'">Surat Property Portal</div>
                 </div>
             </a>
             <div class="hidden lg:flex items-center gap-6">
@@ -99,7 +99,7 @@
                 <span class="text-gradient">Sahi Deal Ke Saath</span>
             </h1>
             <p class="text-white/80 text-lg md:text-xl mb-8 leading-relaxed max-w-2xl">
-                India's most trusted property portal — 50,000+ verified listings across 50+ cities. Broker se milao, ghar dhundo!
+                Surat ka trusted property portal — Vesu se Adajan, Athwa se Pal. Verified listings, RERA brokers. Broker se milao, ghar dhundo!
             </p>
 
             <!-- Search Panel -->
@@ -129,11 +129,11 @@
                         <div class="flex-1 relative">
                             <i class="ph ph-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-orange text-lg"></i>
                             <select class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-10 pr-4 text-sm text-slate-800 focus:outline-none focus:border-orange cursor-pointer appearance-none">
-                                <option value="">📍 Select City</option>
-                                <option>Mumbai</option><option>Delhi NCR</option><option>Bangalore</option>
-                                <option>Hyderabad</option><option>Pune</option><option>Chennai</option>
-                                <option>Kolkata</option><option>Surat</option><option>Ahmedabad</option>
-                                <option>Jaipur</option><option>Lucknow</option><option>Kochi</option>
+                                <option value="">📍 Select Locality (Surat)</option>
+                                <option>Vesu</option><option>Adajan</option><option>Athwa</option>
+                                <option>Piplod</option><option>Pal</option><option>City Light</option>
+                                <option>Althan</option><option>Katargam</option><option>Varachha</option>
+                                <option>Dumas</option><option>VIP Road</option><option>Palanpur</option>
                             </select>
                         </div>
                         <div class="flex-1 relative">
@@ -165,10 +165,10 @@
             <!-- Quick Searches -->
             <div class="flex flex-wrap gap-2 mt-4">
                 <span class="text-white/60 text-xs font-medium py-1">Popular:</span>
-                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">2 BHK in Mumbai</a>
-                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Villas in Bangalore</a>
-                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Flats in Hyderabad</a>
-                <a href="{{ url('listings') }}" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Plots in Pune</a>
+                <a href="{{ url('listings') }}?q=Vesu" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">2 BHK in Vesu</a>
+                <a href="{{ url('listings') }}?q=Adajan" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Flats in Adajan</a>
+                <a href="{{ url('listings') }}?q=Piplod" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Homes in Piplod</a>
+                <a href="{{ url('listings') }}?q=Athwa" class="text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-full backdrop-blur-sm transition-colors border border-white/20">Rent in Athwa</a>
             </div>
         </div>
     </div>
@@ -180,19 +180,19 @@
                 <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
                     <i class="ph-fill ph-buildings text-orange text-lg"></i>
                 </div>
-                <div><div class="text-white font-outfit font-bold text-lg leading-none">50,000+</div><div class="text-white/60 text-xs">Verified Properties</div></div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">5,000+</div><div class="text-white/60 text-xs">Surat Properties</div></div>
             </div>
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
                     <i class="ph-fill ph-users text-orange text-lg"></i>
                 </div>
-                <div><div class="text-white font-outfit font-bold text-lg leading-none">5,000+</div><div class="text-white/60 text-xs">Verified Brokers</div></div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">500+</div><div class="text-white/60 text-xs">Surat Brokers</div></div>
             </div>
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-orange/20 rounded-lg flex items-center justify-center">
-                    <i class="ph-fill ph-city text-orange text-lg"></i>
+                    <i class="ph-fill ph-map-pin text-orange text-lg"></i>
                 </div>
-                <div><div class="text-white font-outfit font-bold text-lg leading-none">50+ Cities</div><div class="text-white/60 text-xs">Pan India Coverage</div></div>
+                <div><div class="text-white font-outfit font-bold text-lg leading-none">30+ Areas</div><div class="text-white/60 text-xs">Surat Coverage</div></div>
             </div>
         </div>
     </div>
@@ -202,12 +202,12 @@
 <div class="bg-navy py-3 overflow-hidden">
     <div class="ticker-wrap">
         <div class="ticker-content text-white/80 text-sm font-medium">
-            &nbsp;🏠 50,000+ Verified Properties &nbsp;•&nbsp; 🏙️ 50+ Cities &nbsp;•&nbsp; 👔 5,000+ Brokers &nbsp;•&nbsp;
-            🏗️ 500+ Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
-            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 10 Lakh+ Happy Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
-            🏠 50,000+ Verified Properties &nbsp;•&nbsp; 🏙️ 50+ Cities &nbsp;•&nbsp; 👔 5,000+ Brokers &nbsp;•&nbsp;
-            🏗️ 500+ Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
-            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 10 Lakh+ Happy Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
+            &nbsp;🏠 Surat Verified Properties &nbsp;•&nbsp; 📍 Vesu · Adajan · Athwa · Piplod · Pal &nbsp;•&nbsp; 👔 Local Brokers &nbsp;•&nbsp;
+            🏗️ Surat Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
+            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 Happy Surat Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
+            &nbsp;🏠 Surat Verified Properties &nbsp;•&nbsp; 📍 Vesu · Adajan · Athwa · Piplod · Pal &nbsp;•&nbsp; 👔 Local Brokers &nbsp;•&nbsp;
+            🏗️ Surat Builders &nbsp;•&nbsp; ✅ RERA Certified Listings &nbsp;•&nbsp; 💰 Zero Brokerage Options &nbsp;•&nbsp;
+            📱 Virtual Tour Available &nbsp;•&nbsp; 👨‍👩‍👧 Happy Surat Families &nbsp;•&nbsp; ⭐ 4.8/5 App Rating &nbsp;•&nbsp;
         </div>
     </div>
 </div>
@@ -301,84 +301,76 @@
     </div>
 </section>
 
-<!-- ═══════════════ POPULAR CITIES ═══════════════ -->
+<!-- ═══════════════ POPULAR LOCALITIES (SURAT) ═══════════════ -->
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Pan India Coverage</div>
-            <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Popular Cities</h2>
-            <p class="text-muted max-w-xl mx-auto">Desh ke har kone mein, PropSurat hai aapke saath</p>
+            <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Surat Coverage</div>
+            <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Popular Localities</h2>
+            <p class="text-muted max-w-xl mx-auto">Surat ke har corner mein — PropSurat sirf aapke sheher ke liye</p>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- Mumbai -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?auto=format&fit=crop&w=600&q=80" alt="Mumbai" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Vesu" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Vesu" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-xl font-700 text-white">Mumbai</h3>
-                    <p class="text-white/70 text-xs">12,400+ Properties</p>
+                    <h3 class="font-outfit text-xl font-700 text-white">Vesu</h3>
+                    <p class="text-white/70 text-xs">Premium flats &amp; villas</p>
                 </div>
             </a>
-            <!-- Delhi NCR -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&w=600&q=80" alt="Delhi" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Adajan" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="Adajan" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-xl font-700 text-white">Delhi NCR</h3>
-                    <p class="text-white/70 text-xs">9,800+ Properties</p>
+                    <h3 class="font-outfit text-xl font-700 text-white">Adajan</h3>
+                    <p class="text-white/70 text-xs">Family apartments</p>
                 </div>
             </a>
-            <!-- Bangalore -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80" alt="Bangalore" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Athwa" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Athwa" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-xl font-700 text-white">Bangalore</h3>
-                    <p class="text-white/70 text-xs">8,200+ Properties</p>
+                    <h3 class="font-outfit text-xl font-700 text-white">Athwa</h3>
+                    <p class="text-white/70 text-xs">Central living</p>
                 </div>
             </a>
-            <!-- Hyderabad -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1519082274554-1ca37b4c3b0b?auto=format&fit=crop&w=600&q=80" alt="Hyderabad" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Piplod" class="city-card group relative rounded-2xl overflow-hidden h-48 md:h-64 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=80" alt="Piplod" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-xl font-700 text-white">Hyderabad</h3>
-                    <p class="text-white/70 text-xs">6,500+ Properties</p>
+                    <h3 class="font-outfit text-xl font-700 text-white">Piplod</h3>
+                    <p class="text-white/70 text-xs">Mall road homes</p>
                 </div>
             </a>
-            <!-- Pune -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=600&q=80" alt="Pune" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Pal" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=600&q=80" alt="Pal" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-lg font-700 text-white">Pune</h3>
-                    <p class="text-white/70 text-xs">5,200+ Properties</p>
+                    <h3 class="font-outfit text-lg font-700 text-white">Pal</h3>
+                    <p class="text-white/70 text-xs">Quiet residential</p>
                 </div>
             </a>
-            <!-- Surat -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=600&q=80" alt="Surat" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=City+Light" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="City Light" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-lg font-700 text-white">Surat</h3>
-                    <p class="text-white/70 text-xs">3,100+ Properties</p>
+                    <h3 class="font-outfit text-lg font-700 text-white">City Light</h3>
+                    <p class="text-white/70 text-xs">Ready-to-move flats</p>
                 </div>
             </a>
-            <!-- Ahmedabad -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=600&q=80" alt="Ahmedabad" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Althan" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=600&q=80" alt="Althan" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-lg font-700 text-white">Ahmedabad</h3>
-                    <p class="text-white/70 text-xs">4,300+ Properties</p>
+                    <h3 class="font-outfit text-lg font-700 text-white">Althan</h3>
+                    <p class="text-white/70 text-xs">Growing corridor</p>
                 </div>
             </a>
-            <!-- Chennai -->
-            <a href="{{ url('neighborhoods') }}" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" alt="Chennai" class="w-full h-full object-cover">
+            <a href="{{ url('listings') }}?q=Dumas" class="city-card group relative rounded-2xl overflow-hidden h-36 md:h-44 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1499793983690-e8da18163daf?auto=format&fit=crop&w=600&q=80" alt="Dumas" class="w-full h-full object-cover">
                 <div class="absolute inset-0 city-overlay flex flex-col justify-end p-4">
-                    <h3 class="font-outfit text-lg font-700 text-white">Chennai</h3>
-                    <p class="text-white/70 text-xs">4,800+ Properties</p>
+                    <h3 class="font-outfit text-lg font-700 text-white">Dumas</h3>
+                    <p class="text-white/70 text-xs">Beachside living</p>
                 </div>
             </a>
         </div>
         <div class="text-center mt-8">
             <a href="{{ url('neighborhoods') }}" class="inline-flex items-center gap-2 border border-navy text-navy hover:bg-navy hover:text-white px-7 py-3 rounded-xl font-semibold text-sm transition-all">
-                Baaki Cities Dekho <i class="ph ph-arrow-right"></i>
+                Saare Surat Localities Dekho <i class="ph ph-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -504,7 +496,7 @@
         <div class="text-center mb-12">
             <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Real Stories</div>
             <h2 class="font-outfit text-3xl md:text-4xl font-800 text-navy mb-3">Unke Sapne, Hamaari Khushi</h2>
-            <p class="text-muted">10 Lakh+ families ne PropSurat ke through apna ghar dhunda</p>
+            <p class="text-muted">Hazaron Surat families ne PropSurat ke through apna ghar dhunda</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Testimonial 1 -->
@@ -522,24 +514,24 @@
             <!-- Testimonial 2 -->
             <div class="testimonial-card rounded-2xl p-6 shadow-md border border-orange/10">
                 <div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
-                <p class="text-slate-600 text-sm leading-relaxed mb-5">"Mumbai mein 3 BHK rent dhundna mushkil tha. PropSurat pe 2 din mein 10 options mil gaye. Verified broker tha toh koi tension nahi. Highly recommend!"</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">"Surat mein 3 BHK rent dhundna mushkil tha. PropSurat pe Athwa aur Vesu mein 2 din mein 10 options mil gaye. Verified broker tha toh koi tension nahi."</p>
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 rounded-full bg-navy/10 flex items-center justify-center font-outfit font-bold text-navy">PS</div>
                     <div>
                         <div class="font-semibold text-navy text-sm">Priyanka Singh</div>
-                        <div class="text-xs text-muted">Rented 3 BHK · Bandra, Mumbai</div>
+                        <div class="text-xs text-muted">Rented 3 BHK · Athwa, Surat</div>
                     </div>
                 </div>
             </div>
             <!-- Testimonial 3 -->
             <div class="testimonial-card rounded-2xl p-6 shadow-md border border-orange/10">
                 <div class="flex text-amber-400 text-sm mb-3">★★★★☆</div>
-                <p class="text-slate-600 text-sm leading-relaxed mb-5">"As a broker, PropSurat ne meri lead generation 3x kar di. Interface simple hai, clients directly contact karte hain. Best platform for brokers in India!"</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">"As a Surat broker, PropSurat ne meri lead generation 3x kar di. Interface simple hai, clients directly contact karte hain. Best platform for brokers in Surat!"</p>
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 rounded-full bg-green/10 flex items-center justify-center font-outfit font-bold text-green">AK</div>
                     <div>
                         <div class="font-semibold text-navy text-sm">Arjun Kapoor</div>
-                        <div class="text-xs text-muted">Verified Broker · Bangalore</div>
+                        <div class="text-xs text-muted">Verified Broker · Adajan, Surat</div>
                     </div>
                 </div>
             </div>
@@ -552,7 +544,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
             <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Trusted Developers</div>
-            <h2 class="font-outfit text-2xl md:text-3xl font-800 text-navy">India Ke Top Builders</h2>
+            <h2 class="font-outfit text-2xl md:text-3xl font-800 text-navy">Surat Ke Trusted Builders</h2>
         </div>
         <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
             <div class="builder-card bg-slate-50 rounded-2xl p-5 flex flex-col items-center justify-center border border-slate-100 transition-all hover:shadow-md cursor-pointer">
@@ -654,7 +646,7 @@
             <div class="text-center md:text-left">
                 <div class="text-orange text-sm font-bold uppercase tracking-widest mb-2">Mobile App</div>
                 <h2 class="font-outfit text-3xl md:text-4xl font-800 text-white mb-3">Ghar Ka Ghar — Phone Mein!</h2>
-                <p class="text-white/60 text-lg mb-6">PropSurat app download karo aur 50,000+ properties apni jeb mein rakh lo.</p>
+                <p class="text-white/60 text-lg mb-6">PropSurat app download karo aur Surat ki saari properties apni jeb mein rakh lo.</p>
                 <div class="flex flex-wrap gap-3 justify-center md:justify-start">
                     <a href="#" class="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3 rounded-xl transition-colors">
                         <i class="ph-fill ph-apple-logo text-white text-2xl"></i>

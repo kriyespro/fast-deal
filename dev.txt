@@ -313,3 +313,11 @@ Changes per migrated page:
   - Listing cards show photo-count badge when >1 image
   - Live already has seeded image rows — redeploy to serve files
 
+[DONE] Surat-only website (2026-07-14):
+  - Home: Pan India / Popular Cities → Surat Coverage / Popular Localities
+    (Vesu, Adajan, Athwa, Piplod, Pal, City Light, Althan, Dumas)
+  - Hero, ticker, stats, footer, about, neighborhoods → Surat-only copy
+  - Listings filter: City → All Localities; public QS scoped to Surat
+  - seed_demo + seed_images now Surat localities only
+  - Live: git pull && bash deploy.sh
+

@@ -17,29 +17,27 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         city_data = [
-            ('Mumbai', 'Maharashtra'), ('Delhi NCR', 'Delhi'), ('Bangalore', 'Karnataka'),
-            ('Hyderabad', 'Telangana'), ('Pune', 'Maharashtra'), ('Surat', 'Gujarat'),
-            ('Ahmedabad', 'Gujarat'), ('Chennai', 'Tamil Nadu'),
+            ('Surat', 'Gujarat'),
         ]
         cities = {}
         for name, state in city_data:
             c, _ = City.objects.get_or_create(name=name, defaults={'state': state})
             cities[name] = c
-        self.stdout.write(f'Cities: {City.objects.count()}')
+        self.stdout.write(f'Cities: {City.objects.count()} (Surat focus)')
 
         locality_data = {
-            'Mumbai': ['Bandra West', 'Juhu', 'Powai', 'Andheri West', 'Worli'],
-            'Bangalore': ['Koramangala', 'Whitefield', 'Indiranagar', 'HSR Layout', 'Jayanagar'],
-            'Surat': ['Vesu', 'Adajan', 'Athwa', 'Piplod', 'Pal'],
-            'Pune': ['Koregaon Park', 'Baner', 'Kharadi', 'Viman Nagar', 'Hadapsar'],
-            'Hyderabad': ['Banjara Hills', 'Jubilee Hills', 'Gachibowli', 'Hitech City', 'Madhapur'],
+            'Surat': [
+                'Vesu', 'Adajan', 'Athwa', 'Piplod', 'Pal',
+                'City Light', 'Althan', 'Katargam', 'Varachha', 'Dumas',
+                'VIP Road', 'Palanpur',
+            ],
         }
         for city_name, locs in locality_data.items():
             c = cities.get(city_name)
             if c:
                 for loc in locs:
                     Locality.objects.get_or_create(city=c, name=loc)
-        self.stdout.write(f'Localities: {Locality.objects.count()}')
+        self.stdout.write(f'Localities: {Locality.objects.filter(city__name="Surat").count()} (Surat)')
 
         broker, created = User.objects.get_or_create(
             email='broker@propsurat.in',
@@ -55,52 +53,52 @@ class Command(BaseCommand):
         self.stdout.write(f'Broker: {broker.email}')
 
         props = [
-            dict(title='3 BHK Luxury Apartment, Koramangala', city='Bangalore', locality='Koramangala',
+            dict(title='3 BHK Luxury Apartment, Vesu', city='Surat', locality='Vesu',
                  property_type=PropertyType.APARTMENT, listing_type=ListingType.SALE,
                  price=8500000, area_sqft=1450, bedrooms=3, bathrooms=3,
-                 furnishing='semi', rera_id='KA/RERA/2024/001', is_rera_verified=True,
+                 furnishing='semi', rera_id='GJ/RERA/SURAT/2024/001', is_rera_verified=True,
                  amenities='Gym,Swimming Pool,Parking,Security,Power Backup',
-                 is_featured=True, description='Premium 3 BHK in the heart of Koramangala with all modern amenities.'),
-            dict(title='2 BHK Flat for Rent, Bandra West', city='Mumbai', locality='Bandra West',
+                 is_featured=True, description='Premium 3 BHK in Vesu with clubhouse, pool, and covered parking.'),
+            dict(title='2 BHK Flat for Rent, Athwa', city='Surat', locality='Athwa',
                  property_type=PropertyType.APARTMENT, listing_type=ListingType.RENT,
-                 price=55000, area_sqft=980, bedrooms=2, bathrooms=2,
+                 price=22000, area_sqft=980, bedrooms=2, bathrooms=2,
                  furnishing='furnished', is_featured=True,
                  amenities='Parking,Security,Lift,Intercom',
-                 description='Fully furnished 2 BHK in prime Bandra West location.'),
-            dict(title='4 BHK Villa, Jubilee Hills', city='Hyderabad', locality='Jubilee Hills',
+                 description='Fully furnished 2 BHK near Athwa gates — ideal for family rental.'),
+            dict(title='4 BHK Villa, Piplod', city='Surat', locality='Piplod',
                  property_type=PropertyType.HOUSE, listing_type=ListingType.SALE,
-                 price=25000000, area_sqft=3200, bedrooms=4, bathrooms=4,
+                 price=18500000, area_sqft=3200, bedrooms=4, bathrooms=4,
                  furnishing='furnished', is_rera_verified=True, is_featured=True,
                  amenities='Gym,Pool,Garden,Parking,Power Backup,Security',
-                 description='Stunning 4 BHK villa in Jubilee Hills with private pool.'),
+                 description='Spacious 4 BHK villa near Piplod mall road with private garden.'),
             dict(title='1 BHK Apartment, Adajan Surat', city='Surat', locality='Adajan',
                  property_type=PropertyType.APARTMENT, listing_type=ListingType.SALE,
                  price=3200000, area_sqft=620, bedrooms=1, bathrooms=1,
                  furnishing='unfurnished', is_rera_verified=True,
                  amenities='Lift,Parking,Security',
                  description='Affordable 1 BHK in fast-growing Adajan area of Surat.'),
-            dict(title='2 BHK Apartment for Rent, Whitefield', city='Bangalore', locality='Whitefield',
+            dict(title='2 BHK Apartment for Rent, Pal', city='Surat', locality='Pal',
                  property_type=PropertyType.APARTMENT, listing_type=ListingType.RENT,
-                 price=28000, area_sqft=1100, bedrooms=2, bathrooms=2,
+                 price=18000, area_sqft=1100, bedrooms=2, bathrooms=2,
                  furnishing='semi',
                  amenities='Gym,Parking,Security,Club House',
-                 description='Well-maintained 2 BHK near IT corridor in Whitefield.'),
-            dict(title='Plot for Sale, Baner Pune', city='Pune', locality='Baner',
+                 description='Quiet 2 BHK rental in Pal with society amenities.'),
+            dict(title='Plot for Sale, Althan', city='Surat', locality='Althan',
                  property_type=PropertyType.PLOT, listing_type=ListingType.SALE,
-                 price=7500000, area_sqft=2400, bedrooms=None, bathrooms=None,
+                 price=5500000, area_sqft=2400, bedrooms=None, bathrooms=None,
                  amenities='Corner Plot,Road Facing',
-                 description='Prime residential plot in Baner with clear title and RERA approved layout.'),
-            dict(title='3 BHK Premium Flat, Powai Mumbai', city='Mumbai', locality='Powai',
+                 description='Prime residential plot in Althan with clear title.'),
+            dict(title='3 BHK Premium Flat, City Light', city='Surat', locality='City Light',
                  property_type=PropertyType.APARTMENT, listing_type=ListingType.SALE,
-                 price=18500000, area_sqft=1650, bedrooms=3, bathrooms=3,
+                 price=7200000, area_sqft=1650, bedrooms=3, bathrooms=3,
                  furnishing='semi', is_rera_verified=True, is_featured=True,
                  amenities='Gym,Pool,Jogging Track,Parking,Security',
-                 description='Premium 3 BHK in Hiranandani Complex, Powai with lake view.'),
-            dict(title='Commercial Office Space, Hitech City', city='Hyderabad', locality='Hitech City',
+                 description='Ready-to-move 3 BHK on City Light Road with premium finishes.'),
+            dict(title='Commercial Office Space, VIP Road', city='Surat', locality='VIP Road',
                  property_type=PropertyType.COMMERCIAL_OFFICE, listing_type=ListingType.RENT,
-                 price=120000, area_sqft=2500, bedrooms=None, bathrooms=4,
+                 price=75000, area_sqft=1800, bedrooms=None, bathrooms=3,
                  amenities='24x7 Power,Parking,Security,CCTV,Lift',
-                 description='Grade A office space in Hitech City with modern infrastructure.'),
+                 description='Office space on VIP Road — high footfall commercial corridor.'),
         ]
 
         created_n = 0
@@ -147,14 +145,14 @@ class Command(BaseCommand):
                 self.stdout.write(f'  = {prop.title} → /property/{prop.slug}/ (status={prop.status})')
 
         demo_titles = [
-            '3 BHK Luxury Apartment, Koramangala',
-            '2 BHK Flat for Rent, Bandra West',
-            '4 BHK Villa, Jubilee Hills',
+            '3 BHK Luxury Apartment, Vesu',
+            '2 BHK Flat for Rent, Athwa',
+            '4 BHK Villa, Piplod',
             '1 BHK Apartment, Adajan Surat',
-            '2 BHK Apartment for Rent, Whitefield',
-            'Plot for Sale, Baner Pune',
-            '3 BHK Premium Flat, Powai Mumbai',
-            'Commercial Office Space, Hitech City',
+            '2 BHK Apartment for Rent, Pal',
+            'Plot for Sale, Althan',
+            '3 BHK Premium Flat, City Light',
+            'Commercial Office Space, VIP Road',
         ]
         fixed = Property.objects.filter(title__in=demo_titles).exclude(
             status=PropertyStatus.ACTIVE

@@ -1,7 +1,9 @@
 from django.db.models import Q, F, Prefetch, Count, Sum
 from django.core.cache import cache
 
-from .models import Property, PropertyStatus, PropertyImage, Inquiry, SavedProperty, Project, ProjectStatus, City
+from .models import Property, PropertyStatus, PropertyImage, Inquiry, SavedProperty, Project, ProjectStatus, City, Locality
+
+SURAT_CITY_NAME = 'Surat'
 
 
 def _attach_primary(qs):
@@ -19,6 +21,8 @@ def get_active_properties(filters=None, list_view=True):
     qs = Property.objects.filter(status=PropertyStatus.ACTIVE).select_related(
         'city', 'locality', 'broker'
     )
+    # PropSurat is Surat-only — public listings always scoped to Surat
+    qs = qs.filter(city__name__iexact=SURAT_CITY_NAME)
     if list_view:
         qs = _attach_primary(qs)
     else:
@@ -28,6 +32,7 @@ def get_active_properties(filters=None, list_view=True):
         return qs
 
     city = filters.get('city')
+    locality = filters.get('locality')
     listing_type = filters.get('listing_type')
     property_type = filters.get('property_type')
     bedrooms = filters.get('bedrooms')
@@ -35,8 +40,11 @@ def get_active_properties(filters=None, list_view=True):
     max_price = filters.get('max_price')
     q = filters.get('q')
 
-    if city:
-        qs = qs.filter(city__name__iexact=city)
+    if city and city.lower() != SURAT_CITY_NAME.lower():
+        # Ignore other cities — portal is Surat-only
+        pass
+    if locality:
+        qs = qs.filter(locality__name__iexact=locality)
     if listing_type:
         qs = qs.filter(listing_type=listing_type)
     if property_type:
@@ -58,17 +66,24 @@ def get_active_properties(filters=None, list_view=True):
 
 
 def get_featured_properties(limit=6):
-    cache_key = f'featured_prop_ids_v2_{limit}'
+    cache_key = f'featured_prop_ids_surat_v1_{limit}'
     ids = cache.get(cache_key)
     if ids is None:
         featured_ids = list(
-            Property.objects.filter(status=PropertyStatus.ACTIVE, is_featured=True)
+            Property.objects.filter(
+                status=PropertyStatus.ACTIVE,
+                is_featured=True,
+                city__name__iexact=SURAT_CITY_NAME,
+            )
             .order_by('-created_at')
             .values_list('pk', flat=True)[:limit]
         )
         if len(featured_ids) < limit:
             extra = list(
-                Property.objects.filter(status=PropertyStatus.ACTIVE)
+                Property.objects.filter(
+                    status=PropertyStatus.ACTIVE,
+                    city__name__iexact=SURAT_CITY_NAME,
+                )
                 .exclude(pk__in=featured_ids)
                 .order_by('-created_at')
                 .values_list('pk', flat=True)[: limit - len(featured_ids)]
@@ -93,6 +108,19 @@ def get_active_cities():
         cities = list(City.objects.filter(is_active=True).only('id', 'name', 'state'))
         cache.set(cache_key, cities, 60 * 30)
     return cities
+
+
+def get_surat_localities():
+    cache_key = 'surat_localities_v1'
+    locs = cache.get(cache_key)
+    if locs is None:
+        locs = list(
+            Locality.objects.filter(
+                is_active=True, city__name__iexact=SURAT_CITY_NAME
+            ).order_by('name').only('id', 'name')
+        )
+        cache.set(cache_key, locs, 60 * 30)
+    return locs
 
 
 def get_property_detail(slug):

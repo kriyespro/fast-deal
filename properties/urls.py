@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('listings/', views.ListingsView.as_view(), name='listings'),
+    # pk URL first — old/hardcoded links like /property/1/ redirect to slug URL
+    path('property/<int:pk>/', views.PropertyDetailByPkView.as_view(), name='property_detail_pk'),
     path('property/<slug:slug>/', views.PropertyDetailView.as_view(), name='property_detail'),
     path('property/<int:pk>/save/', views.ToggleSaveView.as_view(), name='save_property'),
     path('builder/project/add/', views.AddProjectView.as_view(), name='add_project'),

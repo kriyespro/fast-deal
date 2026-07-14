@@ -43,9 +43,28 @@ class ListingsView(View):
         return render(request, 'pages/listings.jinja', context)
 
 
+class PropertyDetailByPkView(View):
+    """Redirect /property/<pk>/ → /property/<slug>/ (fixes old hardcoded links)."""
+
+    def get(self, request, pk):
+        from django.shortcuts import redirect
+        prop = get_object_or_404(Property, pk=pk)
+        if prop.status != PropertyStatus.ACTIVE:
+            if not (request.user.is_authenticated and prop.broker_id == request.user.pk):
+                from django.http import Http404
+                raise Http404
+        if not prop.slug:
+            prop.save()  # generate slug
+        return redirect('property_detail', slug=prop.slug, permanent=True)
+
+
 class PropertyDetailView(View):
     def get(self, request, slug):
         from django.http import Http404
+        # Numeric slug leftovers from old links → treat as pk and redirect
+        if slug.isdigit():
+            from django.shortcuts import redirect
+            return redirect('property_detail_pk', pk=int(slug))
         try:
             prop = get_property_detail(slug)
         except Property.DoesNotExist:

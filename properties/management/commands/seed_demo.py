@@ -104,32 +104,70 @@ class Command(BaseCommand):
         ]
 
         created_n = 0
+        activated_n = 0
         for p in props:
             city_name = p.pop('city')
             locality_name = p.pop('locality')
             city_obj = cities.get(city_name)
             locality_obj = Locality.objects.filter(city=city_obj, name=locality_name).first()
+            defaults = {
+                **p,
+                'city': city_obj,
+                'locality': locality_obj,
+                'broker': broker,
+                'status': PropertyStatus.ACTIVE,
+            }
             prop, created = Property.objects.get_or_create(
                 title=p['title'],
-                defaults={
-                    **p,
-                    'city': city_obj,
-                    'locality': locality_obj,
-                    'broker': broker,
-                    'status': PropertyStatus.ACTIVE,
-                },
+                defaults=defaults,
             )
             if created:
                 created_n += 1
                 self.stdout.write(f'  + {prop.title} → /property/{prop.slug}/')
-            elif prop.status != PropertyStatus.ACTIVE:
-                prop.status = PropertyStatus.ACTIVE
-                prop.is_featured = p.get('is_featured', prop.is_featured)
-                prop.save(update_fields=['status', 'is_featured'])
-                self.stdout.write(f'  ~ activated {prop.title}')
+            else:
+                # Ensure existing demo rows are ACTIVE + featured as intended
+                dirty = False
+                if prop.status != PropertyStatus.ACTIVE:
+                    prop.status = PropertyStatus.ACTIVE
+                    dirty = True
+                    activated_n += 1
+                if p.get('is_featured') and not prop.is_featured:
+                    prop.is_featured = True
+                    dirty = True
+                if city_obj and prop.city_id != city_obj.id:
+                    prop.city = city_obj
+                    dirty = True
+                if locality_obj and prop.locality_id != getattr(locality_obj, 'id', None):
+                    prop.locality = locality_obj
+                    dirty = True
+                if not prop.slug:
+                    dirty = True
+                if dirty:
+                    prop.save()
+                self.stdout.write(f'  = {prop.title} → /property/{prop.slug}/ (status={prop.status})')
+
+        demo_titles = [
+            '3 BHK Luxury Apartment, Koramangala',
+            '2 BHK Flat for Rent, Bandra West',
+            '4 BHK Villa, Jubilee Hills',
+            '1 BHK Apartment, Adajan Surat',
+            '2 BHK Apartment for Rent, Whitefield',
+            'Plot for Sale, Baner Pune',
+            '3 BHK Premium Flat, Powai Mumbai',
+            'Commercial Office Space, Hitech City',
+        ]
+        fixed = Property.objects.filter(title__in=demo_titles).exclude(
+            status=PropertyStatus.ACTIVE
+        ).update(status=PropertyStatus.ACTIVE)
+        if fixed:
+            self.stdout.write(f'  ! force-activated {fixed} demo rows')
 
         active = Property.objects.filter(status=PropertyStatus.ACTIVE).count()
         featured = Property.objects.filter(status=PropertyStatus.ACTIVE, is_featured=True).count()
         self.stdout.write(self.style.SUCCESS(
-            f'Done. Properties={Property.objects.count()} active={active} featured={featured} newly_created={created_n}'
+            f'Done. total={Property.objects.count()} active={active} '
+            f'featured={featured} created={created_n} activated={activated_n}'
         ))
+        if active == 0:
+            self.stderr.write(self.style.ERROR('WARNING: still 0 ACTIVE properties — check DB connection'))
+            raise SystemExit(1)

@@ -38,8 +38,14 @@ def get_active_properties(filters=None):
 
 
 def get_featured_properties(limit=6):
-    return Property.objects.filter(
+    qs = Property.objects.filter(
         status=PropertyStatus.ACTIVE, is_featured=True
+    ).select_related('city', 'locality').prefetch_related('images')
+    if qs.exists():
+        return qs[:limit]
+    # Fallback: any active listings so seeded data shows on home immediately
+    return Property.objects.filter(
+        status=PropertyStatus.ACTIVE
     ).select_related('city', 'locality').prefetch_related('images')[:limit]
 
 

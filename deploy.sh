@@ -8,18 +8,30 @@ echo "=== PropSurat Deploy ==="
 # 1. Pull latest code
 git pull origin main
 
-# 2. Build + start containers (no downtime on rolling update)
+# 2. Build + start containers
 docker compose --env-file .env.production up -d --build web
 
+# Wait for web to be healthy
+echo "Waiting for web container..."
+sleep 5
+
 # 3. Restart nginx to pick up any config changes
-docker compose restart nginx
+docker compose restart nginx 2>/dev/null || true
 
-# 4. Seed demo data if DB has no ACTIVE properties (safe / idempotent)
-ACTIVE=$(docker compose exec -T web python manage.py shell -c "from properties.models import Property, PropertyStatus; print(Property.objects.filter(status=PropertyStatus.ACTIVE).count())" | tr -d '\r')
-if [ "$ACTIVE" = "0" ]; then
-  echo "=== No active properties — seeding demo data ==="
-  docker compose exec -T web python manage.py seed_demo
-fi
+# 4. ALWAYS seed demo data (idempotent — safe to re-run)
+echo "=== Seeding cities + active properties ==="
+docker compose exec -T web python manage.py seed_demo
 
-echo "=== Done. Site live at https://propsurat.com/ ==="
-echo "Check: https://propsurat.com/listings/"
+# 5. Verify
+echo "=== Verify DB ==="
+docker compose exec -T web python manage.py shell -c "
+from properties.models import Property, City, PropertyStatus
+print('cities=', City.objects.count())
+print('properties=', Property.objects.count())
+print('active=', Property.objects.filter(status=PropertyStatus.ACTIVE).count())
+print('featured=', Property.objects.filter(status=PropertyStatus.ACTIVE, is_featured=True).count())
+for p in Property.objects.filter(status=PropertyStatus.ACTIVE)[:5]:
+    print(' -', p.pk, p.slug, p.title)
+"
+
+echo "=== Done. Hard-refresh https://propsurat.com/listings/ ==="
